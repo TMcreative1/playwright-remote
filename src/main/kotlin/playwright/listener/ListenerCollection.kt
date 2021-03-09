@@ -1,4 +1,4 @@
-package playwright.websocket.listener
+package playwright.listener
 
 import java.util.function.Consumer
 
@@ -31,7 +31,5 @@ class ListenerCollection<EventType> {
         }
     }
 
-    fun hasListeners(eventType: EventType): Boolean {
-        return listeners.containsKey(eventType)
-    }
+    fun hasListeners(eventType: EventType): Boolean = listeners.containsKey(eventType)
 }
