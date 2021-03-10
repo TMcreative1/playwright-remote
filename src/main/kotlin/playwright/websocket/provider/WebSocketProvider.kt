@@ -2,7 +2,6 @@ package playwright.websocket.provider
 
 import core.exceptions.WebSocketException
 import okhttp3.*
-import java.time.Duration
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
@@ -10,15 +9,14 @@ import java.util.concurrent.TimeUnit
 class WebSocketProvider {
     private class CustomWebSocketListener : WebSocketListener() {
         private val incomingMessages: BlockingQueue<String> = LinkedBlockingQueue()
+        lateinit var lastException: Exception
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            super.onFailure(webSocket, t, response)
-            throw WebSocketException("Websocket has been closed due to an error reading from or writing to the network!", t)
+            lastException = t as Exception
         }
 
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            super.onMessage(webSocket, text)
             incomingMessages.add(text)
         }
 
@@ -26,7 +24,9 @@ class WebSocketProvider {
     }
 
     private val defaultTimeOut: Long = 3
-    private lateinit var client: OkHttpClient
+    private var client = OkHttpClient.Builder()
+        .readTimeout(defaultTimeOut, TimeUnit.SECONDS)
+        .build()
     private lateinit var webSocket: WebSocket
     private val normalClosureStatus: Int = 1000
     private lateinit var webSocketListener: CustomWebSocketListener
@@ -45,7 +45,7 @@ class WebSocketProvider {
         try {
             webSocket = client.newWebSocket(request, webSocketListener)
         } catch (e: Exception) {
-            throw WebSocketException("Connection failed!", e.cause)
+            throw WebSocketException("Connection failed!", webSocketListener.lastException)
         }
     }
 
@@ -53,8 +53,8 @@ class WebSocketProvider {
         this.webSocket.send(message)
     }
 
-    fun pollMessage(timeout: Duration): String? =
-        webSocketListener.pollMessage(timeout.toMillis(), TimeUnit.MILLISECONDS)
+    fun pollMessage(timeout: Long = 100): String? =
+        webSocketListener.pollMessage(timeout, TimeUnit.MILLISECONDS)
 
     fun closeConnection() {
         this.webSocket.close(normalClosureStatus, "Close connection")
