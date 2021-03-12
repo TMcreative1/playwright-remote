@@ -1,4 +1,4 @@
-package playwright.websocket.parser
+package playwright.parser
 
 import com.google.gson.Gson
 import playwright.websocket.Message
