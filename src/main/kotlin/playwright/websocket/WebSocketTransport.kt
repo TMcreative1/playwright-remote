@@ -10,7 +10,7 @@ class WebSocketTransport(url: String) : ITransport {
     private val incomingMessages: BlockingQueue<String> = LinkedBlockingQueue()
     private var lastException = Exception()
     private val defaultTimeOut: Long = 3
-    private var client = OkHttpClient.Builder()
+    private val client = OkHttpClient.Builder()
         .readTimeout(defaultTimeOut, TimeUnit.SECONDS)
         .build()
     private lateinit var webSocket: WebSocket
