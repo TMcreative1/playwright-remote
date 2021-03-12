@@ -13,7 +13,7 @@ class WebSocketTransport(url: String) : ITransport {
     private val client = OkHttpClient.Builder()
         .readTimeout(defaultTimeOut, TimeUnit.SECONDS)
         .build()
-    private lateinit var webSocket: WebSocket
+    private var webSocket: WebSocket
     private val normalClosureStatus: Int = 1000
     private var webSocketListener = CustomWebSocketListener(incomingMessages, lastException)
 
@@ -37,14 +37,14 @@ class WebSocketTransport(url: String) : ITransport {
     }
 
     override fun sendMessage(message: String) {
-        this.webSocket.send(message)
+        webSocket.send(message)
     }
 
     override fun pollMessage(timeout: Long, timeUnit: TimeUnit): String? =
         incomingMessages.poll(timeout, timeUnit)
 
     override fun closeConnection() {
-        this.webSocket.close(normalClosureStatus, "Close connection")
-        this.client.dispatcher.executorService.shutdown()
+        webSocket.close(normalClosureStatus, "Close connection")
+        client.dispatcher.executorService.shutdown()
     }
 }

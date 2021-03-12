@@ -8,8 +8,8 @@ class RegisterOptions {
      */
     var contentScript = false
 
-    fun setContentScript(contentScript: Boolean): RegisterOptions {
-        this.contentScript = contentScript
+    fun setContentScript(_contentScript: Boolean): RegisterOptions {
+        contentScript = _contentScript
         return this
     }
 }
