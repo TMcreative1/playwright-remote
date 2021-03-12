@@ -16,7 +16,8 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test-junit"))
-    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("com.google.code.gson:gson:2.8.6")
 }
 
 tasks.test {
