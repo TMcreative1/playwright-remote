@@ -5,6 +5,7 @@ import playwright.websocket.Message
 
 class MessageParser {
     companion object {
-        fun parseMessage(message: String) : Message = Gson().fromJson(message, Message::class.java)
+        @JvmStatic
+        fun parseMessage(message: String): Message = Gson().fromJson(message, Message::class.java)
     }
 }

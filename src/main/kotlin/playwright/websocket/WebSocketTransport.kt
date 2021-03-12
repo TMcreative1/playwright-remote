@@ -8,14 +8,14 @@ import java.util.concurrent.TimeUnit
 
 class WebSocketTransport(url: String) : ITransport {
     private val incomingMessages: BlockingQueue<String> = LinkedBlockingQueue()
-    private var lastException = Exception()
+    private val lastException = Exception()
     private val defaultTimeOut: Long = 3
     private val client = OkHttpClient.Builder()
         .readTimeout(defaultTimeOut, TimeUnit.SECONDS)
         .build()
-    private var webSocket: WebSocket
+    private val webSocket: WebSocket
     private val normalClosureStatus: Int = 1000
-    private var webSocketListener = CustomWebSocketListener(incomingMessages, lastException)
+    private val webSocketListener = CustomWebSocketListener(incomingMessages, lastException)
 
     private class CustomWebSocketListener(val incomingMessages: BlockingQueue<String>, var lastException: Exception) :
         WebSocketListener() {

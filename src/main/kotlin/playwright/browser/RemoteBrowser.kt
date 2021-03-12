@@ -11,6 +11,7 @@ class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initialize
     fun browser(): Browser = messageProcessor.getExistingObject(initializer.getAsJsonObject("browser")["guid"].asString)
 
     companion object {
+        @JvmStatic
         fun connectWs(wsEndpoint: String): Browser {
             val webSocketTransport = WebSocketTransport(wsEndpoint)
             val messageProcessor = MessageProcessor(webSocketTransport)
