@@ -8,7 +8,8 @@ import playwright.websocket.WebSocketTransport
 class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer) {
 
-    fun browser(): Browser = messageProcessor.getExistingObject(initializer.getAsJsonObject("browser")["guid"].asString)
+    private fun browser(): Browser =
+        messageProcessor.getExistingObject(initializer.getAsJsonObject("browser")["guid"].asString)
 
     companion object {
         @JvmStatic
