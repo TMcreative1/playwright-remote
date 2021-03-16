@@ -2,11 +2,11 @@ package playwright.listener
 
 import java.util.function.Consumer
 
-class ListenerCollection<EventType> {
-    private val listeners: HashMap<EventType, MutableList<Consumer<*>>> = HashMap()
+class ListenerCollection<EventType, C> {
+    private val listeners: HashMap<EventType, MutableList<(C) -> Unit>> = HashMap()
 
     fun <T> notify(eventType: EventType, param: T) {
-        val list: MutableList<Consumer<*>> = listeners[eventType] ?: return
+        val list: MutableList<(C) -> Unit> = listeners[eventType] ?: return
         list
             .filterIsInstance<Consumer<T>>()
             .forEach {
@@ -14,8 +14,8 @@ class ListenerCollection<EventType> {
             }
     }
 
-    fun add(eventType: EventType, listener: Consumer<*>) {
-        var list: MutableList<Consumer<*>>? = listeners[eventType]
+    fun add(eventType: EventType, listener: (C) -> Unit) {
+        var list: MutableList<(C) -> Unit>? = listeners[eventType]
         if (list == null) {
             list = arrayListOf()
             listeners[eventType] = list
@@ -23,8 +23,8 @@ class ListenerCollection<EventType> {
         list.add(listener)
     }
 
-    fun remove(eventType: EventType, listener: Consumer<*>) {
-        val list: MutableList<Consumer<*>> = listeners[eventType] ?: return
+    fun remove(eventType: EventType, listener: (C) -> Unit) {
+        val list: MutableList<(C) -> Unit> = listeners[eventType] ?: return
         list.removeAll(listOf(listener))
         if (list.isEmpty()) {
             listeners.remove(eventType)

@@ -4,5 +4,6 @@ enum class EventType {
     CLOSE,
     FRAMERECEIVED,
     FRAMESENT,
-    SOCKETERROR
+    SOCKETERROR,
+    DISCONNECTED
 }

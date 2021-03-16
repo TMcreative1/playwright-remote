@@ -1,6 +1,7 @@
 package playwright.browser
 
 import com.google.gson.JsonObject
+import playwright.browser.impl.Browser
 import playwright.processor.ChannelOwner
 import playwright.processor.MessageProcessor
 import playwright.websocket.WebSocketTransport
