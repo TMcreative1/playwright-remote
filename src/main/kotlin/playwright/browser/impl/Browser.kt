@@ -7,8 +7,8 @@ import core.enums.EventType.DISCONNECTED
 import core.exceptions.PlaywrightException
 import okio.IOException
 import playwright.browser.api.IBrowser
-import playwright.browser.api.IBrowserContext
 import playwright.listener.ListenerCollection
+import playwright.listener.UniversalConsumer
 import playwright.options.NewContextOptions
 import playwright.options.NewPageOptions
 import playwright.page.api.IPage
@@ -21,11 +21,16 @@ import java.nio.file.Files
 class Browser(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBrowser {
 
-    private val contexts = hashSetOf<IBrowserContext>()
-    private val listeners = ListenerCollection<EventType, IBrowser>()
+    val contexts = hashSetOf<BrowserContext>()
+    private val listeners = ListenerCollection<EventType>()
 
+    @Suppress("UNCHECKED_CAST")
+    override fun onDisconnected(handler: (IBrowser) -> Unit) =
+        listeners.add(DISCONNECTED, handler as UniversalConsumer)
 
-    override fun onDisconnected(handler: (IBrowser) -> Unit) = listeners.add(DISCONNECTED, handler)
+    @Suppress("UNCHECKED_CAST")
+    override fun offDisconnected(handler: (IBrowser) -> Unit) =
+        listeners.remove(DISCONNECTED, handler as UniversalConsumer)
 
     override fun newContext(options: NewContextOptions?): BrowserContext {
         val storageState: JsonObject? = getStorageState(options)
@@ -61,6 +66,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
 
     override fun close() {
         messageProcessor.close()
+        notifyRemoteClosed()
     }
 
     private fun getStorageState(options: NewContextOptions?): JsonObject? {
@@ -86,7 +92,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         if (options?.recordHarPath != null) {
             val recordHar = JsonObject()
             recordHar.addProperty("path", options.recordHarPath.toString())
-            if (options?.recordHarOmitContent != null) {
+            if (options.recordHarOmitContent != null) {
                 recordHar.addProperty("omitContent", true)
             }
             params.remove("recordHarPath")
@@ -122,4 +128,24 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
             params.addProperty("noDefaultViewport", true)
         }
     }
+
+    fun notifyRemoteClosed() {
+        contexts.forEach { context ->
+            context.pages.forEach { page ->
+                page.didClose()
+            }
+            context.didClose()
+        }
+        didClose()
+    }
+
+    override fun handleEvent(event: String, params: JsonObject) {
+        if ("close" == event) {
+            didClose()
+        }
+    }
+
+    private fun didClose() =
+        listeners.notify(DISCONNECTED, this)
+
 }

@@ -65,5 +65,5 @@ open class ChannelOwner(
         }
     }
 
-    fun handleEvent(event: String, params: JsonObject) {}
+    open fun handleEvent(event: String, params: JsonObject) {}
 }

@@ -1,6 +1,6 @@
 import playwright.browser.RemoteBrowser
 
 fun main(args: Array<String>) {
-    val browser = RemoteBrowser.connectWs("ws://127.0.0.1:4444/8cd249d60138f0cbda6895b869b2d25c")
+    val browser = RemoteBrowser.connectWs("ws://127.0.0.1:4444/7dc9385fedfed927e424380d15016c3f")
     browser.newPage()
 }
