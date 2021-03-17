@@ -1,21 +1,21 @@
 package playwright.listener
 
-import java.util.function.Consumer
+typealias UniversalConsumer = (Any) -> Unit
 
-class ListenerCollection<EventType> {
-    private val listeners: HashMap<EventType, MutableList<Consumer<*>>> = HashMap()
+open class ListenerCollection<EventType> {
+    private val listeners: HashMap<EventType, MutableList<UniversalConsumer>> = HashMap()
 
-    fun <T> notify(eventType: EventType, param: T) {
-        val list: MutableList<Consumer<*>> = listeners[eventType] ?: return
+    fun notify(eventType: EventType, param: Any) {
+        val list: MutableList<UniversalConsumer> = listeners[eventType] ?: return
         list
-            .filterIsInstance<Consumer<T>>()
-            .forEach {
-                it.accept(param)
+            .asSequence()
+            .forEach { consumer ->
+                consumer(param)
             }
     }
 
-    fun add(eventType: EventType, listener: Consumer<*>) {
-        var list: MutableList<Consumer<*>>? = listeners[eventType]
+    open fun add(eventType: EventType, listener: UniversalConsumer) {
+        var list: MutableList<UniversalConsumer>? = listeners[eventType]
         if (list == null) {
             list = arrayListOf()
             listeners[eventType] = list
@@ -23,8 +23,8 @@ class ListenerCollection<EventType> {
         list.add(listener)
     }
 
-    fun remove(eventType: EventType, listener: Consumer<*>) {
-        val list: MutableList<Consumer<*>> = listeners[eventType] ?: return
+    open fun remove(eventType: EventType, listener: UniversalConsumer) {
+        val list: MutableList<UniversalConsumer> = listeners[eventType] ?: return
         list.removeAll(listOf(listener))
         if (list.isEmpty()) {
             listeners.remove(eventType)

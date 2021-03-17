@@ -1,6 +1,8 @@
 package playwright.processor
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import playwright.waits.api.IWait
 
 open class ChannelOwner(
     protected val messageProcessor: MessageProcessor,
@@ -34,7 +36,34 @@ open class ChannelOwner(
         }
     }
 
-    protected fun sendMessage(method: String, params: JsonObject) {
-        //TODO implement send message
+    protected fun sendMessage(method: String): JsonElement {
+        return sendMessage(method, JsonObject())
     }
+
+    protected fun sendMessage(method: String, params: JsonObject): JsonElement {
+        return messageProcessor.sendMessage(guid, method, params)
+    }
+
+    fun disconnect() {
+        parent?.objects?.remove(guid)
+        messageProcessor.unregisterObject(guid)
+        for (child in objects.values) {
+            child.disconnect()
+        }
+        objects.clear()
+    }
+
+    fun <T> runUtil(wait: IWait<T>, code: () -> Unit): T {
+        try {
+            code()
+            while (!wait.isFinished()) {
+                messageProcessor.processMessage()
+            }
+            return wait.get()
+        } finally {
+            wait.dispose()
+        }
+    }
+
+    open fun handleEvent(event: String, params: JsonObject) {}
 }

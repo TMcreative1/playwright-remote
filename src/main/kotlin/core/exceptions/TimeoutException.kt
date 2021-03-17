@@ -1,7 +1,6 @@
 package core.exceptions
 
-
-open class PlaywrightException : RuntimeException {
+class TimeoutException : RuntimeException {
 
     constructor(message: String) : super(message)
 

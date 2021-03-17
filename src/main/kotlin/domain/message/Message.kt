@@ -1,4 +1,4 @@
-package playwright.websocket
+package domain.message
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -8,11 +8,12 @@ data class Message(
     val guid: String,
     val method: String,
     val params: JsonObject,
-    val result: JsonElement
+    val result: JsonElement,
+    val error: SerializedError?
 ) {
 
     override fun toString(): String {
-        return "Message(\nid=$id, \nguid='$guid', \nmethod='$method', \nparams=$params, \nresult=$result\n)"
+        return "Message(\nid=$id, \nguid='$guid', \nmethod='$method', \nparams=$params, \nresult=$result, \nerror=$error\n)"
     }
 
 }
