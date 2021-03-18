@@ -6,5 +6,6 @@ enum class EventType {
     FRAMESENT,
     SOCKETERROR,
     DISCONNECTED,
-    FILECHOOSER
+    FILECHOOSER,
+    PAGE
 }

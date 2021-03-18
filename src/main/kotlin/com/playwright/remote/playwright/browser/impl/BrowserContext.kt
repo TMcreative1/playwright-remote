@@ -3,21 +3,44 @@ package com.playwright.remote.playwright.browser.impl
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
+import com.playwright.remote.core.enums.EventType.PAGE
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.playwright.browser.api.IBrowser
 import com.playwright.remote.playwright.browser.api.IBrowserContext
 import com.playwright.remote.playwright.listener.ListenerCollection
+import com.playwright.remote.playwright.listener.UniversalConsumer
 import com.playwright.remote.playwright.page.api.IPage
 import com.playwright.remote.playwright.processor.ChannelOwner
 import java.nio.file.Path
 
 class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBrowserContext {
-    val browser = if (parent is IBrowser) parent as Browser else null
+    private val browser = if (parent is IBrowser) parent as Browser else null
     var ownerPage: IPage? = null
     var videosDir: Path? = null
     val pages = arrayListOf<IPage>()
     private val listeners = ListenerCollection<EventType>()
+    private var isClosedOrClosing: Boolean = false
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onClose(handler: (IBrowserContext) -> Unit) {
+        listeners.add(CLOSE, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offClose(handler: (IBrowserContext) -> Unit) {
+        listeners.remove(CLOSE, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onPage(handler: (IPage) -> Unit) {
+        listeners.add(PAGE, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offPage(handler: (IPage) -> Unit) {
+        listeners.remove(PAGE, handler as UniversalConsumer)
+    }
 
     override fun newPage(): IPage {
         if (ownerPage != null) {
@@ -27,9 +50,12 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         return messageProcessor.getExistingObject(jsonObject.getAsJsonObject("page").get("guid").asString)
     }
 
-
     override fun close() {
-        TODO("Not yet implemented")
+        if (isClosedOrClosing) {
+            return
+        }
+        isClosedOrClosing = true
+        sendMessage("close")
     }
 
     fun didClose() {
