@@ -4,10 +4,14 @@ class ViewportSize(
     /**
      * page width in pixels.
      */
-    val width: Int = 1280,
+    var width: Int? = null,
     /**
      * page height in pixels.
      */
-    val height: Int = 720
+    var height: Int? = null,
+    fn: ViewportSize.() -> Unit
 ) {
+    init {
+        fn()
+    }
 }
