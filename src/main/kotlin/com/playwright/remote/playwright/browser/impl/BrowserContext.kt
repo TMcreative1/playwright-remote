@@ -4,21 +4,22 @@ import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.exceptions.PlaywrightException
+import com.playwright.remote.playwright.browser.api.IBrowser
 import com.playwright.remote.playwright.browser.api.IBrowserContext
 import com.playwright.remote.playwright.listener.ListenerCollection
-import com.playwright.remote.playwright.page.impl.Page
+import com.playwright.remote.playwright.page.api.IPage
 import com.playwright.remote.playwright.processor.ChannelOwner
 import java.nio.file.Path
 
 class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBrowserContext {
-    val browser: Browser? = if (parent is Browser) parent else null
-    var ownerPage: Page? = null
+    val browser = if (parent is IBrowser) parent as Browser else null
+    var ownerPage: IPage? = null
     var videosDir: Path? = null
-    val pages = arrayListOf<Page>()
+    val pages = arrayListOf<IPage>()
     private val listeners = ListenerCollection<EventType>()
 
-    override fun newPage(): Page {
+    override fun newPage(): IPage {
         if (ownerPage != null) {
             throw PlaywrightException("Please use browser.newContext()")
         }

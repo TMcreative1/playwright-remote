@@ -5,23 +5,25 @@ import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.DISCONNECTED
 import com.playwright.remote.core.exceptions.PlaywrightException
-import okio.IOException
 import com.playwright.remote.playwright.browser.api.IBrowser
+import com.playwright.remote.playwright.browser.api.IBrowserContext
 import com.playwright.remote.playwright.listener.ListenerCollection
 import com.playwright.remote.playwright.listener.UniversalConsumer
 import com.playwright.remote.playwright.options.NewContextOptions
 import com.playwright.remote.playwright.options.NewPageOptions
 import com.playwright.remote.playwright.page.api.IPage
+import com.playwright.remote.playwright.page.impl.Page
 import com.playwright.remote.playwright.parser.IParser.Companion.convert
 import com.playwright.remote.playwright.parser.IParser.Companion.fromJson
 import com.playwright.remote.playwright.processor.ChannelOwner
+import okio.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
 class Browser(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBrowser {
 
-    val contexts = hashSetOf<BrowserContext>()
+    val contexts = hashSetOf<IBrowserContext>()
     private val listeners = ListenerCollection<EventType>()
 
     @Suppress("UNCHECKED_CAST")
@@ -32,7 +34,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
     override fun offDisconnected(handler: (IBrowser) -> Unit) =
         listeners.remove(DISCONNECTED, handler as UniversalConsumer)
 
-    override fun newContext(options: NewContextOptions?): BrowserContext {
+    override fun newContext(options: NewContextOptions?): IBrowserContext {
         val storageState: JsonObject? = getStorageState(options)
         val params = Gson().toJsonTree(options).asJsonObject
 
@@ -46,9 +48,9 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
 
         params.addProperty("sdkLanguage", "java")
         val result = sendMessage("newContext", params)
-        val context = messageProcessor.getExistingObject<BrowserContext>(
+        val context = messageProcessor.getExistingObject<IBrowserContext>(
             result.asJsonObject.getAsJsonObject("context").get("guid").asString
-        )
+        ) as BrowserContext
         if (options?.recordVideoDir != null) {
             context.videosDir = options.recordVideoDir
         }
@@ -57,8 +59,9 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
     }
 
     override fun newPage(options: NewPageOptions?): IPage {
-        val context = newContext(convert(options, NewContextOptions::class.java) ?: NewContextOptions {})
-        val page = context.newPage()
+        val context =
+            newContext(convert(options, NewContextOptions::class.java) ?: NewContextOptions {}) as BrowserContext
+        val page = context.newPage() as Page
         page.ownedContext = context
         context.ownerPage = page
         return page
@@ -131,8 +134,8 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
 
     fun notifyRemoteClosed() {
         contexts.forEach { context ->
-            context.pages.forEach { page ->
-                page.didClose()
+            (context as BrowserContext).pages.forEach { page ->
+                (page as Page).didClose()
             }
             context.didClose()
         }
