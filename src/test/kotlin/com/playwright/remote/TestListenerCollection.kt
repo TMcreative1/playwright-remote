@@ -39,4 +39,22 @@ class TestListenerCollection {
 
         assertEquals(testNotifyValue, defaultTestdata.notify)
     }
+
+    @Test
+    fun `can notify for multiple consumers from listener`() {
+        val testNotifyValue1 = "Changed1"
+        val defaultTestdata1 = TestListenerData()
+        val consumer1: (Any) -> Unit = { defaultTestdata1.notify = testNotifyValue1 }
+
+        val testNotifyValue2 = "Changed2"
+        val defaultTestdata2 = TestListenerData()
+        val consumer2: (Any) -> Unit = { defaultTestdata2.notify = testNotifyValue2 }
+
+        cl.add(EventType.FRAMESENT, consumer1)
+        cl.add(EventType.FRAMESENT, consumer2)
+        cl.notify(EventType.FRAMESENT, this)
+
+        assertEquals(testNotifyValue1, defaultTestdata1.notify)
+        assertEquals(testNotifyValue2, defaultTestdata2.notify)
+    }
 }
