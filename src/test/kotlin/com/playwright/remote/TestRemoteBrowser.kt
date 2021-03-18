@@ -2,9 +2,11 @@ package com.playwright.remote
 
 import com.playwright.remote.core.exceptions.WebSocketException
 import com.playwright.remote.playwright.browser.RemoteBrowser
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.fail
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.fail
+
+import org.junit.jupiter.api.Test
+
 
 class TestRemoteBrowser {
 

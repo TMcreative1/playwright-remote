@@ -2,8 +2,8 @@ package com.playwright.remote
 
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.playwright.listener.ListenerCollection
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 
 class TestListenerCollection {
