@@ -12,7 +12,7 @@ plugins {
     application
 }
 
-group = "me.timam"
+group = "com.playwright.remote"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -62,7 +62,7 @@ task<DefaultTask>("downloadAndUnzip") {
     }
 }
 
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
