@@ -1,8 +1,8 @@
-package com.playwright.remote.playwright.waits.impl
+package com.playwright.remote.engine.waits.impl
 
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.core.exceptions.TimeoutException
-import com.playwright.remote.playwright.waits.api.IWait
+import com.playwright.remote.engine.waits.api.IWait
 
 class WaitResult<T> : IWait<T> {
 

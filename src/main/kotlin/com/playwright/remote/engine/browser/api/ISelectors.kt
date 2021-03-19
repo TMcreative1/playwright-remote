@@ -1,4 +1,4 @@
-package com.playwright.remote.playwright.browser.api
+package com.playwright.remote.engine.browser.api
 
 interface ISelectors {
 }

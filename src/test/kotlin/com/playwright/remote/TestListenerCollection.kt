@@ -1,7 +1,7 @@
 package com.playwright.remote
 
 import com.playwright.remote.core.enums.EventType
-import com.playwright.remote.playwright.listener.ListenerCollection
+import com.playwright.remote.engine.listener.ListenerCollection
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -20,7 +20,7 @@ class TestListenerCollection {
     }
 
     @Test
-    fun `can remove element to listener`() {
+    fun `can remove element from listener collection`() {
         val consumer: (Any) -> Unit = { println() }
         cl.add(EventType.FRAMESENT, consumer)
         assertEquals(cl.hasListeners(EventType.FRAMESENT), true)

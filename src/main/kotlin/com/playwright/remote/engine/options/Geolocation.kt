@@ -1,4 +1,4 @@
-package com.playwright.remote.playwright.options
+package com.playwright.remote.engine.options
 
 class Geolocation(
     val latitude: Double,

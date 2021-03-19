@@ -1,11 +1,11 @@
-package com.playwright.remote.playwright.browser
+package com.playwright.remote.engine.browser
 
 import com.google.gson.JsonObject
-import com.playwright.remote.playwright.browser.api.IBrowser
-import com.playwright.remote.playwright.browser.impl.Browser
-import com.playwright.remote.playwright.processor.ChannelOwner
-import com.playwright.remote.playwright.processor.MessageProcessor
-import com.playwright.remote.playwright.websocket.WebSocketTransport
+import com.playwright.remote.engine.browser.api.IBrowser
+import com.playwright.remote.engine.browser.impl.Browser
+import com.playwright.remote.engine.processor.ChannelOwner
+import com.playwright.remote.engine.processor.MessageProcessor
+import com.playwright.remote.engine.websocket.WebSocketTransport
 
 class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer) {

@@ -1,16 +1,16 @@
-package com.playwright.remote.playwright.browser.impl
+package com.playwright.remote.engine.browser.impl
 
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.enums.EventType.PAGE
 import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.playwright.browser.api.IBrowser
-import com.playwright.remote.playwright.browser.api.IBrowserContext
-import com.playwright.remote.playwright.listener.ListenerCollection
-import com.playwright.remote.playwright.listener.UniversalConsumer
-import com.playwright.remote.playwright.page.api.IPage
-import com.playwright.remote.playwright.processor.ChannelOwner
+import com.playwright.remote.engine.browser.api.IBrowser
+import com.playwright.remote.engine.browser.api.IBrowserContext
+import com.playwright.remote.engine.listener.ListenerCollection
+import com.playwright.remote.engine.listener.UniversalConsumer
+import com.playwright.remote.engine.page.api.IPage
+import com.playwright.remote.engine.processor.ChannelOwner
 import java.nio.file.Path
 
 class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :

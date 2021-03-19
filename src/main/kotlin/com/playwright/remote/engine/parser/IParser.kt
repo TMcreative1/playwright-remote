@@ -1,4 +1,4 @@
-package com.playwright.remote.playwright.parser
+package com.playwright.remote.engine.parser
 
 import com.google.gson.Gson
 

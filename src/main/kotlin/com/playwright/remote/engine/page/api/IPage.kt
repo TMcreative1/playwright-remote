@@ -1,4 +1,4 @@
-package com.playwright.remote.playwright.page.api
+package com.playwright.remote.engine.page.api
 
 interface IPage {
 }

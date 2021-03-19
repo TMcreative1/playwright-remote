@@ -1,6 +1,6 @@
-package com.playwright.remote.playwright.options
+package com.playwright.remote.engine.options
 
-import com.playwright.remote.playwright.options.enum.ColorScheme
+import com.playwright.remote.engine.options.enum.ColorScheme
 import java.nio.file.Path
 
 class NewPageOptions(

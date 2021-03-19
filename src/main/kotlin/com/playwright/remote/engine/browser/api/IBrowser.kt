@@ -1,8 +1,8 @@
-package com.playwright.remote.playwright.browser.api
+package com.playwright.remote.engine.browser.api
 
-import com.playwright.remote.playwright.options.NewContextOptions
-import com.playwright.remote.playwright.options.NewPageOptions
-import com.playwright.remote.playwright.page.api.IPage
+import com.playwright.remote.engine.options.NewContextOptions
+import com.playwright.remote.engine.options.NewPageOptions
+import com.playwright.remote.engine.page.api.IPage
 
 interface IBrowser : AutoCloseable {
 

@@ -1,4 +1,4 @@
-package com.playwright.remote.playwright.waits.api
+package com.playwright.remote.engine.waits.api
 
 interface IWait<T> {
     fun isFinished() : Boolean

@@ -1,7 +1,7 @@
 package com.playwright.remote
 
 import com.playwright.remote.core.exceptions.WebSocketException
-import com.playwright.remote.playwright.browser.RemoteBrowser
+import com.playwright.remote.engine.browser.RemoteBrowser
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 

@@ -1,4 +1,4 @@
-package com.playwright.remote.playwright.processor
+package com.playwright.remote.engine.processor
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -9,14 +9,14 @@ import com.playwright.remote.core.exceptions.DriverException
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.core.exceptions.TimeoutException
 import com.playwright.remote.message.Message
-import com.playwright.remote.playwright.browser.RemoteBrowser
-import com.playwright.remote.playwright.browser.impl.Browser
-import com.playwright.remote.playwright.browser.impl.BrowserContext
-import com.playwright.remote.playwright.browser.impl.Selectors
-import com.playwright.remote.playwright.parser.IParser.Companion.fromJson
-import com.playwright.remote.playwright.parser.IParser.Companion.toJson
-import com.playwright.remote.playwright.transport.ITransport
-import com.playwright.remote.playwright.waits.impl.WaitResult
+import com.playwright.remote.engine.browser.RemoteBrowser
+import com.playwright.remote.engine.browser.impl.Browser
+import com.playwright.remote.engine.browser.impl.BrowserContext
+import com.playwright.remote.engine.browser.impl.Selectors
+import com.playwright.remote.engine.parser.IParser.Companion.fromJson
+import com.playwright.remote.engine.parser.IParser.Companion.toJson
+import com.playwright.remote.engine.transport.ITransport
+import com.playwright.remote.engine.waits.impl.WaitResult
 
 class MessageProcessor(private val transport: ITransport) {
     private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")

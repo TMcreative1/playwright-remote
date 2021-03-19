@@ -1,4 +1,4 @@
-package com.playwright.remote.playwright.listener
+package com.playwright.remote.engine.listener
 
 typealias UniversalConsumer = (Any) -> Unit
 

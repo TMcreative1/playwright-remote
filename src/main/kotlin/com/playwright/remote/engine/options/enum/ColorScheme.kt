@@ -1,4 +1,4 @@
-package com.playwright.remote.playwright.options.enum
+package com.playwright.remote.engine.options.enum
 
 enum class ColorScheme {
     LIGHT,

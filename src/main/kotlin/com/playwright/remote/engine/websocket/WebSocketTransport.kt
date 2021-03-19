@@ -1,11 +1,11 @@
-package com.playwright.remote.playwright.websocket
+package com.playwright.remote.engine.websocket
 
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.exceptions.WebSocketException
-import com.playwright.remote.playwright.listener.ListenerCollection
-import com.playwright.remote.playwright.listener.UniversalConsumer
-import com.playwright.remote.playwright.transport.ITransport
+import com.playwright.remote.engine.listener.ListenerCollection
+import com.playwright.remote.engine.listener.UniversalConsumer
+import com.playwright.remote.engine.transport.ITransport
 import okhttp3.*
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.ConcurrentHashMap
