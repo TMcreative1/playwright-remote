@@ -47,7 +47,7 @@ task<DefaultTask>("downloadAndUnzip") {
     archs.forEach { arch ->
         val downloadFileName = "playwright-$playwrightVersion-$arch.zip"
         val downloadUrl = baseUrl + downloadFileName
-        val downloadDirName = "$projectDir/src/test/resources/drivers/$arch"
+        val downloadDirName = "$projectDir/drivers/$arch"
         val url = URL(downloadUrl)
         println("Downloading playwright driver for arch [ $arch ] using url - $url")
         val destDir = mkdir(downloadDirName)
