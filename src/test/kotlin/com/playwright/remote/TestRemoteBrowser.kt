@@ -2,13 +2,15 @@ package com.playwright.remote
 
 import com.playwright.remote.core.exceptions.WebSocketException
 import com.playwright.remote.engine.browser.RemoteBrowser
+import com.playwright.remote.engine.browser.api.IBrowser
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 
 import org.junit.jupiter.api.Test
+import kotlin.test.assertTrue
 
 
-class TestRemoteBrowser {
+class TestRemoteBrowser : BaseTest() {
 
     @Test
     fun `cannot create browser without url`() {
@@ -37,6 +39,45 @@ class TestRemoteBrowser {
             fail("no one exception thrown")
         } catch (e: WebSocketException) {
             assertEquals("Failed to connect to /127.0.0.1:4444", e.message)
+        }
+    }
+
+    @Test
+    fun `check success connection to chrome browser`() {
+        try {
+            val wsEndpoint = launchChromeBrowser()
+            val browser = RemoteBrowser.connectWs(wsEndpoint)
+            assertTrue(browser is IBrowser)
+            browser.close()
+            stopServer()
+        } catch (e: WebSocketException) {
+            fail("Exception was thrown ${e.message}")
+        }
+    }
+
+    @Test
+    fun `check success connection to firefox browser`() {
+        try {
+            val wsEndpoint = launchFirefoxBrowser()
+            val browser = RemoteBrowser.connectWs(wsEndpoint)
+            assertTrue(browser is IBrowser)
+            browser.close()
+            stopServer()
+        } catch (e: WebSocketException) {
+            fail("Exception was thrown ${e.message}")
+        }
+    }
+
+    @Test
+    fun `check success connection to safari browser`() {
+        try {
+            val wsEndpoint = launchSafariBrowser()
+            val browser = RemoteBrowser.connectWs(wsEndpoint)
+            assertTrue(browser is IBrowser)
+            browser.close()
+            stopServer()
+        } catch (e: WebSocketException) {
+            fail("Exception was thrown ${e.message}")
         }
     }
 }
