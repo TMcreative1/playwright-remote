@@ -113,15 +113,6 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         sendMessage("clearPermissions")
     }
 
-    override fun cookies(urls: List<String>) {
-        val params = JsonObject()
-        val urlList = urls ?: emptyList()
-        params.add("urls", Gson().toJsonTree(urlList))
-        val json = sendMessage("cookies", params).asJsonObject
-        val cookies = IParser.fromJson(json.getAsJsonArray("cookies"), Cookie::class.java)
-        arrayListOf(cookies)
-    }
-
     fun didClose() {
         browser?.contexts?.remove(this)
         listeners.notify(CLOSE, this)
