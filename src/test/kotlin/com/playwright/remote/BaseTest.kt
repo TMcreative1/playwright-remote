@@ -14,15 +14,15 @@ open class BaseTest {
         server = ServerProvider()
     }
 
-    protected fun launchChromeBrowser(): String {
+    protected fun launchChromeBrowserServer(): String {
         return server.launchServer(getCurrentPlatform(), CHROMIUM)!!
     }
 
-    protected fun launchFirefoxBrowser(): String {
+    protected fun launchFirefoxBrowserServer(): String {
         return server.launchServer(getCurrentPlatform(), FIREFOX)!!
     }
 
-    protected fun launchSafariBrowser(): String {
+    protected fun launchSafariBrowserServer(): String {
         return server.launchServer(getCurrentPlatform(), WEBKIT)!!
     }
 

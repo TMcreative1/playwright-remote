@@ -10,23 +10,21 @@ class ServerProvider : IServerProvider {
 
     override fun launchServer(platform: Platform, browserType: BrowserType): String? {
         val pb = ProcessBuilder().apply {
-            val driverPath = Paths.get(String.format("drivers/%s", platform.platformType))
+            val driverPath = Paths.get("drivers/${platform.platformType}")
             val node = driverPath.resolve(platform.nodeProcess).toString()
             val cli = driverPath.resolve("package/lib/cli/cli.js").toString()
             command(node, cli, "launch-server", browserType.browserName)
         }
 
         process = pb.start()
-        return process.inputStream.bufferedReader().lineSequence().firstOrNull()
-
-    }
-
-    override fun stopServer() {
-        try {
-            process.destroy()
-            process.waitFor()
-        } catch (e: InterruptedException) {
-            throw RuntimeException(e.message, e.cause)
+        return process.inputStream.bufferedReader().useLines {
+            it.firstOrNull()
         }
     }
+
+
+    override fun stopServer(): Int = process.runCatching {
+        destroy()
+        waitFor()
+    }.getOrThrow()
 }
