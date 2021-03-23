@@ -123,7 +123,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         TODO("Not yet implemented")
     }
 
-    override fun route(url: (String) -> Unit, handler: (IRoute) -> Unit) {
+    override fun route(url: (String) -> Boolean, handler: (IRoute) -> Unit) {
         TODO("Not yet implemented")
     }
 

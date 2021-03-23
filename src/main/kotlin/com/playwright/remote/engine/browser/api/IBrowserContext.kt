@@ -235,5 +235,5 @@ interface IBrowserContext : AutoCloseable {
      * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
      * @param handler handler function to route the request.
      */
-    fun route(url: (String) -> Unit, handler: (IRoute) -> Unit)
+    fun route(url: (String) -> Boolean, handler: (IRoute) -> Unit)
 }
