@@ -4,25 +4,16 @@ import com.playwright.remote.engine.waits.api.IWait
 import com.playwright.remote.engine.waits.impl.WaitNever
 import com.playwright.remote.engine.waits.impl.WaitTimeout
 
-class TimeoutSettings(_parent: TimeoutSettings?) {
+class TimeoutSettings(private val parent: TimeoutSettings? = null) {
     private val defaultTimeoutMs = (30_000).toDouble()
 
-    private var parent: TimeoutSettings? = _parent
-    private var defaultTimeout = defaultTimeoutMs
-    private var defaultNavigationTimeout = defaultTimeoutMs
-
-    fun setDefaultTimeout(timeout: Double) {
-        defaultTimeout = timeout
-    }
-
-    fun setDefaultNavigationTimeout(timeout: Double) {
-        defaultNavigationTimeout = timeout
-    }
+    var defaultTimeout = defaultTimeoutMs
+    var defaultNavigationTimeout = defaultTimeoutMs
 
     fun timeout(timeout: Double?): Double = when {
         timeout != null -> timeout
         defaultTimeout != defaultTimeoutMs -> defaultTimeout.toDouble()
-        parent != null -> parent!!.timeout(timeout)
+        parent != null -> parent.timeout(timeout)
         else -> defaultTimeoutMs
     }
 
@@ -30,7 +21,7 @@ class TimeoutSettings(_parent: TimeoutSettings?) {
         timeout != null -> timeout
         defaultNavigationTimeout != defaultTimeoutMs -> defaultNavigationTimeout
         defaultTimeout != defaultTimeoutMs -> defaultTimeout
-        parent != null -> parent!!.navigationTimout(timeout)
+        parent != null -> parent.navigationTimout(timeout)
         else -> defaultTimeoutMs
     }
 
