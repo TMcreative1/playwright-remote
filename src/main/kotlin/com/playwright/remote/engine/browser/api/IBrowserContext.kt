@@ -1,6 +1,9 @@
 package com.playwright.remote.engine.browser.api
 
+import com.playwright.remote.engine.options.Cookie
+import com.playwright.remote.engine.options.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
+import java.nio.file.Path
 
 interface IBrowserContext : AutoCloseable {
     /**
@@ -47,4 +50,91 @@ interface IBrowserContext : AutoCloseable {
      * Creates a new page in the browser context.
      */
     fun newPage(): IPage
+
+    /**
+     * Performs action and waits for a new {@code Page} to be created in the context. If predicate is provided, it passes {@code Page}
+     * value into the {@code predicate} function and waits for {@code predicate(event)} to return a truthy value. Will throw an error if
+     * the context closes before new {@code Page} is created.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForPage(options: WaitForPageOptions? = null, callback: () -> Unit): IPage
+
+    /**
+     * Adds cookies into this browser context. All pages within this context will have these cookies installed. Cookies can be
+     * obtained via {@link BrowserContext#cookies BrowserContext.cookies()}.
+     * <pre>{@code
+     * browserContext.addCookies(Arrays.asList(cookieObject1, cookieObject2));
+     * }</pre>
+     */
+    fun addCookies(cookies: List<Cookie>)
+
+    /**
+     * Adds a script which would be evaluated in one of the following scenarios:
+     * <ul>
+     * <li> Whenever a page is created in the browser context or is navigated.</li>
+     * <li> Whenever a child frame is attached or navigated in any page in the browser context. In this case, the script is
+     * evaluated in the context of the newly attached frame.</li>
+     * </ul>
+     *
+     * <p> The script is evaluated after the document was created but before any of its scripts were run. This is useful to amend
+     * the JavaScript environment, e.g. to seed {@code Math.random}.
+     *
+     * <p> An example of overriding {@code Math.random} before the page loads:
+     * <pre>{@code
+     * // In your playwright script, assuming the preload.js file is in same directory.
+     * browserContext.addInitScript(Paths.get("preload.js"));
+     * }</pre>
+     *
+     * <p> <strong>NOTE:</strong> The order of evaluation of multiple scripts installed via {@link BrowserContext#addInitScript
+     * BrowserContext.addInitScript()} and {@link Page#addInitScript Page.addInitScript()} is not defined.
+     *
+     * @param script Script to be evaluated in all pages in the browser context.
+     */
+    fun addInitScript(script: String)
+
+    /**
+     * Adds a script which would be evaluated in one of the following scenarios:
+     * <ul>
+     * <li> Whenever a page is created in the browser context or is navigated.</li>
+     * <li> Whenever a child frame is attached or navigated in any page in the browser context. In this case, the script is
+     * evaluated in the context of the newly attached frame.</li>
+     * </ul>
+     *
+     * <p> The script is evaluated after the document was created but before any of its scripts were run. This is useful to amend
+     * the JavaScript environment, e.g. to seed {@code Math.random}.
+     *
+     * <p> An example of overriding {@code Math.random} before the page loads:
+     * <pre>{@code
+     * // In your playwright script, assuming the preload.js file is in same directory.
+     * browserContext.addInitScript(Paths.get("preload.js"));
+     * }</pre>
+     *
+     * <p> <strong>NOTE:</strong> The order of evaluation of multiple scripts installed via {@link BrowserContext#addInitScript
+     * BrowserContext.addInitScript()} and {@link Page#addInitScript Page.addInitScript()} is not defined.
+     *
+     * @param path Script to be evaluated in all pages in the browser context.
+     */
+    fun addInitScript(path: Path)
+
+    /**
+     * Returns the browser instance of the context. If it was launched as a persistent context null gets returned.
+     */
+    fun browser(): IBrowser
+
+    /**
+     * Clears context cookies.
+     */
+    fun clearCookies()
+
+    /**
+     * Clears all permission overrides for the browser context.
+     * <pre>{@code
+     * BrowserContext context = browser.newContext();
+     * context.grantPermissions(Arrays.asList("clipboard-read"));
+     * // do stuff ..
+     * context.clearPermissions();
+     * }</pre>
+     */
+    fun clearPermissions()
 }
