@@ -15,6 +15,7 @@ import com.playwright.remote.engine.options.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.engine.processor.ChannelOwner
+import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.waits.TimeoutSettings
 import com.playwright.remote.engine.waits.api.IWait
 import com.playwright.remote.engine.waits.impl.WaitContextClose
@@ -23,6 +24,7 @@ import com.playwright.remote.engine.waits.impl.WaitRace
 import okio.IOException
 import java.nio.file.Files.readAllBytes
 import java.nio.file.Path
+import java.util.regex.Pattern
 import kotlin.text.Charsets.UTF_8
 
 class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
@@ -33,7 +35,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     val pages = arrayListOf<IPage>()
     private val listeners = ListenerCollection<EventType>()
     private var isClosedOrClosing: Boolean = false
-    private val timeoutSettings = TimeoutSettings(null)
+    private val timeoutSettings = TimeoutSettings()
 
     @Suppress("UNCHECKED_CAST")
     override fun onClose(handler: (IBrowserContext) -> Unit) {
@@ -111,6 +113,22 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
 
     override fun clearPermissions() {
         sendMessage("clearPermissions")
+    }
+
+    override fun route(url: String, handler: (IRoute) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun route(url: Pattern, handler: (IRoute) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun route(url: (String) -> Unit, handler: (IRoute) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    private fun route() {
+
     }
 
     fun didClose() {

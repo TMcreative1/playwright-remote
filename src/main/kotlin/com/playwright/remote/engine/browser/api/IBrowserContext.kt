@@ -3,7 +3,9 @@ package com.playwright.remote.engine.browser.api
 import com.playwright.remote.engine.options.Cookie
 import com.playwright.remote.engine.options.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
+import com.playwright.remote.engine.route.api.IRoute
 import java.nio.file.Path
+import java.util.regex.Pattern
 
 interface IBrowserContext : AutoCloseable {
     /**
@@ -127,6 +129,7 @@ interface IBrowserContext : AutoCloseable {
      */
     fun clearCookies()
 
+
     /**
      * Clears all permission overrides for the browser context.
      * <pre>{@code
@@ -137,4 +140,100 @@ interface IBrowserContext : AutoCloseable {
      * }</pre>
      */
     fun clearPermissions()
+
+    /**
+     * Routing provides the capability to modify network requests that are made by any page in the browser context. Once route
+     * is enabled, every request matching the url pattern will stall unless it's continued, fulfilled or aborted.
+     *
+     * <p> An example of a nave handler that aborts all image requests:
+     * <pre>{@code
+     * BrowserContext context = browser.newContext();
+     * context.route("**\/ *.{png,jpg,jpeg}", route -> route.abort());
+     * Page page = context.newPage();
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> or the same snippet using a regex pattern instead:
+     * <pre>{@code
+     * BrowserContext context = browser.newContext();
+     * context.route(Pattern.compile("(\\.png$)|(\\.jpg$)"), route -> route.abort());
+     * Page page = context.newPage();
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> Page routes (set up with {@link Page#route Page.route()}) take precedence over browser context routes when request
+     * matches both handlers.
+     *
+     * <p> <strong>NOTE:</strong> Enabling routing disables http cache.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param handler handler function to route the request.
+     */
+    fun route(url: String, handler: (IRoute) -> Unit)
+
+    /**
+     * Routing provides the capability to modify network requests that are made by any page in the browser context. Once route
+     * is enabled, every request matching the url pattern will stall unless it's continued, fulfilled or aborted.
+     *
+     * <p> An example of a naïve handler that aborts all image requests:
+     * <pre>{@code
+     * BrowserContext context = browser.newContext();
+     * context.route("**\/'*.{png,jpg,jpeg}", route -> route.abort());
+     * Page page = context.newPage();
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> or the same snippet using a regex pattern instead:
+     * <pre>{@code
+     * BrowserContext context = browser.newContext();
+     * context.route(Pattern.compile("(\\.png$)|(\\.jpg$)"), route -> route.abort());
+     * Page page = context.newPage();
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> Page routes (set up with {@link Page#route Page.route()}) take precedence over browser context routes when request
+     * matches both handlers.
+     *
+     * <p> <strong>NOTE:</strong> Enabling routing disables http cache.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param handler handler function to route the request.
+     */
+    fun route(url: Pattern, handler: (IRoute) -> Unit)
+
+    /**
+     * Routing provides the capability to modify network requests that are made by any page in the browser context. Once route
+     * is enabled, every request matching the url pattern will stall unless it's continued, fulfilled or aborted.
+     *
+     * <p> An example of a naïve handler that aborts all image requests:
+     * <pre>{@code
+     * BrowserContext context = browser.newContext();
+     * context.route("**\/'*.{png,jpg,jpeg}", route -> route.abort());
+     * Page page = context.newPage();
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> or the same snippet using a regex pattern instead:
+     * <pre>{@code
+     * BrowserContext context = browser.newContext();
+     * context.route(Pattern.compile("(\\.png$)|(\\.jpg$)"), route -> route.abort());
+     * Page page = context.newPage();
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> Page routes (set up with {@link Page#route Page.route()}) take precedence over browser context routes when request
+     * matches both handlers.
+     *
+     * <p> <strong>NOTE:</strong> Enabling routing disables http cache.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param handler handler function to route the request.
+     */
+    fun route(url: (String) -> Unit, handler: (IRoute) -> Unit)
 }

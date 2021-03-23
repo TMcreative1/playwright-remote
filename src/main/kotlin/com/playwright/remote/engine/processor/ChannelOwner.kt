@@ -36,11 +36,7 @@ open class ChannelOwner(
         }
     }
 
-    protected fun sendMessage(method: String): JsonElement {
-        return sendMessage(method, JsonObject())
-    }
-
-    protected fun sendMessage(method: String, params: JsonObject): JsonElement {
+    protected fun sendMessage(method: String, params: JsonObject = JsonObject()): JsonElement {
         return messageProcessor.sendMessage(guid, method, params)
     }
 
