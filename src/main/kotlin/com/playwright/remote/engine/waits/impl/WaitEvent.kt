@@ -3,15 +3,16 @@ package com.playwright.remote.engine.waits.impl
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
 import com.playwright.remote.engine.waits.api.IWait
+import java.util.function.Consumer
 
 typealias Predicate<T> = (T) -> Boolean
 
 open class WaitEvent<EventType, T>(
     private val listeners: ListenerCollection<EventType>,
     private val type: EventType,
-    private val predicate: Predicate<T>? = { false },
-    private var eventArg: T? = null
-) : IWait<T> {
+    private var eventArg: T? = null,
+    private val predicate: Predicate<T> = { false }
+) : IWait<T>, Consumer<T> {
 
     init {
         @Suppress("UNCHECKED_CAST")
@@ -21,6 +22,15 @@ open class WaitEvent<EventType, T>(
     override fun isFinished(): Boolean = eventArg != null
 
     override fun get(): T = eventArg!!
+
+    override fun accept(t: T) {
+        if (!predicate(t)) {
+            return
+        }
+
+        eventArg = t
+        dispose()
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun dispose() = listeners.remove(type, this as UniversalConsumer)
