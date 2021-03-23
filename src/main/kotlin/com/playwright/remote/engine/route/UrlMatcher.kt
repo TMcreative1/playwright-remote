@@ -1,4 +1,9 @@
 package com.playwright.remote.engine.route
 
-class UrlMatcher {
+class UrlMatcher(
+    private val rawSource: Any,
+    private val predicate: (String) -> Unit
+) {
+
+
 }
