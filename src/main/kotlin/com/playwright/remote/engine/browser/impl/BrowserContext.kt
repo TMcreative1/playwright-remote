@@ -14,6 +14,7 @@ import com.playwright.remote.engine.options.Cookie
 import com.playwright.remote.engine.options.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.processor.ChannelOwner
+import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.waits.TimeoutSettings
