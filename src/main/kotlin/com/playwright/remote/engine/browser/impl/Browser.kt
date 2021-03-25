@@ -49,7 +49,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         params.addProperty("sdkLanguage", "java")
         val result = sendMessage("newContext", params)
         val context = messageProcessor.getExistingObject<IBrowserContext>(
-            result.asJsonObject.getAsJsonObject("context").get("guid").asString
+            result.asJsonObject["context"].asJsonObject["guid"].asString
         ) as BrowserContext
         if (options?.recordVideoDir != null) {
             context.videosDir = options.recordVideoDir
@@ -75,7 +75,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
     private fun getStorageState(options: NewContextOptions?): JsonObject? {
         if (options?.storageStatePath != null) {
             try {
-                val bytes = Files.readAllBytes(options.storageStatePath)
+                val bytes = Files.readAllBytes(options.storageStatePath!!)
                 options.storageState = String(bytes, StandardCharsets.UTF_8)
                 options.storageStatePath = null
             } catch (e: IOException) {
@@ -123,7 +123,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
 
     private fun addViewPortSize(params: JsonObject, options: NewContextOptions?) {
         if (options?.viewportSize != null) {
-            val size = params.get("viewportSize")
+            val size = params["viewportSize"]
             params.remove("viewportSize")
             params.add("viewport", size)
         } else {

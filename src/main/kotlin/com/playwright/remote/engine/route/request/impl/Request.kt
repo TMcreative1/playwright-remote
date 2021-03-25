@@ -28,7 +28,7 @@ class Request : ChannelOwner, IRequest {
                 messageProcessor.getExistingObject(initializer["redirectedFrom"].asJsonObject["guid"].asString)
             (redirectedFrom as Request).redirectedTo = this
         }
-        for (element in initializer.getAsJsonArray("headers")) {
+        for (element in initializer["headers"].asJsonArray) {
             val item = element.asJsonObject
             headers[item["name"].asString.toLowerCase()] = item["value"].asString
         }
