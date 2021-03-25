@@ -3,10 +3,12 @@ package com.playwright.remote
 import com.playwright.remote.core.exceptions.WebSocketException
 import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.api.IBrowser
+import com.playwright.remote.engine.browser.impl.Browser
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 
 import org.junit.jupiter.api.Test
+import java.lang.RuntimeException
 import kotlin.test.assertTrue
 
 
@@ -46,9 +48,9 @@ class TestRemoteBrowser : BaseTest() {
     fun `check success connection to chrome browser`() {
         try {
             val wsEndpoint = launchChromeBrowserServer()
-            val browser = RemoteBrowser.connectWs(wsEndpoint)
-            assertTrue(browser is IBrowser)
-            browser.close()
+            RemoteBrowser.connectWs(wsEndpoint).use {
+                assertTrue(it is Browser)
+            }
         } catch (e: WebSocketException) {
             fail("Exception was thrown ${e.message}")
         } finally {
@@ -60,9 +62,9 @@ class TestRemoteBrowser : BaseTest() {
     fun `check success connection to firefox browser`() {
         try {
             val wsEndpoint = launchFirefoxBrowserServer()
-            val browser = RemoteBrowser.connectWs(wsEndpoint)
-            assertTrue(browser is IBrowser)
-            browser.close()
+            RemoteBrowser.connectWs(wsEndpoint).use {
+                assertTrue(it is Browser)
+            }
         } catch (e: WebSocketException) {
             fail("Exception was thrown ${e.message}")
         } finally {
@@ -74,9 +76,9 @@ class TestRemoteBrowser : BaseTest() {
     fun `check success connection to safari browser`() {
         try {
             val wsEndpoint = launchSafariBrowserServer()
-            val browser = RemoteBrowser.connectWs(wsEndpoint)
-            assertTrue(browser is IBrowser)
-            browser.close()
+            RemoteBrowser.connectWs(wsEndpoint).use {
+                assertTrue(it is Browser)
+            }
         } catch (e: WebSocketException) {
             fail("Exception was thrown ${e.message}")
         } finally {

@@ -14,7 +14,6 @@ import com.playwright.remote.engine.options.Cookie
 import com.playwright.remote.engine.options.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.waits.TimeoutSettings
@@ -123,7 +122,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     override fun route(url: Pattern, handler: (IRoute) -> Unit) =
         route(UrlMatcher(url), handler)
 
-    override fun route(url: (String) -> Unit, handler: (IRoute) -> Unit) =
+    override fun route(url: (String) -> Boolean, handler: (IRoute) -> Unit) =
         route(UrlMatcher(url), handler)
 
     private fun route(matcher: UrlMatcher, handler: (IRoute) -> Unit) {
