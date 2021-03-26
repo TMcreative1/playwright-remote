@@ -12,6 +12,7 @@ import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
 import com.playwright.remote.engine.browser.impl.Selectors
+import com.playwright.remote.engine.console.impl.ConsoleMessage
 import com.playwright.remote.engine.frame.impl.Frame
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
@@ -100,13 +101,14 @@ class MessageProcessor(private val transport: ITransport) {
         when (type) {
             BROWSER.type -> Browser(parent, type, guid, initializer)
             BROWSER_CONTEXT.type -> BrowserContext(parent, type, guid, initializer)
+            CONSOLE_MESSAGE.type -> ConsoleMessage(parent, type, guid, initializer)
             FRAME.type -> Frame(parent, type, guid, initializer)
             PAGE.type -> Page(parent, type, guid, initializer)
             SELECTORS.type -> Selectors(parent, type, guid, initializer)
             REMOTE_BROWSER.type -> RemoteBrowser(parent, type, guid, initializer)
             RESPONSE.type -> Response(parent, type, guid, initializer)
             REQUEST.type -> Request(parent, type, guid, initializer)
-            else -> throw PlaywrightException("Unknown type $type")
+            else -> println("Uncomment it after implemented all types: currentType = $type")//TODO throw PlaywrightException("Unknown type $type")
         }
     }
 
