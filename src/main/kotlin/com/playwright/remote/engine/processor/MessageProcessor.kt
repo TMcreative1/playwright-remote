@@ -8,15 +8,19 @@ import com.playwright.remote.core.enums.ObjectType.*
 import com.playwright.remote.core.exceptions.DriverException
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.core.exceptions.TimeoutException
-import com.playwright.remote.message.Message
 import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
 import com.playwright.remote.engine.browser.impl.Selectors
+import com.playwright.remote.engine.frame.impl.Frame
+import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.parser.IParser.Companion.toJson
+import com.playwright.remote.engine.route.request.impl.Request
+import com.playwright.remote.engine.route.response.impl.Response
 import com.playwright.remote.engine.transport.ITransport
 import com.playwright.remote.engine.waits.impl.WaitResult
+import com.playwright.remote.message.Message
 
 class MessageProcessor(private val transport: ITransport) {
     private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")
@@ -96,8 +100,12 @@ class MessageProcessor(private val transport: ITransport) {
         when (type) {
             BROWSER.type -> Browser(parent, type, guid, initializer)
             BROWSER_CONTEXT.type -> BrowserContext(parent, type, guid, initializer)
+            FRAME.type -> Frame(parent, type, guid, initializer)
+            PAGE.type -> Page(parent, type, guid, initializer)
             SELECTORS.type -> Selectors(parent, type, guid, initializer)
             REMOTE_BROWSER.type -> RemoteBrowser(parent, type, guid, initializer)
+            RESPONSE.type -> Response(parent, type, guid, initializer)
+            REQUEST.type -> Request(parent, type, guid, initializer)
             else -> throw PlaywrightException("Unknown type $type")
         }
     }
