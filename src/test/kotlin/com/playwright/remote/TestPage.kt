@@ -1,7 +1,6 @@
 package com.playwright.remote
 
 import com.playwright.remote.engine.browser.RemoteBrowser
-import com.playwright.remote.engine.options.NavigateOptions
 import com.playwright.remote.engine.options.NewPageOptions
 import com.playwright.remote.engine.page.api.IPage
 import org.junit.jupiter.api.Test
@@ -44,7 +43,7 @@ class TestPage : BaseTest() {
         try {
             val navigatedUrl = "https://www.youtube.com/"
             val page = createPage(launchSafariBrowserServer())
-            val response = page.navigate(navigatedUrl, NavigateOptions { timeout = 40000.0 })
+            val response = page.navigate(navigatedUrl)
             assert(response != null)
             assertEquals(navigatedUrl, response?.url())
         } finally {
