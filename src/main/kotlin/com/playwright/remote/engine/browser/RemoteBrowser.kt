@@ -11,7 +11,7 @@ class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initialize
     ChannelOwner(parent, type, guid, initializer) {
 
     private fun browser(): IBrowser =
-        messageProcessor.getExistingObject(initializer.getAsJsonObject("browser")["guid"].asString)
+        messageProcessor.getExistingObject(initializer["browser"].asJsonObject["guid"].asString)
 
     companion object {
         @JvmStatic

@@ -13,8 +13,9 @@ import com.playwright.remote.engine.listener.UniversalConsumer
 import com.playwright.remote.engine.options.Cookie
 import com.playwright.remote.engine.options.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.engine.processor.ChannelOwner
+import com.playwright.remote.engine.route.Router
+import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.waits.TimeoutSettings
 import com.playwright.remote.engine.waits.api.IWait
@@ -36,6 +37,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     private val listeners = ListenerCollection<EventType>()
     private var isClosedOrClosing: Boolean = false
     private val timeoutSettings = TimeoutSettings()
+    private val routes = Router()
 
     @Suppress("UNCHECKED_CAST")
     override fun onClose(handler: (IBrowserContext) -> Unit) {
@@ -115,20 +117,22 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         sendMessage("clearPermissions")
     }
 
-    override fun route(url: String, handler: (IRoute) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override fun route(url: String, handler: (IRoute) -> Unit) =
+        route(UrlMatcher(url), handler)
 
-    override fun route(url: Pattern, handler: (IRoute) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override fun route(url: Pattern, handler: (IRoute) -> Unit) =
+        route(UrlMatcher(url), handler)
 
-    override fun route(url: (String) -> Boolean, handler: (IRoute) -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override fun route(url: (String) -> Boolean, handler: (IRoute) -> Unit) =
+        route(UrlMatcher(url), handler)
 
-    private fun route() {
-
+    private fun route(matcher: UrlMatcher, handler: (IRoute) -> Unit) {
+        routes.add(matcher, handler)
+        if (routes.size() == 1) {
+            val params = JsonObject()
+            params.addProperty("enabled", true)
+            sendMessage("setNetworkInterceptionEnabled", params)
+        }
     }
 
     fun didClose() {
