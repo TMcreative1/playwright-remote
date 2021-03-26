@@ -8,16 +8,12 @@ import java.util.regex.Pattern.compile
 
 typealias Predicate = (String) -> Boolean
 
-class UrlMatcher(_rawSource: Any = "", _predicate: Predicate = { false }) {
-    private val rawSource: Any = _rawSource
-    private val predicate: Predicate = _predicate
+class UrlMatcher(private val rawSource: Any = "", private val predicate: Predicate = { false }) {
 
     companion object {
-        @JvmStatic
         private fun toPredicate(pattern: Pattern): Predicate = { str -> pattern.matcher(str).find() }
 
-        @JvmStatic
-        fun any(): UrlMatcher = UrlMatcher()
+        private fun any(): UrlMatcher = UrlMatcher()
 
         @JvmStatic
         @Suppress("UNCHECKED_CAST")
