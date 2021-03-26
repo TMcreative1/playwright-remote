@@ -36,7 +36,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     val pages = arrayListOf<IPage>()
     private val listeners = ListenerCollection<EventType>()
     private var isClosedOrClosing: Boolean = false
-    private val timeoutSettings = TimeoutSettings()
+    val timeoutSettings = TimeoutSettings()
     private val routes = Router()
 
     @Suppress("UNCHECKED_CAST")
