@@ -1,7 +1,5 @@
 package com.playwright.remote.engine.options
 
-import com.playwright.remote.core.enums.LoadState
-
 class NavigateOptions(
     /**
      * Referer header value. If provided it will take preference over the referer header value set by {@link
@@ -23,7 +21,7 @@ class NavigateOptions(
      * <li> {@code "networkidle"} - consider operation to be finished when there are no network connections for at least {@code 500} ms.</li>
      * </ul>
      */
-    var waitUntil: LoadState? = null,
+    var waitUntil: String? = null,
     fn: NavigateOptions.() -> Unit
 ) {
     init {
