@@ -1,53 +1,65 @@
 package com.playwright.remote
 
+import com.playwright.remote.base.BaseTest
 import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.options.NewPageOptions
-import com.playwright.remote.engine.page.api.IPage
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class TestPage : BaseTest() {
 
-    private fun createPage(wsEndpoint: String, options: NewPageOptions? = null): IPage {
-        return RemoteBrowser.connectWs(wsEndpoint).newPage(options)
+    private fun createPage(
+        wsEndpoint: String,
+        options: NewPageOptions? = NewPageOptions { ignoreHTTPSErrors = true }
+    ) = RemoteBrowser.connectWs(wsEndpoint).newPage(options)
+
+    companion object {
+
+        @JvmStatic
+        @BeforeAll
+        fun startHttpServer() {
+            httpsServer.setRoute("/test") { exchange ->
+                exchange.sendResponseHeaders(200, 0)
+                exchange.responseBody.writer().use { writer ->
+                    writer.write("<html><head><title>SunHTTP</title></head></html>")
+                }
+            }
+        }
+
+    }
+
+    @AfterEach
+    fun stopPlaywrightServer() {
+        stopServer()
     }
 
     @Test
     fun `check navigate method in chrome browser`() {
-        try {
-            val navigatedUrl = "https://www.youtube.com/"
-            val page = createPage(launchChromeBrowserServer())
-            val response = page.navigate(navigatedUrl)
-            assert(response != null)
-            assertEquals(navigatedUrl, response?.url())
-        } finally {
-            stopServer()
-        }
+        val navigatedUrl = "https://localhost:8443/test"
+        val page = createPage(launchChromeBrowserServer())
+        val response = page.navigate(navigatedUrl)
+        assert(response != null)
+        assertEquals(navigatedUrl, response?.url())
     }
 
     @Test
     fun `check navigate method in firefox browser`() {
-        try {
-            val navigatedUrl = "https://www.youtube.com/"
-            val page = createPage(launchFirefoxBrowserServer())
-            val response = page.navigate(navigatedUrl)
-            assert(response != null)
-            assertEquals(navigatedUrl, response?.url())
-        } finally {
-            stopServer()
-        }
+        val navigatedUrl = "https://localhost:8443/test"
+        val page = createPage(launchFirefoxBrowserServer())
+        val response = page.navigate(navigatedUrl)
+        assert(response != null)
+        assertEquals(navigatedUrl, response?.url())
     }
 
     @Test
     fun `check navigate method in safari browser`() {
-        try {
-            val navigatedUrl = "https://www.youtube.com/"
-            val page = createPage(launchSafariBrowserServer())
-            val response = page.navigate(navigatedUrl)
-            assert(response != null)
-            assertEquals(navigatedUrl, response?.url())
-        } finally {
-            stopServer()
-        }
+        val navigatedUrl = "https://localhost:8443/test"
+        val page = createPage(launchSafariBrowserServer())
+        val response = page.navigate(navigatedUrl)
+        assert(response != null)
+        assertEquals(navigatedUrl, response?.url())
     }
+
 }

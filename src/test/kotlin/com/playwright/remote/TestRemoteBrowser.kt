@@ -1,14 +1,13 @@
 package com.playwright.remote
 
+import com.playwright.remote.base.BaseTest
 import com.playwright.remote.core.exceptions.WebSocketException
 import com.playwright.remote.engine.browser.RemoteBrowser
-import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 
 import org.junit.jupiter.api.Test
-import java.lang.RuntimeException
 import kotlin.test.assertTrue
 
 
