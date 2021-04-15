@@ -1,4 +1,4 @@
-package com.playwright.remote.message
+package com.playwright.remote.domain.serialize
 
 data class SerializedError(
     val error: Error?,
@@ -15,15 +15,15 @@ data class SerializedError(
     }
 
     class SerializedValue(
-        val n: Number,
-        val b: Boolean,
-        val s: String,
-        val v: String,
-        val d: String,
-        val r: R,
-        val a: Array<SerializedValue>,
-        val o: Array<O>,
-        val h: Number
+        var n: Number? = null,
+        var b: Boolean? = null,
+        var s: String? = null,
+        var v: String? = null,
+        var d: String? = null,
+        var r: R? = null,
+        var a: Array<SerializedValue>? = null,
+        var o: Array<O>? = null,
+        var h: Number? = null
     ) {
         data class R(
             val p: String,
@@ -31,8 +31,8 @@ data class SerializedError(
         )
 
         data class O(
-            val k: String,
-            val v: SerializedValue
+            var k: String? = null,
+            var v: SerializedValue? = null
         )
     }
 }

@@ -23,7 +23,12 @@ import com.playwright.remote.engine.touchscreen.api.ITouchScreen
 import com.playwright.remote.engine.touchscreen.impl.TouchScreen
 import com.playwright.remote.engine.waits.TimeoutSettings
 
-class Page : ChannelOwner, IPage {
+class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
+    parent,
+    type,
+    guid,
+    initializer
+), IPage {
     var ownedContext: IBrowserContext? = null
     private val browserContext: IBrowserContext
     private val mainFrame: IFrame
@@ -51,12 +56,7 @@ class Page : ChannelOwner, IPage {
         }
     }
 
-    constructor(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : super(
-        parent,
-        type,
-        guid,
-        initializer
-    ) {
+    init {
         browserContext = parent as BrowserContext
         mainFrame = messageProcessor.getExistingObject(initializer["mainFrame"].asJsonObject["guid"].asString)
         isClosed = initializer["isClosed"].asBoolean

@@ -21,7 +21,7 @@ import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.impl.Response
 import com.playwright.remote.engine.transport.ITransport
 import com.playwright.remote.engine.waits.impl.WaitResult
-import com.playwright.remote.message.Message
+import com.playwright.remote.domain.message.Message
 
 class MessageProcessor(private val transport: ITransport) {
     private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")
