@@ -5,6 +5,7 @@ enum class ObjectType(val type: String) {
     BROWSER_CONTEXT("BrowserContext"),
     CONSOLE_MESSAGE("ConsoleMessage"),
     FRAME("Frame"),
+    JS_HANDLE("JSHandle"),
     PAGE("Page"),
     REMOTE_BROWSER("RemoteBrowser"),
     RESPONSE("Response"),

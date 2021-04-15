@@ -22,6 +22,7 @@ import com.playwright.remote.engine.route.response.impl.Response
 import com.playwright.remote.engine.transport.ITransport
 import com.playwright.remote.engine.waits.impl.WaitResult
 import com.playwright.remote.domain.message.Message
+import com.playwright.remote.engine.handle.js.impl.JSHandle
 
 class MessageProcessor(private val transport: ITransport) {
     private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")
@@ -103,6 +104,7 @@ class MessageProcessor(private val transport: ITransport) {
             BROWSER_CONTEXT.type -> BrowserContext(parent, type, guid, initializer)
             CONSOLE_MESSAGE.type -> ConsoleMessage(parent, type, guid, initializer)
             FRAME.type -> Frame(parent, type, guid, initializer)
+            JS_HANDLE.type -> JSHandle(parent, type, guid, initializer)
             PAGE.type -> Page(parent, type, guid, initializer)
             SELECTORS.type -> Selectors(parent, type, guid, initializer)
             REMOTE_BROWSER.type -> RemoteBrowser(parent, type, guid, initializer)
