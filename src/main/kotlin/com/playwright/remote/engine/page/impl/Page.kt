@@ -1,7 +1,7 @@
 package com.playwright.remote.engine.page.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.binding.api.IBindingCallback
+import com.playwright.remote.callback.api.IBindingCallback
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.enums.EventType.FILECHOOSER

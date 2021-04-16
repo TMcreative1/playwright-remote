@@ -1,6 +1,7 @@
 package com.playwright.remote.engine.browser.api
 
-import com.playwright.remote.binding.api.IBindingCallback
+import com.playwright.remote.callback.api.IBindingCallback
+import com.playwright.remote.callback.api.IFunctionCallback
 import com.playwright.remote.engine.options.Cookie
 import com.playwright.remote.engine.options.ExposeBindingOptions
 import com.playwright.remote.engine.options.WaitForPageOptions
@@ -215,6 +216,62 @@ interface IBrowserContext : AutoCloseable {
      * @param callback Callback function that will be called in the Playwright's context.
      */
     fun exposeBinding(name: String, callback: IBindingCallback, options: ExposeBindingOptions? = null)
+
+    /**
+     * The method adds a function called {@code name} on the {@code window} object of every frame in every page in the context. When
+     * called, the function executes {@code callback} and returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a> which
+     * resolves to the return value of {@code callback}.
+     *
+     * <p> If the {@code callback} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, it will be
+     * awaited.
+     *
+     * <p> See {@link Page#exposeFunction Page.exposeFunction()} for page-only version.
+     *
+     * <p> An example of adding an {@code md5} function to all pages in the context:
+     * <pre>{@code
+     * import com.microsoft.playwright.*;
+     *
+     * import java.nio.charset.StandardCharsets;
+     * import java.security.MessageDigest;
+     * import java.security.NoSuchAlgorithmException;
+     * import java.util.Base64;
+     *
+     * public class Example {
+     *   public static void main(String[] args) {
+     *     try (Playwright playwright = Playwright.create()) {
+     *       BrowserType webkit = playwright.webkit()
+     *       Browser browser = webkit.launch(new BrowserType.LaunchOptions().setHeadless(false));
+     *       context.exposeFunction("sha1", args -> {
+     *         String text = (String) args[0];
+     *         MessageDigest crypto;
+     *         try {
+     *           crypto = MessageDigest.getInstance("SHA-1");
+     *         } catch (NoSuchAlgorithmException e) {
+     *           return null;
+     *         }
+     *         byte[] token = crypto.digest(text.getBytes(StandardCharsets.UTF_8));
+     *         return Base64.getEncoder().encodeToString(token);
+     *       });
+     *       Page page = context.newPage();
+     *       page.setContent("<script>\n" +
+     *         "  async function onClick() {\n" +
+     *         "    document.querySelector('div').textContent = await window.sha1('PLAYWRIGHT');\n" +
+     *         "  }\n" +
+     *         "</script>\n" +
+     *         "<button onclick=\"onClick()\">Click me</button>\n" +
+     *         "<div></div>\n");
+     *       page.click("button");
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * @param name Name of the function on the window object.
+     * @param callback Callback function that will be called in the Playwright's context.
+     */
+    fun exposeFunction(name: String, callback: IFunctionCallback)
 
     /**
      * Routing provides the capability to modify network requests that are made by any page in the browser context. Once route

@@ -2,7 +2,9 @@ package com.playwright.remote.engine.browser.impl
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.playwright.remote.binding.api.IBindingCallback
+import com.playwright.remote.callback.api.IBindingCallback
+import com.playwright.remote.callback.api.IBindingCallback.ISource
+import com.playwright.remote.callback.api.IFunctionCallback
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.enums.EventType.PAGE
@@ -134,6 +136,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         return cookies.toList()
     }
 
+    @JvmOverloads
     override fun exposeBinding(name: String, callback: IBindingCallback, options: ExposeBindingOptions?) {
         if (bindings.containsKey(name)) {
             throw PlaywrightException("Function $name has been already registered")
@@ -151,6 +154,10 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
             params.addProperty("needsHandle", true)
         }
         sendMessage("exposeBinding", params)
+    }
+
+    override fun exposeFunction(name: String, callback: IFunctionCallback) {
+        exposeBinding(name, { _: ISource, args: Any -> callback.call(args) })
     }
 
     override fun route(url: String, handler: (IRoute) -> Unit) =
