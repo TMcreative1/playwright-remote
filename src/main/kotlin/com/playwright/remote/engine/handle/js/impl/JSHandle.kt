@@ -12,7 +12,7 @@ import com.playwright.remote.engine.serializer.Serialization.Companion.serialize
 
 class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IJSHandle {
-    private val preview: String = initializer["preview"].asString
+    private var preview: String = initializer["preview"].asString
 
     override fun asElement(): IElementHandle? = null
 
@@ -61,5 +61,12 @@ class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: Js
         val json = sendMessage("jsonValue").asJsonObject
         val value = fromJson(json["value"].asString, SerializedError.SerializedValue::class.java)
         return deserialize(value)
+    }
+
+    override fun handleEvent(event: String, params: JsonObject) {
+        if (event == "previewUpdated") {
+            preview = params["preview"].asString
+        }
+        super.handleEvent(event, params)
     }
 }
