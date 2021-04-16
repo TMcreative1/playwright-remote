@@ -17,17 +17,20 @@ import java.util.*
 class Route(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IRoute {
 
+    @JvmOverloads
     override fun abort(errorCode: String?) {
         val params = JsonObject()
         params.addProperty("errorCode", errorCode)
         sendMessage("abort", params)
     }
 
+    @JvmOverloads
     override fun resume(options: ResumeOptions?) {
         val params = createParamsForResume(options ?: ResumeOptions {})
         sendMessage("continue", params)
     }
 
+    @JvmOverloads
     override fun fulfill(options: FulfillOptions?) {
         val opts = options ?: FulfillOptions {}
 

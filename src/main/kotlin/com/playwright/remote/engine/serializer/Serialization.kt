@@ -1,0 +1,116 @@
+package com.playwright.remote.engine.serializer
+
+import com.playwright.remote.core.exceptions.PlaywrightException
+import com.playwright.remote.domain.serialize.SerializedArgument
+import com.playwright.remote.domain.serialize.SerializedError.SerializedValue
+import com.playwright.remote.engine.handle.js.api.IJSHandle
+import com.playwright.remote.engine.handle.js.impl.JSHandle
+import com.playwright.remote.engine.parser.IParser
+
+class Serialization {
+
+    companion object {
+        @JvmStatic
+        fun serializeArgument(arg: Any?): SerializedArgument {
+            val result = SerializedArgument()
+            val handles = mutableListOf<IJSHandle>()
+            result.value = serializeValue(arg, handles, 0)
+            result.handles = emptyArray()
+            var i = 0
+            for (handle in handles) {
+                result.handles!![i++] = SerializedArgument.Channel((handle as JSHandle).guid)
+            }
+            return result
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        @JvmStatic
+        fun <T> deserialize(value: SerializedValue?): T {
+            return when {
+                value?.n != null -> {
+                    if (value.n!!.toDouble() == (value.n!!.toInt() as Double)) value.n!!.toInt() as T
+                    else value.n!!.toDouble() as T
+                }
+                value?.b != null -> value.b as T
+                value?.s != null -> value.s as T
+                value?.v != null -> when (value.v) {
+                    "undefined" -> null
+                    "null" -> null
+                    "Infinity" -> Double.POSITIVE_INFINITY
+                    "-Infinity" -> Double.NEGATIVE_INFINITY
+                    "-0" -> -0.0
+                    "NaN" -> Double.NaN
+                    else -> throw PlaywrightException("Unexpected value: ${value.v}")
+                } as T
+                value?.a != null -> {
+                    val list = mutableListOf<Any>()
+                    for (v in value.a!!) {
+                        list.add(v)
+                    }
+                    list as T
+                }
+                value?.o != null -> {
+                    val map = linkedMapOf<String, Any>()
+                    for (o in value.o!!) {
+                        map[o.k as String] = deserialize(o.v)
+                    }
+                    map as T
+                }
+                else -> throw PlaywrightException("Unexpected result: ${IParser.toJson(value)}")
+            }
+        }
+
+        private fun serializeValue(value: Any?, handles: MutableList<IJSHandle>, depth: Int): SerializedValue {
+            if (depth > 100) {
+                throw PlaywrightException("Maximum argument depth exceeded")
+            }
+
+            val result = SerializedValue()
+            when (value) {
+                is IJSHandle -> {
+                    result.h = handles.size
+                    handles.add(value)
+                }
+                value == null -> result.v = "undefined"
+                is Double -> {
+                    when (value) {
+                        value == Double.POSITIVE_INFINITY -> result.v = "Infinity"
+                        value == Double.NEGATIVE_INFINITY -> result.v = "-Infinity"
+                        value == -0 -> result.v = "-0"
+                        value.isNaN() -> result.v = "NaN"
+                        else -> result.n = value
+                    }
+                }
+                is Boolean -> result.b = value
+                is Int -> result.n = value
+                is String -> result.s = value
+                is List<*> -> {
+                    val list = mutableListOf<SerializedValue>()
+                    for (o in value) {
+                        list.add(serializeValue(o, handles, depth + 1))
+                    }
+                    result.a = list.toTypedArray()
+                }
+                is Map<*, *> -> {
+                    val list = mutableListOf<SerializedValue.O>()
+                    for (e in value.entries) {
+                        val serializedValue = SerializedValue.O()
+                        serializedValue.k = e.key as String?
+                        serializedValue.v = serializeValue(e.value, handles, depth + 1)
+                        list.add(serializedValue)
+                    }
+                    result.o = list.toTypedArray()
+                }
+                is Array<*> -> {
+                    val list = mutableListOf<SerializedValue>()
+                    for (o in value) {
+                        list.add(serializeValue(o, handles, depth + 1))
+                    }
+                    result.a = list.toTypedArray()
+                }
+                else -> throw PlaywrightException("Unsupported type of argument: $value")
+            }
+            return result
+        }
+    }
+}

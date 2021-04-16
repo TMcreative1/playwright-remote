@@ -8,7 +8,7 @@ open class ChannelOwner(
     protected val messageProcessor: MessageProcessor,
     private val parent: ChannelOwner?,
     private val type: String,
-    private val guid: String,
+    val guid: String,
     protected val initializer: JsonObject
 ) {
 
@@ -36,6 +36,7 @@ open class ChannelOwner(
         }
     }
 
+    @JvmOverloads
     fun sendMessage(method: String, params: JsonObject = JsonObject()): JsonElement {
         return messageProcessor.sendMessage(guid, method, params)
     }

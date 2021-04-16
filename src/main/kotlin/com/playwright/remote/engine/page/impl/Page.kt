@@ -1,6 +1,7 @@
 package com.playwright.remote.engine.page.impl
 
 import com.google.gson.JsonObject
+import com.playwright.remote.callback.api.IBindingCallback
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.enums.EventType.FILECHOOSER
@@ -23,7 +24,12 @@ import com.playwright.remote.engine.touchscreen.api.ITouchScreen
 import com.playwright.remote.engine.touchscreen.impl.TouchScreen
 import com.playwright.remote.engine.waits.TimeoutSettings
 
-class Page : ChannelOwner, IPage {
+class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
+    parent,
+    type,
+    guid,
+    initializer
+), IPage {
     var ownedContext: IBrowserContext? = null
     private val browserContext: IBrowserContext
     private val mainFrame: IFrame
@@ -34,6 +40,7 @@ class Page : ChannelOwner, IPage {
     private val touchScreen: ITouchScreen
     private val frames = linkedSetOf<IFrame>()
     private val timeoutSettings: TimeoutSettings
+    val bindings = hashMapOf<String, IBindingCallback>()
 
     private val listeners = object : ListenerCollection<EventType>() {
         override fun add(eventType: EventType, listener: UniversalConsumer) {
@@ -51,12 +58,7 @@ class Page : ChannelOwner, IPage {
         }
     }
 
-    constructor(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : super(
-        parent,
-        type,
-        guid,
-        initializer
-    ) {
+    init {
         browserContext = parent as BrowserContext
         mainFrame = messageProcessor.getExistingObject(initializer["mainFrame"].asJsonObject["guid"].asString)
         isClosed = initializer["isClosed"].asBoolean
@@ -71,6 +73,7 @@ class Page : ChannelOwner, IPage {
     }
 
     fun didClose() {
+
         isClosed = true
         (browserContext as BrowserContext).pages.remove(this)
         listeners.notify(CLOSE, this)
@@ -90,6 +93,7 @@ class Page : ChannelOwner, IPage {
     @Suppress("UNCHECKED_CAST")
     override fun offClose(handler: (IPage) -> Unit) = listeners.remove(CLOSE, handler as UniversalConsumer)
 
+    @JvmOverloads
     override fun navigate(url: String, options: NavigateOptions): IResponse? =
         mainFrame.navigate(url, options)
 }

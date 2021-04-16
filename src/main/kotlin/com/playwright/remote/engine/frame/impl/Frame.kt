@@ -30,6 +30,7 @@ class Frame : ChannelOwner, IFrame {
         }
     }
 
+    @JvmOverloads
     override fun navigate(url: String, options: NavigateOptions): IResponse? {
         val params = Gson().toJsonTree(options).asJsonObject
         params.addProperty("url", url)
