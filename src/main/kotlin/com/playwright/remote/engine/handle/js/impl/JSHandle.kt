@@ -40,7 +40,14 @@ class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: Js
     }
 
     override fun getProperties(): Map<String, IJSHandle> {
-        TODO("Not yet implemented")
+        val json = sendMessage("getPropertyList").asJsonObject["properties"]
+        val result = hashMapOf<String, IJSHandle>()
+        for (element in json.asJsonArray) {
+            val item = element.asJsonObject
+            val value = messageProcessor.getExistingObject<IJSHandle>(item["value"].asJsonObject["guid"].asString)
+            result[item["name"].asString] = value
+        }
+        return result
     }
 
     override fun getProperty(propertyName: String): IJSHandle {
