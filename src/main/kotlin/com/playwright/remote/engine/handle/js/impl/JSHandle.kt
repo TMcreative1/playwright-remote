@@ -31,7 +31,12 @@ class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: Js
     }
 
     override fun evaluateHandle(expression: String, arg: Any?): IJSHandle {
-        TODO("Not yet implemented")
+        val params = JsonObject()
+        params.addProperty("expression", expression)
+        params.addProperty("world", "main")
+        params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
+        val json = sendMessage("evaluateExpressionHandle", params)
+        return messageProcessor.getExistingObject(json.asJsonObject["handle"].asJsonObject["guid"].asString)
     }
 
     override fun getProperties(): Map<String, IJSHandle> {
