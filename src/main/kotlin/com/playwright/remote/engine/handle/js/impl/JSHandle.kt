@@ -58,6 +58,8 @@ class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: Js
     }
 
     override fun jsonValue(): Any {
-        TODO("Not yet implemented")
+        val json = sendMessage("jsonValue").asJsonObject
+        val value = fromJson(json["value"].asString, SerializedError.SerializedValue::class.java)
+        return deserialize(value)
     }
 }
