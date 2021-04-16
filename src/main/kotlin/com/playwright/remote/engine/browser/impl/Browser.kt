@@ -34,6 +34,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
     override fun offDisconnected(handler: (IBrowser) -> Unit) =
         listeners.remove(DISCONNECTED, handler as UniversalConsumer)
 
+    @JvmOverloads
     override fun newContext(options: NewContextOptions?): IBrowserContext {
         val storageState: JsonObject? = getStorageState(options)
         val params = Gson().toJsonTree(options).asJsonObject
@@ -58,6 +59,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         return context
     }
 
+    @JvmOverloads
     override fun newPage(options: NewPageOptions?): IPage {
         val context =
             newContext(convert(options, NewContextOptions::class.java) ?: NewContextOptions {}) as BrowserContext

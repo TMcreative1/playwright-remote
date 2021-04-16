@@ -36,6 +36,7 @@ open class ChannelOwner(
         }
     }
 
+    @JvmOverloads
     fun sendMessage(method: String, params: JsonObject = JsonObject()): JsonElement {
         return messageProcessor.sendMessage(guid, method, params)
     }

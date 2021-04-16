@@ -9,7 +9,8 @@ import com.playwright.remote.engine.processor.ChannelOwner
 class Selectors(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), ISelectors {
 
-    fun register(name: String, script: String, options: RegisterOptions?) {
+    @JvmOverloads
+    override fun register(name: String, script: String, options: RegisterOptions?) {
         val params = Gson().toJsonTree(options ?: RegisterOptions {}).asJsonObject
         params.addProperty("name", name)
         params.addProperty("sourse", script)

@@ -20,6 +20,7 @@ class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: Js
         sendMessage("dispose")
     }
 
+    @JvmOverloads
     override fun evaluate(expression: String, arg: Any?): Any {
         val params = JsonObject()
         params.addProperty("expression", expression)
@@ -30,6 +31,7 @@ class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: Js
         return deserialize(value)
     }
 
+    @JvmOverloads
     override fun evaluateHandle(expression: String, arg: Any?): IJSHandle {
         val params = JsonObject()
         params.addProperty("expression", expression)

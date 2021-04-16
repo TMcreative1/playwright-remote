@@ -82,6 +82,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         return runUtil(WaitRace(waitList), code)
     }
 
+    @JvmOverloads
     override fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage =
         waitForEventWithTimeout(PAGE, (options ?: WaitForPageOptions {}).timeout, callback)
 
@@ -124,9 +125,9 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         sendMessage("clearPermissions")
     }
 
+    @JvmOverloads
     override fun cookies(url: String?): List<Cookie> =
         cookies(if (url != null) listOf(url) else emptyList())
-
 
     override fun cookies(urls: List<String>): List<Cookie> {
         val params = JsonObject()
