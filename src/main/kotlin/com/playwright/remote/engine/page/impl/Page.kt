@@ -71,6 +71,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     fun didClose() {
+
         isClosed = true
         (browserContext as BrowserContext).pages.remove(this)
         listeners.notify(CLOSE, this)

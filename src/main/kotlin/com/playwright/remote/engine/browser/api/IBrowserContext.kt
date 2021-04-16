@@ -129,7 +129,6 @@ interface IBrowserContext : AutoCloseable {
      */
     fun clearCookies()
 
-
     /**
      * Clears all permission overrides for the browser context.
      * <pre>{@code
