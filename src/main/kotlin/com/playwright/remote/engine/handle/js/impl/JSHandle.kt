@@ -51,7 +51,10 @@ class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: Js
     }
 
     override fun getProperty(propertyName: String): IJSHandle {
-        TODO("Not yet implemented")
+        val params = JsonObject()
+        params.addProperty("name", propertyName)
+        val json = sendMessage("getProperty", params).asJsonObject["handle"]
+        return messageProcessor.getExistingObject(json.asJsonObject["guid"].asString)
     }
 
     override fun jsonValue(): Any {
