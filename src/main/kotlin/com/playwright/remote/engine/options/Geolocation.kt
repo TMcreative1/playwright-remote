@@ -1,13 +1,15 @@
 package com.playwright.remote.engine.options
 
-class Geolocation(
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class Geolocation @JvmOverloads constructor(
     val latitude: Double,
     val longitude: Double,
     var accuracy: Double? = null,
-    fn: Geolocation.() -> Unit
+    private val builder: IBuilder<Geolocation>
 ) {
 
     init {
-        fn()
+        builder.build(this)
     }
 }

@@ -1,6 +1,8 @@
 package com.playwright.remote.engine.options
 
-class NavigateOptions(
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class NavigateOptions @JvmOverloads constructor(
     /**
      * Referer header value. If provided it will take preference over the referer header value set by {@link
      * Page#setExtraHTTPHeaders Page.setExtraHTTPHeaders()}.
@@ -22,9 +24,9 @@ class NavigateOptions(
      * </ul>
      */
     var waitUntil: String? = null,
-    fn: NavigateOptions.() -> Unit
+    private val builder: IBuilder<NavigateOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

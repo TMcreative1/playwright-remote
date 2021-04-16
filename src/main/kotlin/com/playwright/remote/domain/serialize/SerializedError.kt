@@ -1,5 +1,7 @@
 package com.playwright.remote.domain.serialize
 
+import com.playwright.remote.engine.options.api.IBuilder
+
 data class SerializedError(
     val error: Error?,
     val value: SerializedValue,
@@ -14,7 +16,7 @@ data class SerializedError(
         }
     }
 
-    data class SerializedValue(
+    data class SerializedValue @JvmOverloads constructor(
         var n: Number? = null,
         var b: Boolean? = null,
         var s: String? = null,
@@ -24,6 +26,7 @@ data class SerializedError(
         var a: Array<SerializedValue>? = null,
         var o: Array<O>? = null,
         var h: Number? = null,
+        private val builder: IBuilder<SerializedValue>
     ) {
         data class R(
             val p: String,
@@ -34,6 +37,10 @@ data class SerializedError(
             var k: String? = null,
             var v: SerializedValue? = null,
         )
+
+        init {
+            builder.build(this)
+        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

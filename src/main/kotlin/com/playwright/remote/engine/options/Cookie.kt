@@ -1,8 +1,9 @@
 package com.playwright.remote.engine.options
 
 import com.playwright.remote.core.enums.SameSiteAttribute
+import com.playwright.remote.engine.options.api.IBuilder
 
-class Cookie(
+data class Cookie @JvmOverloads constructor(
     var name: String? = null,
     var value: String? = null,
     /**
@@ -33,9 +34,9 @@ class Cookie(
      * Optional.
      */
     var sameSite: SameSiteAttribute? = null,
-    fn: Cookie.() -> Unit
+    private val builder: IBuilder<Cookie>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

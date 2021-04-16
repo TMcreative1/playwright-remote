@@ -1,10 +1,11 @@
 package com.playwright.remote.engine.options
 
+import com.playwright.remote.engine.options.api.IBuilder
 import com.playwright.remote.engine.page.api.IPage
 
 typealias PagePredicate = (IPage) -> Boolean
 
-class WaitForPageOptions(
+data class WaitForPageOptions @JvmOverloads constructor(
     /**
      * Receives the {@code Page} object and resolves to truthy value when the waiting should resolve.
      */
@@ -14,9 +15,9 @@ class WaitForPageOptions(
      * value can be changed by using the {@link BrowserContext#setDefaultTimeout BrowserContext.setDefaultTimeout()}.
      */
     var timeout: Double? = null,
-    fn: WaitForPageOptions.() -> Unit
+    private val builder: IBuilder<WaitForPageOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

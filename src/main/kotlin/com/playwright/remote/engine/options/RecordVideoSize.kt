@@ -1,11 +1,13 @@
 package com.playwright.remote.engine.options
 
-class RecordVideoSize(
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class RecordVideoSize @JvmOverloads constructor(
     var width: Int? = null,
     var height: Int? = null,
-    fn: RecordVideoSize.() -> Unit
+    private val builder: IBuilder<RecordVideoSize>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

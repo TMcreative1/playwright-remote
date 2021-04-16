@@ -1,8 +1,9 @@
 package com.playwright.remote.engine.options
 
+import com.playwright.remote.engine.options.api.IBuilder
 import com.playwright.remote.engine.options.enum.MouseButton
 
-class ClickOptions(
+data class ClickOptions @JvmOverloads constructor(
     /**
      * Defaults to {@code left}.
      */
@@ -15,9 +16,9 @@ class ClickOptions(
      * Time to wait between {@code mousedown} and {@code mouseup} in milliseconds. Defaults to 0.
      */
     var delay: Double? = null,
-    fn: ClickOptions.() -> Unit
+    private val builder: IBuilder<ClickOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

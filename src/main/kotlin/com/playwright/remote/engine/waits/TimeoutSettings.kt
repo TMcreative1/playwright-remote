@@ -4,7 +4,7 @@ import com.playwright.remote.engine.waits.api.IWait
 import com.playwright.remote.engine.waits.impl.WaitNever
 import com.playwright.remote.engine.waits.impl.WaitTimeout
 
-class TimeoutSettings(private val parent: TimeoutSettings? = null) {
+class TimeoutSettings @JvmOverloads constructor(private val parent: TimeoutSettings? = null) {
     private val defaultTimeoutMs = (30_000).toDouble()
 
     var defaultTimeout = defaultTimeoutMs

@@ -12,7 +12,7 @@ class Serialization {
     companion object {
         @JvmStatic
         fun serializeArgument(arg: Any?): SerializedArgument {
-            val result = SerializedArgument()
+            val result = SerializedArgument{}
             val handles = mutableListOf<IJSHandle>()
             result.value = serializeValue(arg, handles, 0)
             result.handles = emptyArray()
@@ -65,7 +65,7 @@ class Serialization {
                 throw PlaywrightException("Maximum argument depth exceeded")
             }
 
-            val result = SerializedValue()
+            val result = SerializedValue{}
             when (value) {
                 is IJSHandle -> {
                     result.h = handles.size

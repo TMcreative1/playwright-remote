@@ -1,9 +1,10 @@
 package com.playwright.remote.engine.options
 
+import com.playwright.remote.engine.options.api.IBuilder
 import com.playwright.remote.engine.options.enum.ColorScheme
 import java.nio.file.Path
 
-class NewPageOptions(
+data class NewPageOptions @JvmOverloads constructor(
     /**
      * Whether to automatically download all the attachments. Defaults to {@code false} where all the downloads are canceled.
      */
@@ -110,9 +111,9 @@ class NewPageOptions(
      * Sets a consistent viewport for each page. Defaults to an 1280x720 viewport. {@code null} disables the default viewport.
      */
     var viewportSize: ViewportSize? = null,
-    fn: NewPageOptions.() -> Unit
+    private val builder: IBuilder<NewPageOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }
