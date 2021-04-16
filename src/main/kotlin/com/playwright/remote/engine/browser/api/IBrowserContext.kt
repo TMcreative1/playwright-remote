@@ -1,6 +1,8 @@
 package com.playwright.remote.engine.browser.api
 
+import com.playwright.remote.binding.api.IBindingCallback
 import com.playwright.remote.engine.options.Cookie
+import com.playwright.remote.engine.options.ExposeBindingOptions
 import com.playwright.remote.engine.options.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.route.api.IRoute
@@ -139,6 +141,80 @@ interface IBrowserContext : AutoCloseable {
      * }</pre>
      */
     fun clearPermissions()
+
+    /**
+     * If no URLs are specified, this method returns all cookies. If URLs are specified, only cookies that affect those URLs
+     * are returned.
+     *
+     * @param urls Optional list of URLs.
+     */
+    fun cookies(url: String? = null): List<Cookie>
+
+    /**
+     * If no URLs are specified, this method returns all cookies. If URLs are specified, only cookies that affect those URLs
+     * are returned.
+     *
+     * @param urls Optional list of URLs.
+     */
+    fun cookies(urls: List<String> = emptyList()): List<Cookie>
+
+    /**
+     * The method adds a function called {@code name} on the {@code window} object of every frame in every page in the context. When
+     * called, the function executes {@code callback} and returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a> which
+     * resolves to the return value of {@code callback}. If the {@code callback} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, it will be
+     * awaited.
+     *
+     * <p> The first argument of the {@code callback} function contains information about the caller: {@code { browserContext: BrowserContext,
+     * page: Page, frame: Frame }}.
+     *
+     * <p> See {@link Page#exposeBinding Page.exposeBinding()} for page-only version.
+     *
+     * <p> An example of exposing page URL to all frames in all pages in the context:
+     * <pre>{@code
+     * import com.microsoft.playwright.*;
+     *
+     * public class Example {
+     *   public static void main(String[] args) {
+     *     try (Playwright playwright = Playwright.create()) {
+     *       BrowserType webkit = playwright.webkit()
+     *       Browser browser = webkit.launch(new BrowserType.LaunchOptions().setHeadless(false));
+     *       BrowserContext context = browser.newContext();
+     *       context.exposeBinding("pageURL", (source, args) -> source.page().url());
+     *       Page page = context.newPage();
+     *       page.setContent("<script>\n" +
+     *         "  async function onClick() {\n" +
+     *         "    document.querySelector('div').textContent = await window.pageURL();\n" +
+     *         "  }\n" +
+     *         "</script>\n" +
+     *         "<button onclick=\"onClick()\">Click me</button>\n" +
+     *         "<div></div>");
+     *       page.click("button");
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * <p> An example of passing an element handle:
+     * <pre>{@code
+     * context.exposeBinding("clicked", (source, args) -> {
+     *   ElementHandle element = (ElementHandle) args[0];
+     *   System.out.println(element.textContent());
+     *   return null;
+     * }, new BrowserContext.ExposeBindingOptions().setHandle(true));
+     * page.setContent("" +
+     *   "<script>\n" +
+     *   "  document.addEventListener('click', event => window.clicked(event.target));\n" +
+     *   "</script>\n" +
+     *   "<div>Click me</div>\n" +
+     *   "<div>Or click me</div>\n");
+     * }</pre>
+     *
+     * @param name Name of the function on the window object.
+     * @param callback Callback function that will be called in the Playwright's context.
+     */
+    fun exposeBinding(name: String, callback: IBindingCallback, options: ExposeBindingOptions? = null)
 
     /**
      * Routing provides the capability to modify network requests that are made by any page in the browser context. Once route

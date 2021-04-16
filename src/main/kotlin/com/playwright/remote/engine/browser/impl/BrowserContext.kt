@@ -2,6 +2,7 @@ package com.playwright.remote.engine.browser.impl
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.playwright.remote.binding.api.IBindingCallback
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.enums.EventType.PAGE
@@ -11,8 +12,11 @@ import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
 import com.playwright.remote.engine.options.Cookie
+import com.playwright.remote.engine.options.ExposeBindingOptions
 import com.playwright.remote.engine.options.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
+import com.playwright.remote.engine.page.impl.Page
+import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
@@ -38,6 +42,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     private var isClosedOrClosing: Boolean = false
     val timeoutSettings = TimeoutSettings()
     private val routes = Router()
+    private val bindings = hashMapOf<String, IBindingCallback>()
 
     @Suppress("UNCHECKED_CAST")
     override fun onClose(handler: (IBrowserContext) -> Unit) {
@@ -115,6 +120,37 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
 
     override fun clearPermissions() {
         sendMessage("clearPermissions")
+    }
+
+    override fun cookies(url: String?): List<Cookie> =
+        cookies(if (url != null) listOf(url) else emptyList())
+
+
+    override fun cookies(urls: List<String>): List<Cookie> {
+        val params = JsonObject()
+        params.add("urls", Gson().toJsonTree(urls))
+        val json = sendMessage("cookies", params).asJsonObject
+        val cookies = IParser.fromJson(json["cookies"].asJsonArray, Array<Cookie>::class.java)
+        return cookies.toList()
+    }
+
+    override fun exposeBinding(name: String, callback: IBindingCallback, options: ExposeBindingOptions?) {
+        if (bindings.containsKey(name)) {
+            throw PlaywrightException("Function $name has been already registered")
+        }
+        for (page in pages) {
+            if ((page as Page).bindings.containsKey(name)) {
+                throw PlaywrightException("Function $name has been already registered in one of the pages")
+            }
+        }
+        bindings[name] = callback
+
+        val params = JsonObject()
+        params.addProperty("name", name)
+        if (options?.handle != null && options.handle!!) {
+            params.addProperty("needsHandle", true)
+        }
+        sendMessage("exposeBinding", params)
     }
 
     override fun route(url: String, handler: (IRoute) -> Unit) =

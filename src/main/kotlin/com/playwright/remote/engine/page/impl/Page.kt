@@ -1,6 +1,7 @@
 package com.playwright.remote.engine.page.impl
 
 import com.google.gson.JsonObject
+import com.playwright.remote.binding.api.IBindingCallback
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.enums.EventType.FILECHOOSER
@@ -39,6 +40,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     private val touchScreen: ITouchScreen
     private val frames = linkedSetOf<IFrame>()
     private val timeoutSettings: TimeoutSettings
+    val bindings = hashMapOf<String, IBindingCallback>()
 
     private val listeners = object : ListenerCollection<EventType>() {
         override fun add(eventType: EventType, listener: UniversalConsumer) {
