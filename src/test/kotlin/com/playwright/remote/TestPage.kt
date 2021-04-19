@@ -12,7 +12,7 @@ class TestPage : BaseTest() {
 
     private fun createPage(
         wsEndpoint: String,
-        options: NewPageOptions? = NewPageOptions { ignoreHTTPSErrors = true }
+        options: NewPageOptions? = NewPageOptions { it.ignoreHTTPSErrors = true }
     ) = RemoteBrowser.connectWs(wsEndpoint).newPage(options)
 
     companion object {

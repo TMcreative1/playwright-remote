@@ -1,6 +1,13 @@
 package com.playwright.remote.engine.options
 
-class HttpCredentials(
-    val userName: String,
-    val password: String
-)
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class HttpCredentials @JvmOverloads constructor(
+    var userName: String? = null,
+    var password: String? = null,
+    private val builder: IBuilder<HttpCredentials>
+) {
+    init {
+        builder.build(this)
+    }
+}

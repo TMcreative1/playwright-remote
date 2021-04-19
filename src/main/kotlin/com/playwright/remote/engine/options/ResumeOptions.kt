@@ -1,6 +1,8 @@
 package com.playwright.remote.engine.options
 
-class ResumeOptions(
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class ResumeOptions @JvmOverloads constructor(
     /**
      * If set changes the request HTTP headers. Header values will be converted to a string.
      */
@@ -17,9 +19,9 @@ class ResumeOptions(
      * If set changes the request URL. New URL must have same protocol as original one.
      */
     var url: String? = null,
-    fn: ResumeOptions.() -> Unit
+    private val builder: IBuilder<ResumeOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

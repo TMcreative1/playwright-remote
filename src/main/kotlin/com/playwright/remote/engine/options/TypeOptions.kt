@@ -1,13 +1,15 @@
 package com.playwright.remote.engine.options
 
-class TypeOptions(
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class TypeOptions @JvmOverloads constructor(
     /**
      * Time to wait between key presses in milliseconds. Defaults to 0.
      */
     var delay: Double? = null,
-    fn: TypeOptions.() -> Unit
+    private val builder: IBuilder<TypeOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

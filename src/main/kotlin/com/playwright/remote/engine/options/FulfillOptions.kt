@@ -1,8 +1,9 @@
 package com.playwright.remote.engine.options
 
+import com.playwright.remote.engine.options.api.IBuilder
 import java.nio.file.Path
 
-class FulfillOptions(
+data class FulfillOptions @JvmOverloads constructor(
     /**
      * Optional response body as text.
      */
@@ -28,9 +29,40 @@ class FulfillOptions(
      * Response status code, defaults to {@code 200}.
      */
     var status: Int? = null,
-    fn: FulfillOptions.() -> Unit
+    private val builder: IBuilder<FulfillOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as FulfillOptions
+
+        if (body != other.body) return false
+        if (bodyBytes != null) {
+            if (other.bodyBytes == null) return false
+            if (!bodyBytes.contentEquals(other.bodyBytes)) return false
+        } else if (other.bodyBytes != null) return false
+        if (contentType != other.contentType) return false
+        if (headers != other.headers) return false
+        if (path != other.path) return false
+        if (status != other.status) return false
+        if (builder != other.builder) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = body?.hashCode() ?: 0
+        result = 31 * result + (bodyBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (contentType?.hashCode() ?: 0)
+        result = 31 * result + (headers?.hashCode() ?: 0)
+        result = 31 * result + (path?.hashCode() ?: 0)
+        result = 31 * result + (status ?: 0)
+        result = 31 * result + builder.hashCode()
+        return result
     }
 }

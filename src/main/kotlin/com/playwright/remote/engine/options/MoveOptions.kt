@@ -1,13 +1,15 @@
 package com.playwright.remote.engine.options
 
-class MoveOptions(
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class MoveOptions @JvmOverloads constructor(
     /**
      * defaults to 1. Sends intermediate {@code mousemove} events.
      */
     var steps: Int? = null,
-    fn: MoveOptions.() -> Unit
+    private val builder: IBuilder<MoveOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

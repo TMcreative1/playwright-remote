@@ -1,13 +1,15 @@
 package com.playwright.remote.engine.options
 
-class GrantPermissionsOptions(
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class GrantPermissionsOptions @JvmOverloads constructor(
     /**
      * The [origin] to grant permissions to, e.g. "https://example.com".
      */
     var origin: String? = null,
-    fn: GrantPermissionsOptions.() -> Unit,
+    private val builder: IBuilder<GrantPermissionsOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

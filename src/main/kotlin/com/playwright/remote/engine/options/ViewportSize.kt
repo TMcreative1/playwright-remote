@@ -1,6 +1,8 @@
 package com.playwright.remote.engine.options
 
-class ViewportSize(
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class ViewportSize @JvmOverloads constructor(
     /**
      * page width in pixels.
      */
@@ -9,9 +11,9 @@ class ViewportSize(
      * page height in pixels.
      */
     var height: Int? = null,
-    fn: ViewportSize.() -> Unit
+    private val builder: IBuilder<ViewportSize>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }

@@ -1,8 +1,9 @@
 package com.playwright.remote.engine.options
 
+import com.playwright.remote.engine.options.api.IBuilder
 import com.playwright.remote.engine.options.enum.MouseButton
 
-class DownOptions(
+data class DownOptions @JvmOverloads constructor(
     /**
      * Defaults to {@code left}.
      */
@@ -10,9 +11,9 @@ class DownOptions(
     /**
      * defaults to 1. See [UIEvent.detail].
      */
-    fn: DownOptions.() -> Unit
+    private val builder: IBuilder<DownOptions>
 ) {
     init {
-        fn()
+        builder.build(this)
     }
 }
