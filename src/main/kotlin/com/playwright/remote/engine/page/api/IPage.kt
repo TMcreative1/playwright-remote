@@ -1,6 +1,8 @@
 package com.playwright.remote.engine.page.api
 
 import com.playwright.remote.engine.browser.api.IBrowserContext
+import com.playwright.remote.engine.console.api.IConsoleMessage
+import com.playwright.remote.engine.dialog.api.IDialog
 import com.playwright.remote.engine.options.NavigateOptions
 import com.playwright.remote.engine.route.response.api.IResponse
 
@@ -14,6 +16,66 @@ interface IPage {
      * Removes handler that was previously added with {@link #onClose onClose(handler)}.
      */
     fun offClose(handler: (IPage) -> Unit)
+
+    /**
+     * Emitted when JavaScript within the page calls one of console API methods, e.g. {@code console.log} or {@code console.dir}. Also
+     * emitted if the page throws an error or a warning.
+     *
+     * <p> The arguments passed into {@code console.log} appear as arguments on the event handler.
+     *
+     * <p> An example of handling {@code console} event:
+     * <pre>{@code
+     * page.onConsole(msg -> {
+     *   for (int i = 0; i < msg.args().size(); ++i)
+     *     System.out.println(i + ": " + msg.args().get(i).jsonValue());
+     * });
+     * page.evaluate("() => console.log('hello', 5, {foo: 'bar'})");
+     * }</pre>
+     */
+    fun onConsoleMessage(handler: (IConsoleMessage) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onConsoleMessage onConsoleMessage(handler)}.
+     */
+    fun offConsoleMessage(handler: (IConsoleMessage) -> Unit)
+
+    /**
+     * Emitted when the page crashes. Browser pages might crash if they try to allocate too much memory. When the page crashes,
+     * ongoing and subsequent operations will throw.
+     *
+     * <p> The most common way to deal with crashes is to catch an exception:
+     * <pre>{@code
+     * try {
+     *   // Crash might happen during a click.
+     *   page.click("button");
+     *   // Or while waiting for an event.
+     *   page.waitForPopup(() -> {});
+     * } catch (PlaywrightException e) {
+     *   // When the page crashes, exception message contains "crash".
+     * }
+     * }</pre>
+     */
+    fun onCrash(handler: (IPage) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onCrash onCrash(handler)}.
+     */
+    fun offCrash(handler: (IPage) -> Unit)
+
+    /**
+     * Emitted when a JavaScript dialog appears, such as {@code alert}, {@code prompt}, {@code confirm} or {@code beforeunload}. Listener **must**
+     * either {@link Dialog#accept Dialog.accept()} or {@link Dialog#dismiss Dialog.dismiss()} the dialog - otherwise the page
+     * will <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#never_blocking">freeze</a> waiting for
+     * the dialog, and actions like click will never finish.
+     *
+     * <p> <strong>NOTE:</strong> When no {@link Page#onDialog Page.onDialog()} listeners are present, all dialogs are automatically dismissed.
+     */
+    fun onDialog(handler: (IDialog) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onDialog onDialog(handler)}.
+     */
+    fun offDialog(handler: (IDialog) -> Unit)
 
     /**
      * Get the browser context that the page belongs to.

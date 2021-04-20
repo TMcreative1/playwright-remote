@@ -36,30 +36,11 @@ class TestPage : BaseTest() {
     }
 
     @Test
-    fun `check navigate method in chrome browser`() {
+    fun `check navigate method in browser`() {
         val navigatedUrl = "https://localhost:8443/test"
-        val page = createPage(launchChromeBrowserServer())
+        val page = createPage(launchBrowserServer())
         val response = page.navigate(navigatedUrl)
         assert(response != null)
         assertEquals(navigatedUrl, response?.url())
     }
-
-    @Test
-    fun `check navigate method in firefox browser`() {
-        val navigatedUrl = "https://localhost:8443/test"
-        val page = createPage(launchFirefoxBrowserServer())
-        val response = page.navigate(navigatedUrl)
-        assert(response != null)
-        assertEquals(navigatedUrl, response?.url())
-    }
-
-    @Test
-    fun `check navigate method in safari browser`() {
-        val navigatedUrl = "https://localhost:8443/test"
-        val page = createPage(launchSafariBrowserServer())
-        val response = page.navigate(navigatedUrl)
-        assert(response != null)
-        assertEquals(navigatedUrl, response?.url())
-    }
-
 }

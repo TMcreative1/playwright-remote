@@ -2,10 +2,13 @@ package com.playwright.remote.core.enums
 
 enum class EventType {
     CLOSE,
-    FRAMERECEIVED,
-    FRAMESENT,
-    SOCKETERROR,
+    CONSOLE,
+    CRASH,
+    DIALOG,
     DISCONNECTED,
     FILECHOOSER,
-    PAGE
+    FRAMERECEIVED,
+    FRAMESENT,
+    PAGE,
+    SOCKETERROR
 }

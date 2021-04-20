@@ -8,6 +8,7 @@ import java.nio.file.Paths
 class ServerProvider : IServerProvider {
     private lateinit var process: Process
 
+    @JvmOverloads
     override fun launchServer(platform: Platform, browserType: BrowserType): String? {
         val pb = ProcessBuilder().apply {
             val driverPath = Paths.get("drivers/${platform.platformType}")
