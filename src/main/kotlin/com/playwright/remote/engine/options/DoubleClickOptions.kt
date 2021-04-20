@@ -12,7 +12,7 @@ data class DoubleClickOptions @JvmOverloads constructor(
      * Time to wait between {@code mousedown} and {@code mouseup} in milliseconds. Defaults to 0.
      */
     var delay: Double? = null,
-    private val builder: IBuilder<DoubleClickOptions>
+    @Transient private val builder: IBuilder<DoubleClickOptions>
 ) {
     init {
         builder.build(this)

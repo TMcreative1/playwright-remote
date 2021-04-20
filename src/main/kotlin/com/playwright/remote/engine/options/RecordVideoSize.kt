@@ -5,7 +5,7 @@ import com.playwright.remote.engine.options.api.IBuilder
 data class RecordVideoSize @JvmOverloads constructor(
     var width: Int? = null,
     var height: Int? = null,
-    private val builder: IBuilder<RecordVideoSize>
+    @Transient private val builder: IBuilder<RecordVideoSize>
 ) {
     init {
         builder.build(this)

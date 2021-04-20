@@ -11,7 +11,7 @@ data class DownOptions @JvmOverloads constructor(
     /**
      * defaults to 1. See [UIEvent.detail].
      */
-    private val builder: IBuilder<DownOptions>
+    @Transient private val builder: IBuilder<DownOptions>
 ) {
     init {
         builder.build(this)

@@ -29,7 +29,7 @@ data class FulfillOptions @JvmOverloads constructor(
      * Response status code, defaults to {@code 200}.
      */
     var status: Int? = null,
-    private val builder: IBuilder<FulfillOptions>
+    @Transient private val builder: IBuilder<FulfillOptions>
 ) {
     init {
         builder.build(this)

@@ -5,7 +5,7 @@ import com.playwright.remote.engine.options.api.IBuilder
 data class SerializedError @JvmOverloads constructor(
     var error: Error? = null,
     val value: SerializedValue? = null,
-    private val builder: IBuilder<SerializedError>
+    @Transient private val builder: IBuilder<SerializedError>
 ) {
 
     init {
@@ -16,7 +16,7 @@ data class SerializedError @JvmOverloads constructor(
         var message: String? = null,
         var name: String? = null,
         var stack: String? = null,
-        private val builder: IBuilder<Error>
+        @Transient private val builder: IBuilder<Error>
     ) {
         init {
             builder.build(this)
@@ -37,12 +37,12 @@ data class SerializedError @JvmOverloads constructor(
         var a: Array<SerializedValue>? = null,
         var o: Array<O>? = null,
         var h: Number? = null,
-        private val builder: IBuilder<SerializedValue>
+        @Transient private val builder: IBuilder<SerializedValue>
     ) {
         data class R @JvmOverloads constructor(
             val p: String? = null,
             val f: String? = null,
-            private val builder: IBuilder<R>
+            @Transient private val builder: IBuilder<R>
         ) {
             init {
                 builder.build(this)
@@ -52,7 +52,7 @@ data class SerializedError @JvmOverloads constructor(
         data class O @JvmOverloads constructor(
             var k: String? = null,
             var v: SerializedValue? = null,
-            private val builder: IBuilder<O>
+            @Transient private val builder: IBuilder<O>
         ) {
             init {
                 builder.build(this)

@@ -9,7 +9,7 @@ data class RegisterOptions @JvmOverloads constructor(
      * guaranteed when this engine is used together with other registered engines.
      */
     var contentScript: Boolean = false,
-    private val builder: IBuilder<RegisterOptions>
+    @Transient private val builder: IBuilder<RegisterOptions>
 ) {
 
     init {

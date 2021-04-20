@@ -8,7 +8,7 @@ data class ExposeBindingOptions @JvmOverloads constructor(
      * supported. When passing by value, multiple arguments are supported.
      */
     var handle: Boolean? = null,
-    private val builder: IBuilder<ExposeBindingOptions>
+    @Transient private val builder: IBuilder<ExposeBindingOptions>
 ) {
     init {
         builder.build(this)

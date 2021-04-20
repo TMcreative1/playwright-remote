@@ -24,7 +24,7 @@ data class NavigateOptions @JvmOverloads constructor(
      * </ul>
      */
     var waitUntil: String? = null,
-    private val builder: IBuilder<NavigateOptions>
+    @Transient private val builder: IBuilder<NavigateOptions>
 ) {
     init {
         builder.build(this)

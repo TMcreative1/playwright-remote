@@ -111,7 +111,7 @@ data class NewPageOptions @JvmOverloads constructor(
      * Sets a consistent viewport for each page. Defaults to an 1280x720 viewport. {@code null} disables the default viewport.
      */
     var viewportSize: ViewportSize? = null,
-    private val builder: IBuilder<NewPageOptions>
+    @Transient private val builder: IBuilder<NewPageOptions>
 ) {
     init {
         builder.build(this)

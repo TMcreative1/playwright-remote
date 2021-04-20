@@ -11,7 +11,7 @@ data class ViewportSize @JvmOverloads constructor(
      * page height in pixels.
      */
     var height: Int? = null,
-    private val builder: IBuilder<ViewportSize>
+    @Transient private val builder: IBuilder<ViewportSize>
 ) {
     init {
         builder.build(this)

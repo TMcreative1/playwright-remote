@@ -19,7 +19,7 @@ data class ResumeOptions @JvmOverloads constructor(
      * If set changes the request URL. New URL must have same protocol as original one.
      */
     var url: String? = null,
-    private val builder: IBuilder<ResumeOptions>
+    @Transient private val builder: IBuilder<ResumeOptions>
 ) {
     init {
         builder.build(this)
