@@ -2,9 +2,7 @@ package com.playwright.remote.engine.browser.api
 
 import com.playwright.remote.callback.api.IBindingCallback
 import com.playwright.remote.callback.api.IFunctionCallback
-import com.playwright.remote.engine.options.Cookie
-import com.playwright.remote.engine.options.ExposeBindingOptions
-import com.playwright.remote.engine.options.WaitForPageOptions
+import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.route.api.IRoute
 import java.nio.file.Path
@@ -55,6 +53,11 @@ interface IBrowserContext : AutoCloseable {
      * Creates a new page in the browser context.
      */
     fun newPage(): IPage
+
+    /**
+     * Returns all open pages in the context.
+     */
+    fun pages(): List<IPage>
 
     /**
      * Performs action and waits for a new {@code Page} to be created in the context. If predicate is provided, it passes {@code Page}
@@ -274,6 +277,35 @@ interface IBrowserContext : AutoCloseable {
     fun exposeFunction(name: String, callback: IFunctionCallback)
 
     /**
+     * Grants specified permissions to the browser context. Only grants corresponding permissions to the given origin if
+     * specified.
+     *
+     * @param permissions A permission or an array of permissions to grant. Permissions can be one of the following values:
+     * <ul>
+     * <li> {@code "geolocation"}</li>
+     * <li> {@code "midi"}</li>
+     * <li> {@code "midi-sysex"} (system-exclusive midi)</li>
+     * <li> {@code "notifications"}</li>
+     * <li> {@code "push"}</li>
+     * <li> {@code "camera"}</li>
+     * <li> {@code "microphone"}</li>
+     * <li> {@code "background-sync"}</li>
+     * <li> {@code "ambient-light-sensor"}</li>
+     * <li> {@code "accelerometer"}</li>
+     * <li> {@code "gyroscope"}</li>
+     * <li> {@code "magnetometer"}</li>
+     * <li> {@code "accessibility-events"}</li>
+     * <li> {@code "clipboard-read"}</li>
+     * <li> {@code "clipboard-write"}</li>
+     * <li> {@code "payment-handler"}</li>
+     * </ul>
+     */
+    fun grantPermissions(
+        permissions: List<String> = emptyList(),
+        options: GrantPermissionsOptions = GrantPermissionsOptions {}
+    )
+
+    /**
      * Routing provides the capability to modify network requests that are made by any page in the browser context. Once route
      * is enabled, every request matching the url pattern will stall unless it's continued, fulfilled or aborted.
      *
@@ -368,4 +400,100 @@ interface IBrowserContext : AutoCloseable {
      * @param handler handler function to route the request.
      */
     fun route(url: (String) -> Boolean, handler: (IRoute) -> Unit)
+
+    /**
+     * This setting will change the default maximum navigation time for the following methods and related shortcuts:
+     * <ul>
+     * <li> {@link Page#goBack Page.goBack()}</li>
+     * <li> {@link Page#goForward Page.goForward()}</li>
+     * <li> {@link Page#goto Page.goto()}</li>
+     * <li> {@link Page#reload Page.reload()}</li>
+     * <li> {@link Page#setContent Page.setContent()}</li>
+     * <li> {@link Page#waitForNavigation Page.waitForNavigation()}</li>
+     * </ul>
+     *
+     * <p> <strong>NOTE:</strong> {@link Page#setDefaultNavigationTimeout Page.setDefaultNavigationTimeout()} and {@link Page#setDefaultTimeout
+     * Page.setDefaultTimeout()} take priority over {@link BrowserContext#setDefaultNavigationTimeout
+     * BrowserContext.setDefaultNavigationTimeout()}.
+     *
+     * @param timeout Maximum navigation time in milliseconds
+     */
+    fun setDefaultNavigationTimeout(timeout: Double)
+
+    /**
+     * This setting will change the default maximum time for all the methods accepting {@code timeout} option.
+     *
+     * <p> <strong>NOTE:</strong> {@link Page#setDefaultNavigationTimeout Page.setDefaultNavigationTimeout()}, {@link Page#setDefaultTimeout
+     * Page.setDefaultTimeout()} and {@link BrowserContext#setDefaultNavigationTimeout
+     * BrowserContext.setDefaultNavigationTimeout()} take priority over {@link BrowserContext#setDefaultTimeout
+     * BrowserContext.setDefaultTimeout()}.
+     *
+     * @param timeout Maximum time in milliseconds
+     */
+    fun setDefaultTimeout(timeout: Double)
+
+    /**
+     * The extra HTTP headers will be sent with every request initiated by any page in the context. These headers are merged
+     * with page-specific extra HTTP headers set with {@link Page#setExtraHTTPHeaders Page.setExtraHTTPHeaders()}. If page
+     * overrides a particular header, page-specific header value will be used instead of the browser context header value.
+     *
+     * <p> <strong>NOTE:</strong> {@link BrowserContext#setExtraHTTPHeaders BrowserContext.setExtraHTTPHeaders()} does not guarantee the order of headers
+     * in the outgoing requests.
+     *
+     * @param headers An object containing additional HTTP headers to be sent with every request. All header values must be strings.
+     */
+    fun setExtraHttpHeaders(headers: Map<String, String>)
+
+    /**
+     * Sets the context's geolocation. Passing {@code null} or {@code undefined} emulates position unavailable.
+     * <pre>{@code
+     * browserContext.setGeolocation(new Geolocation(59.95, 30.31667));
+     * }</pre>
+     *
+     * <p> <strong>NOTE:</strong> Consider using {@link BrowserContext#grantPermissions BrowserContext.grantPermissions()} to grant permissions for the
+     * browser context pages to read its geolocation.
+     */
+    fun setGeolocation(geolocation: Geolocation? = null)
+
+    /**
+     *
+     *
+     * @param offline Whether to emulate network being offline for the browser context.
+     */
+    fun setOffline(isOffline: Boolean)
+
+    /**
+     * Returns storage state for this browser context, contains current cookies and local storage snapshot.
+     */
+    fun storageState(options: StorageStateOptions? = null): String
+
+    /**
+     * Removes a route created with {@link BrowserContext#route BrowserContext.route()}. When {@code handler} is not specified,
+     * removes all routes for the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] used to register a routing with {@link BrowserContext#route
+     * BrowserContext.route()}.
+     * @param handler Optional handler function used to register a routing with {@link BrowserContext#route BrowserContext.route()}.
+     */
+    fun unRoute(url: String, handler: ((IRoute) -> Unit)? = null)
+
+    /**
+     * Removes a route created with {@link BrowserContext#route BrowserContext.route()}. When {@code handler} is not specified,
+     * removes all routes for the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] used to register a routing with {@link BrowserContext#route
+     * BrowserContext.route()}.
+     * @param handler Optional handler function used to register a routing with {@link BrowserContext#route BrowserContext.route()}.
+     */
+    fun unRoute(url: Pattern, handler: ((IRoute) -> Unit)? = null)
+
+    /**
+     * Removes a route created with {@link BrowserContext#route BrowserContext.route()}. When {@code handler} is not specified,
+     * removes all routes for the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] used to register a routing with {@link BrowserContext#route
+     * BrowserContext.route()}.
+     * @param handler Optional handler function used to register a routing with {@link BrowserContext#route BrowserContext.route()}.
+     */
+    fun unRoute(url: (String) -> Boolean, handler: ((IRoute) -> Unit)? = null)
 }

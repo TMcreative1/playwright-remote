@@ -6,8 +6,8 @@ import com.playwright.remote.engine.page.api.IPage
 
 fun interface IBindingCallback {
     interface ISource {
-        fun context(): IBrowserContext
-        fun page(): IPage
+        fun context(): IBrowserContext?
+        fun page(): IPage?
         fun frame(): IFrame
     }
 

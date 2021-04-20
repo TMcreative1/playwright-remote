@@ -2,15 +2,26 @@ package com.playwright.remote.domain.serialize
 
 import com.playwright.remote.engine.options.api.IBuilder
 
-data class SerializedError(
-    val error: Error?,
-    val value: SerializedValue,
+data class SerializedError @JvmOverloads constructor(
+    var error: Error? = null,
+    val value: SerializedValue? = null,
+    private val builder: IBuilder<SerializedError>
 ) {
-    data class Error(
-        val message: String,
-        val name: String,
-        val stack: String,
+
+    init {
+        builder.build(this)
+    }
+
+    data class Error @JvmOverloads constructor(
+        var message: String? = null,
+        var name: String? = null,
+        var stack: String? = null,
+        private val builder: IBuilder<Error>
     ) {
+        init {
+            builder.build(this)
+        }
+
         override fun toString(): String {
             return "Error(\nmessage=$message, \nname=$name, \nstack=$stack\n)"
         }
@@ -28,15 +39,25 @@ data class SerializedError(
         var h: Number? = null,
         private val builder: IBuilder<SerializedValue>
     ) {
-        data class R(
-            val p: String,
-            val f: String,
-        )
+        data class R @JvmOverloads constructor(
+            val p: String? = null,
+            val f: String? = null,
+            private val builder: IBuilder<R>
+        ) {
+            init {
+                builder.build(this)
+            }
+        }
 
-        data class O(
+        data class O @JvmOverloads constructor(
             var k: String? = null,
             var v: SerializedValue? = null,
-        )
+            private val builder: IBuilder<O>
+        ) {
+            init {
+                builder.build(this)
+            }
+        }
 
         init {
             builder.build(this)

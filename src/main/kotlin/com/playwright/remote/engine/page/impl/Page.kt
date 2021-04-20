@@ -93,6 +93,10 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     @Suppress("UNCHECKED_CAST")
     override fun offClose(handler: (IPage) -> Unit) = listeners.remove(CLOSE, handler as UniversalConsumer)
 
+    override fun context(): IBrowserContext {
+        return browserContext
+    }
+
     @JvmOverloads
     override fun navigate(url: String, options: NavigateOptions): IResponse? =
         mainFrame.navigate(url, options)

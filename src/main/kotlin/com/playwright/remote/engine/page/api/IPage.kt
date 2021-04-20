@@ -1,5 +1,6 @@
 package com.playwright.remote.engine.page.api
 
+import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.options.NavigateOptions
 import com.playwright.remote.engine.route.response.api.IResponse
 
@@ -13,6 +14,11 @@ interface IPage {
      * Removes handler that was previously added with {@link #onClose onClose(handler)}.
      */
     fun offClose(handler: (IPage) -> Unit)
+
+    /**
+     * Get the browser context that the page belongs to.
+     */
+    fun context(): IBrowserContext
 
     /**
      * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
