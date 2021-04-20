@@ -1,7 +1,9 @@
 package com.playwright.remote.engine.browser.impl
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.playwright.remote.callback.api.IBindingCall
 import com.playwright.remote.callback.api.IBindingCallback
 import com.playwright.remote.callback.api.IBindingCallback.ISource
 import com.playwright.remote.callback.api.IFunctionCallback
@@ -13,9 +15,7 @@ import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.options.Cookie
-import com.playwright.remote.engine.options.ExposeBindingOptions
-import com.playwright.remote.engine.options.WaitForPageOptions
+import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser
@@ -28,11 +28,12 @@ import com.playwright.remote.engine.waits.api.IWait
 import com.playwright.remote.engine.waits.impl.WaitContextClose
 import com.playwright.remote.engine.waits.impl.WaitEvent
 import com.playwright.remote.engine.waits.impl.WaitRace
+import com.playwright.remote.utils.Utils.Companion.writeToFile
 import okio.IOException
+import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files.readAllBytes
 import java.nio.file.Path
 import java.util.regex.Pattern
-import kotlin.text.Charsets.UTF_8
 
 class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBrowserContext {
@@ -72,6 +73,10 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         }
         val jsonObject = sendMessage("newPage").asJsonObject
         return messageProcessor.getExistingObject(jsonObject.getAsJsonObject("page").get("guid").asString)
+    }
+
+    override fun pages(): List<IPage> {
+        return pages
     }
 
     private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T {
@@ -161,6 +166,13 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         exposeBinding(name, { _: ISource, args: Any -> callback.call(args) })
     }
 
+    @JvmOverloads
+    override fun grantPermissions(permissions: List<String>, options: GrantPermissionsOptions) {
+        val params = Gson().toJsonTree(options).asJsonObject
+        params.add("permissions", Gson().toJsonTree(permissions))
+        sendMessage("grantPermissions", params)
+    }
+
     override fun route(url: String, handler: (IRoute) -> Unit) =
         route(UrlMatcher(url), handler)
 
@@ -179,9 +191,114 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         }
     }
 
+    override fun setDefaultNavigationTimeout(timeout: Double) {
+        timeoutSettings.defaultNavigationTimeout = timeout
+        val params = JsonObject()
+        params.addProperty("timeout", timeout)
+        sendMessage("setDefaultNavigationTimeoutNoReply", params)
+    }
+
+    override fun setDefaultTimeout(timeout: Double) {
+        timeoutSettings.defaultTimeout = timeout
+        val params = JsonObject()
+        params.addProperty("timeout", timeout)
+        sendMessage("setDefaultTimeoutNoReply", params)
+    }
+
+    override fun setExtraHttpHeaders(headers: Map<String, String>) {
+        val params = JsonObject()
+        val jsonHeaders = JsonArray()
+        for (entry in headers.entries) {
+            val header = JsonObject()
+            header.addProperty("name", entry.key)
+            header.addProperty("value", entry.value)
+            jsonHeaders.add(header)
+        }
+        params.add("headers", jsonHeaders)
+        sendMessage("setExtraHTTPHeaders", params)
+    }
+
+    @JvmOverloads
+    override fun setGeolocation(geolocation: Geolocation?) {
+        val params = JsonObject()
+        if (geolocation != null) {
+            params.add("geolocation", Gson().toJsonTree(geolocation))
+        }
+        sendMessage("setGeolocation", params)
+    }
+
+    override fun setOffline(isOffline: Boolean) {
+        val params = JsonObject()
+        params.addProperty("offline", isOffline)
+        sendMessage("setOffline", params)
+    }
+
+    @JvmOverloads
+    override fun storageState(options: StorageStateOptions?): String {
+        val json = sendMessage("storageState")
+        val storageState = json.asString
+        if (options?.path != null) {
+            writeToFile(storageState.toByteArray(UTF_8), options.path!!)
+        }
+        return storageState
+    }
+
+    @JvmOverloads
+    override fun unRoute(url: String, handler: ((IRoute) -> Unit)?) {
+        unRoute(UrlMatcher(url), handler)
+    }
+
+    @JvmOverloads
+    override fun unRoute(url: Pattern, handler: ((IRoute) -> Unit)?) {
+        unRoute(UrlMatcher(url), handler)
+    }
+
+    @JvmOverloads
+    override fun unRoute(url: (String) -> Boolean, handler: ((IRoute) -> Unit)?) {
+        unRoute(UrlMatcher(url), handler)
+    }
+
+    private fun unRoute(matcher: UrlMatcher, handler: ((IRoute) -> Unit)?) {
+        routes.remove(matcher, handler)
+        if (routes.size() == 0) {
+            val params = JsonObject()
+            params.addProperty("enabled", false)
+            sendMessage("setNetworkInterceptionEnabled", params)
+        }
+    }
+
     fun didClose() {
+        isClosedOrClosing = true
         browser?.contexts?.remove(this)
         listeners.notify(CLOSE, this)
     }
 
+    override fun handleEvent(event: String, params: JsonObject) {
+        when (event) {
+            "route" -> {
+                val route = messageProcessor.getExistingObject<IRoute>(params["route"].asJsonObject["guid"].asString)
+                if (!routes.handle(route)) {
+                    route.resume()
+                }
+            }
+            "page" -> {
+                val page = messageProcessor.getExistingObject<IPage>(params["page"].asJsonObject["guid"].asString)
+                listeners.notify(EventType.PAGE, page)
+                pages.add(page)
+            }
+            "bindingCall" -> {
+                val bindingCall =
+                    messageProcessor.getExistingObject<IBindingCall>(params["binding"].asJsonObject["guid"].asString)
+                val binding = bindings[bindingCall.name()]
+                if (binding != null) {
+                    bindingCall.call(binding)
+                }
+            }
+            else -> {
+                if (event == "close") {
+                    didClose()
+                }
+            }
+        }
+    }
 }

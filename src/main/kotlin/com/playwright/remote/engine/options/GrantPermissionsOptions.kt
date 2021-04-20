@@ -7,7 +7,7 @@ data class GrantPermissionsOptions @JvmOverloads constructor(
      * The [origin] to grant permissions to, e.g. "https://example.com".
      */
     var origin: String? = null,
-    private val builder: IBuilder<GrantPermissionsOptions>
+    @Transient private val builder: IBuilder<GrantPermissionsOptions>
 ) {
     init {
         builder.build(this)

@@ -2,6 +2,7 @@ package com.playwright.remote.utils
 
 import com.playwright.remote.core.exceptions.PlaywrightException
 import okio.IOException
+import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -72,6 +73,31 @@ class Utils {
             }
             tokens.append('$')
             return tokens.toString()
+        }
+
+        @JvmStatic
+        fun writeToFile(buffer: ByteArray, path: Path) {
+            mkParentDirs(path)
+            try {
+                FileOutputStream(path.toFile()).use {
+                    it.write(buffer)
+                }
+            } catch (e: IOException) {
+                throw PlaywrightException("Failed to write to file", e)
+            }
+        }
+
+        private fun mkParentDirs(file: Path) {
+            val dir = file.parent
+            if (dir != null) {
+                if (!Files.exists(dir)) {
+                    try {
+                        Files.createDirectories(dir)
+                    } catch (e: IOException) {
+                        throw PlaywrightException("Failed to create parent directory: $dir", e)
+                    }
+                }
+            }
         }
     }
 }

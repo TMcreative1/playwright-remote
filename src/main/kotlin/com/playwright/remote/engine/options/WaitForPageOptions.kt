@@ -15,7 +15,7 @@ data class WaitForPageOptions @JvmOverloads constructor(
      * value can be changed by using the {@link BrowserContext#setDefaultTimeout BrowserContext.setDefaultTimeout()}.
      */
     var timeout: Double? = null,
-    private val builder: IBuilder<WaitForPageOptions>
+    @Transient private val builder: IBuilder<WaitForPageOptions>
 ) {
     init {
         builder.build(this)

@@ -44,44 +44,13 @@ class TestRemoteBrowser : BaseTest() {
     }
 
     @Test
-    fun `check success connection to chrome browser`() {
+    fun `check success connection to browser`() {
         try {
-            val wsEndpoint = launchChromeBrowserServer()
-            RemoteBrowser.connectWs(wsEndpoint).use {
+            RemoteBrowser.connectWs(wsUrl).use {
                 assertTrue(it is Browser)
             }
         } catch (e: WebSocketException) {
             fail("Exception was thrown ${e.message}")
-        } finally {
-            stopServer()
-        }
-    }
-
-    @Test
-    fun `check success connection to firefox browser`() {
-        try {
-            val wsEndpoint = launchFirefoxBrowserServer()
-            RemoteBrowser.connectWs(wsEndpoint).use {
-                assertTrue(it is Browser)
-            }
-        } catch (e: WebSocketException) {
-            fail("Exception was thrown ${e.message}")
-        } finally {
-            stopServer()
-        }
-    }
-
-    @Test
-    fun `check success connection to safari browser`() {
-        try {
-            val wsEndpoint = launchSafariBrowserServer()
-            RemoteBrowser.connectWs(wsEndpoint).use {
-                assertTrue(it is Browser)
-            }
-        } catch (e: WebSocketException) {
-            fail("Exception was thrown ${e.message}")
-        } finally {
-            stopServer()
         }
     }
 }

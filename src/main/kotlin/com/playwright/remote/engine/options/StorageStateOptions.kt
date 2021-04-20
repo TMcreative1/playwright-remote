@@ -9,7 +9,7 @@ data class StorageStateOptions @JvmOverloads constructor(
      * working directory. If no path is provided, storage state is still returned, but won't be saved to the disk.
      */
     var path: Path? = null,
-    private val builder: IBuilder<StorageStateOptions>
+    @Transient private val builder: IBuilder<StorageStateOptions>
 ) {
     init {
         builder.build(this)

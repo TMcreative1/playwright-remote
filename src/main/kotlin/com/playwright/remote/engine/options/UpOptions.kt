@@ -12,7 +12,7 @@ data class UpOptions @JvmOverloads constructor(
      * defaults to 1. See [UIEvent.detail].
      */
     var clickCount: Int? = null,
-    private val builder: IBuilder<UpOptions>
+    @Transient private val builder: IBuilder<UpOptions>
 ) {
     init {
         builder.build(this)

@@ -1,7 +1,7 @@
 package com.playwright.remote.base
 
 import com.playwright.remote.base.server.Server
-import com.playwright.remote.core.enums.BrowserType.*
+import com.playwright.remote.core.enums.BrowserType.valueOf
 import com.playwright.remote.engine.server.api.IServerProvider
 import com.playwright.remote.engine.server.impl.ServerProvider
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
@@ -11,13 +11,18 @@ import org.junit.jupiter.api.BeforeAll
 
 open class BaseTest {
 
-    private val server: IServerProvider
-
     companion object {
         @JvmStatic
         lateinit var httpServer: Server
+
         @JvmStatic
         lateinit var httpsServer: Server
+
+        @JvmStatic
+        lateinit var wsUrl: String
+
+        @JvmStatic
+        private lateinit var server: IServerProvider
 
         @JvmStatic
         @BeforeAll
@@ -33,26 +38,22 @@ open class BaseTest {
             httpsServer.stop()
         }
 
-    }
+        @JvmStatic
+        @BeforeAll
+        private fun launchBrowserServer() {
+            server = ServerProvider()
+            wsUrl = server.launchServer(
+                getCurrentPlatform(),
+                valueOf(System.getProperty("browser").ifEmpty { "chromium" }.toUpperCase())
+            )!!
+        }
 
-    init {
-        server = ServerProvider()
-    }
+        @JvmStatic
+        @AfterAll
+        private fun stopServer() {
+            server.stopServer()
+        }
 
-    protected fun launchChromeBrowserServer(): String {
-        return server.launchServer(getCurrentPlatform(), CHROMIUM)!!
-    }
-
-    protected fun launchFirefoxBrowserServer(): String {
-        return server.launchServer(getCurrentPlatform(), FIREFOX)!!
-    }
-
-    protected fun launchSafariBrowserServer(): String {
-        return server.launchServer(getCurrentPlatform(), WEBKIT)!!
-    }
-
-    protected fun stopServer() {
-        server.stopServer()
     }
 
 }

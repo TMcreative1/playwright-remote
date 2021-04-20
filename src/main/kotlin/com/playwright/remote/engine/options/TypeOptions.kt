@@ -7,7 +7,7 @@ data class TypeOptions @JvmOverloads constructor(
      * Time to wait between key presses in milliseconds. Defaults to 0.
      */
     var delay: Double? = null,
-    private val builder: IBuilder<TypeOptions>
+    @Transient private val builder: IBuilder<TypeOptions>
 ) {
     init {
         builder.build(this)

@@ -8,12 +8,14 @@ import com.playwright.remote.core.enums.ObjectType.*
 import com.playwright.remote.core.exceptions.DriverException
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.core.exceptions.TimeoutException
+import com.playwright.remote.domain.message.Message
 import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
 import com.playwright.remote.engine.browser.impl.Selectors
 import com.playwright.remote.engine.console.impl.ConsoleMessage
 import com.playwright.remote.engine.frame.impl.Frame
+import com.playwright.remote.engine.handle.js.impl.JSHandle
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.parser.IParser.Companion.toJson
@@ -21,8 +23,6 @@ import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.impl.Response
 import com.playwright.remote.engine.transport.ITransport
 import com.playwright.remote.engine.waits.impl.WaitResult
-import com.playwright.remote.domain.message.Message
-import com.playwright.remote.engine.handle.js.impl.JSHandle
 
 class MessageProcessor(private val transport: ITransport) {
     private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")
@@ -65,8 +65,8 @@ class MessageProcessor(private val transport: ITransport) {
             when {
                 message.error == null -> callback.complete(message.result)
                 message.error.error == null -> callback.completeWithException(PlaywrightException(message.error.toString()))
-                message.error.error.name == "TimeoutError" -> callback.completeWithException(TimeoutException(message.error.error.toString()))
-                else -> callback.completeWithException(DriverException(message.error.error))
+                message.error.error!!.name == "TimeoutError" -> callback.completeWithException(TimeoutException(message.error.error.toString()))
+                else -> callback.completeWithException(DriverException(message.error.error!!))
             }
             return
         }

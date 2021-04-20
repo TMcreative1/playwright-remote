@@ -7,7 +7,7 @@ data class Proxy @JvmOverloads constructor(
     var bypass: String? = null,
     var username: String? = null,
     var password: String? = null,
-    private val builder: IBuilder<Proxy>
+    @Transient private val builder: IBuilder<Proxy>
 ) {
     init {
         builder.build(this)

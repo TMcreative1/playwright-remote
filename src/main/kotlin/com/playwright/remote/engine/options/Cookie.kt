@@ -34,7 +34,7 @@ data class Cookie @JvmOverloads constructor(
      * Optional.
      */
     var sameSite: SameSiteAttribute? = null,
-    private val builder: IBuilder<Cookie>
+    @Transient private val builder: IBuilder<Cookie>
 ) {
     init {
         builder.build(this)

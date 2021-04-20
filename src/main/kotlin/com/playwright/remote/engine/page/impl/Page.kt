@@ -3,10 +3,11 @@ package com.playwright.remote.engine.page.impl
 import com.google.gson.JsonObject
 import com.playwright.remote.callback.api.IBindingCallback
 import com.playwright.remote.core.enums.EventType
-import com.playwright.remote.core.enums.EventType.CLOSE
-import com.playwright.remote.core.enums.EventType.FILECHOOSER
+import com.playwright.remote.core.enums.EventType.*
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.browser.impl.BrowserContext
+import com.playwright.remote.engine.console.api.IConsoleMessage
+import com.playwright.remote.engine.dialog.api.IDialog
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.keyboard.api.IKeyboard
 import com.playwright.remote.engine.keyboard.impl.Keyboard
@@ -72,8 +73,51 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         timeoutSettings = TimeoutSettings(browserContext.timeoutSettings)
     }
 
-    fun didClose() {
+    @Suppress("UNCHECKED_CAST")
+    override fun onClose(handler: (IPage) -> Unit) = listeners.add(CLOSE, handler as UniversalConsumer)
 
+    @Suppress("UNCHECKED_CAST")
+    override fun offClose(handler: (IPage) -> Unit) = listeners.remove(CLOSE, handler as UniversalConsumer)
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onConsoleMessage(handler: (IConsoleMessage) -> Unit) {
+        listeners.add(CONSOLE, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offConsoleMessage(handler: (IConsoleMessage) -> Unit) {
+        listeners.remove(CONSOLE, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onCrash(handler: (IPage) -> Unit) {
+        listeners.add(CRASH, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offCrash(handler: (IPage) -> Unit) {
+        listeners.remove(CRASH, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onDialog(handler: (IDialog) -> Unit) {
+        listeners.add(DIALOG, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offDialog(handler: (IDialog) -> Unit) {
+        listeners.remove(DIALOG, handler as UniversalConsumer)
+    }
+
+    override fun context(): IBrowserContext {
+        return browserContext
+    }
+
+    @JvmOverloads
+    override fun navigate(url: String, options: NavigateOptions): IResponse? =
+        mainFrame.navigate(url, options)
+
+    fun didClose() {
         isClosed = true
         (browserContext as BrowserContext).pages.remove(this)
         listeners.notify(CLOSE, this)
@@ -86,14 +130,4 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
             sendMessage("setFileChooserInterceptedNoReply", params)
         }
     }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun onClose(handler: (IPage) -> Unit) = listeners.add(CLOSE, handler as UniversalConsumer)
-
-    @Suppress("UNCHECKED_CAST")
-    override fun offClose(handler: (IPage) -> Unit) = listeners.remove(CLOSE, handler as UniversalConsumer)
-
-    @JvmOverloads
-    override fun navigate(url: String, options: NavigateOptions): IResponse? =
-        mainFrame.navigate(url, options)
 }

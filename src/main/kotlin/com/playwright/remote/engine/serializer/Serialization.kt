@@ -2,17 +2,21 @@ package com.playwright.remote.engine.serializer
 
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.domain.serialize.SerializedArgument
+import com.playwright.remote.domain.serialize.SerializedError
 import com.playwright.remote.domain.serialize.SerializedError.SerializedValue
 import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.handle.js.impl.JSHandle
 import com.playwright.remote.engine.parser.IParser
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
+import java.nio.charset.StandardCharsets.UTF_8
 
 class Serialization {
 
     companion object {
         @JvmStatic
         fun serializeArgument(arg: Any?): SerializedArgument {
-            val result = SerializedArgument{}
+            val result = SerializedArgument {}
             val handles = mutableListOf<IJSHandle>()
             result.value = serializeValue(arg, handles, 0)
             result.handles = emptyArray()
@@ -65,7 +69,7 @@ class Serialization {
                 throw PlaywrightException("Maximum argument depth exceeded")
             }
 
-            val result = SerializedValue{}
+            val result = SerializedValue {}
             when (value) {
                 is IJSHandle -> {
                     result.h = handles.size
@@ -94,7 +98,7 @@ class Serialization {
                 is Map<*, *> -> {
                     val list = mutableListOf<SerializedValue.O>()
                     for (e in value.entries) {
-                        val serializedValue = SerializedValue.O()
+                        val serializedValue = SerializedValue.O{}
                         serializedValue.k = e.key as String?
                         serializedValue.v = serializeValue(e.value, handles, depth + 1)
                         list.add(serializedValue)
@@ -110,6 +114,19 @@ class Serialization {
                 }
                 else -> throw PlaywrightException("Unsupported type of argument: $value")
             }
+            return result
+        }
+
+        @JvmStatic
+        fun serializeError(e: Throwable): SerializedError {
+            val result = SerializedError {}
+            result.error = SerializedError.Error {}
+            result.error!!.message = e.message
+            result.error!!.name = e.javaClass.name
+
+            val out = ByteArrayOutputStream()
+            e.printStackTrace(PrintStream(out))
+            result.error!!.stack = String(out.toByteArray(), UTF_8)
             return result
         }
     }

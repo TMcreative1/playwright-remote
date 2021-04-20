@@ -6,7 +6,7 @@ data class Geolocation @JvmOverloads constructor(
     val latitude: Double,
     val longitude: Double,
     var accuracy: Double? = null,
-    private val builder: IBuilder<Geolocation>
+    @Transient private val builder: IBuilder<Geolocation>
 ) {
 
     init {

@@ -1,6 +1,7 @@
 package com.playwright.remote.engine.frame.api
 
 import com.playwright.remote.engine.options.NavigateOptions
+import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.route.response.api.IResponse
 
 /**
@@ -41,6 +42,11 @@ import com.playwright.remote.engine.route.response.api.IResponse
  * }</pre>
  */
 interface IFrame {
+
+    /**
+     * Returns the page containing this frame.
+     */
+    fun page(): IPage?
 
     /**
      * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the

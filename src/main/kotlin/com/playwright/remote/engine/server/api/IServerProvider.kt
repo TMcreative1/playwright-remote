@@ -5,5 +5,5 @@ import com.playwright.remote.core.enums.Platform
 
 interface IServerProvider {
     fun launchServer(platform: Platform, browserType: BrowserType): String?
-    fun stopServer() : Int
+    fun stopServer(): Int
 }

@@ -33,6 +33,7 @@ tasks.test {
         include("**/Test*.class")
     }
     dependsOn("downloadAndUnzip")
+    systemProperty("browser", System.getProperty("browser"))
 }
 
 task<DefaultTask>("downloadAndUnzip") {
