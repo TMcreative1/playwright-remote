@@ -41,7 +41,10 @@ open class BaseTest {
     }
 
     protected fun launchBrowserServer(): String {
-        return server.launchServer(getCurrentPlatform(), valueOf(System.getProperty("browser").toUpperCase()))!!
+        return server.launchServer(
+            getCurrentPlatform(),
+            valueOf(System.getProperty("browser").ifEmpty { "chromium" }.toUpperCase())
+        )!!
     }
 
     protected fun stopServer() {
