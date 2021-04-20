@@ -46,14 +46,11 @@ class TestRemoteBrowser : BaseTest() {
     @Test
     fun `check success connection to browser`() {
         try {
-            val wsEndpoint = launchBrowserServer()
-            RemoteBrowser.connectWs(wsEndpoint).use {
+            RemoteBrowser.connectWs(wsUrl).use {
                 assertTrue(it is Browser)
             }
         } catch (e: WebSocketException) {
             fail("Exception was thrown ${e.message}")
-        } finally {
-            stopServer()
         }
     }
 }

@@ -11,14 +11,18 @@ import org.junit.jupiter.api.BeforeAll
 
 open class BaseTest {
 
-    private val server: IServerProvider
-
     companion object {
         @JvmStatic
         lateinit var httpServer: Server
 
         @JvmStatic
         lateinit var httpsServer: Server
+
+        @JvmStatic
+        lateinit var wsUrl: String
+
+        @JvmStatic
+        private lateinit var server: IServerProvider
 
         @JvmStatic
         @BeforeAll
@@ -34,21 +38,22 @@ open class BaseTest {
             httpsServer.stop()
         }
 
-    }
+        @JvmStatic
+        @BeforeAll
+        private fun launchBrowserServer() {
+            server = ServerProvider()
+            wsUrl = server.launchServer(
+                getCurrentPlatform(),
+                valueOf(System.getProperty("browser").ifEmpty { "chromium" }.toUpperCase())
+            )!!
+        }
 
-    init {
-        server = ServerProvider()
-    }
+        @JvmStatic
+        @AfterAll
+        private fun stopServer() {
+            server.stopServer()
+        }
 
-    protected fun launchBrowserServer(): String {
-        return server.launchServer(
-            getCurrentPlatform(),
-            valueOf(System.getProperty("browser").ifEmpty { "chromium" }.toUpperCase())
-        )!!
-    }
-
-    protected fun stopServer() {
-        server.stopServer()
     }
 
 }
