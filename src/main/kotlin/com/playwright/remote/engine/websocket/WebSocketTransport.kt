@@ -58,7 +58,6 @@ class WebSocketTransport(url: String) : ITransport {
         webSocket.send(message)
     }
 
-    @JvmOverloads
     override fun pollMessage(timeout: Long, timeUnit: TimeUnit): String? {
         if (!incomingErrors.isEmpty()) {
             closeConnection()

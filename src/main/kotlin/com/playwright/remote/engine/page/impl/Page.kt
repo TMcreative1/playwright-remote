@@ -1,11 +1,11 @@
 package com.playwright.remote.engine.page.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.callback.api.IBindingCallback
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.*
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.browser.impl.BrowserContext
+import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.dialog.api.IDialog
 import com.playwright.remote.engine.frame.api.IFrame
@@ -113,7 +113,6 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return browserContext
     }
 
-    @JvmOverloads
     override fun navigate(url: String, options: NavigateOptions): IResponse? =
         mainFrame.navigate(url, options)
 

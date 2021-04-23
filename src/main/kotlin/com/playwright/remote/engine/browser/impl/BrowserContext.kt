@@ -3,16 +3,16 @@ package com.playwright.remote.engine.browser.impl
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.playwright.remote.callback.api.IBindingCall
-import com.playwright.remote.callback.api.IBindingCallback
-import com.playwright.remote.callback.api.IBindingCallback.ISource
-import com.playwright.remote.callback.api.IFunctionCallback
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.enums.EventType.PAGE
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
+import com.playwright.remote.engine.callback.api.IBindingCall
+import com.playwright.remote.engine.callback.api.IBindingCallback
+import com.playwright.remote.engine.callback.api.IBindingCallback.ISource
+import com.playwright.remote.engine.callback.api.IFunctionCallback
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
 import com.playwright.remote.engine.options.*
@@ -87,7 +87,6 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         return runUtil(WaitRace(waitList), code)
     }
 
-    @JvmOverloads
     override fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage =
         waitForEventWithTimeout(PAGE, (options ?: WaitForPageOptions {}).timeout, callback)
 
@@ -130,19 +129,17 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         sendMessage("clearPermissions")
     }
 
-    @JvmOverloads
     override fun cookies(url: String?): List<Cookie> =
         cookies(if (url != null) listOf(url) else emptyList())
 
-    override fun cookies(urls: List<String>): List<Cookie> {
+    override fun cookies(urls: List<String>?): List<Cookie> {
         val params = JsonObject()
-        params.add("urls", Gson().toJsonTree(urls))
+        params.add("urls", Gson().toJsonTree(urls ?: emptyList<String>()))
         val json = sendMessage("cookies", params).asJsonObject
         val cookies = IParser.fromJson(json["cookies"].asJsonArray, Array<Cookie>::class.java)
         return cookies.toList()
     }
 
-    @JvmOverloads
     override fun exposeBinding(name: String, callback: IBindingCallback, options: ExposeBindingOptions?) {
         if (bindings.containsKey(name)) {
             throw PlaywrightException("Function $name has been already registered")
@@ -163,13 +160,12 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     }
 
     override fun exposeFunction(name: String, callback: IFunctionCallback) {
-        exposeBinding(name, { _: ISource, args: Any -> callback.call(args) })
+        exposeBinding(name) { _: ISource, args: Any -> callback.call(args) }
     }
 
-    @JvmOverloads
-    override fun grantPermissions(permissions: List<String>, options: GrantPermissionsOptions) {
+    override fun grantPermissions(permissions: List<String>?, options: GrantPermissionsOptions) {
         val params = Gson().toJsonTree(options).asJsonObject
-        params.add("permissions", Gson().toJsonTree(permissions))
+        params.add("permissions", Gson().toJsonTree(permissions ?: emptyList<String>()))
         sendMessage("grantPermissions", params)
     }
 
@@ -218,7 +214,6 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         sendMessage("setExtraHTTPHeaders", params)
     }
 
-    @JvmOverloads
     override fun setGeolocation(geolocation: Geolocation?) {
         val params = JsonObject()
         if (geolocation != null) {
@@ -233,7 +228,6 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         sendMessage("setOffline", params)
     }
 
-    @JvmOverloads
     override fun storageState(options: StorageStateOptions?): String {
         val json = sendMessage("storageState")
         val storageState = json.asString
@@ -243,17 +237,14 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         return storageState
     }
 
-    @JvmOverloads
     override fun unRoute(url: String, handler: ((IRoute) -> Unit)?) {
         unRoute(UrlMatcher(url), handler)
     }
 
-    @JvmOverloads
     override fun unRoute(url: Pattern, handler: ((IRoute) -> Unit)?) {
         unRoute(UrlMatcher(url), handler)
     }
 
-    @JvmOverloads
     override fun unRoute(url: (String) -> Boolean, handler: ((IRoute) -> Unit)?) {
         unRoute(UrlMatcher(url), handler)
     }

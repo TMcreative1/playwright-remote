@@ -1,4 +1,4 @@
-package com.playwright.remote.callback.api
+package com.playwright.remote.engine.callback.api
 
 interface IBindingCall {
     fun name(): String

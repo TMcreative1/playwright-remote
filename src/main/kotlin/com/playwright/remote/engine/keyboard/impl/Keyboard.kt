@@ -21,14 +21,12 @@ class Keyboard(val page: ChannelOwner) : IKeyboard {
         page.sendMessage("keyboardInsertText", params)
     }
 
-    @JvmOverloads
     override fun press(key: String, options: PressOptions) {
         val params = Gson().toJsonTree(options).asJsonObject
         params.addProperty("key", key)
         page.sendMessage("keyboardPress", params)
     }
 
-    @JvmOverloads
     override fun type(text: String, options: TypeOptions) {
         val params = Gson().toJsonTree(options).asJsonObject
         params.addProperty("text", text)

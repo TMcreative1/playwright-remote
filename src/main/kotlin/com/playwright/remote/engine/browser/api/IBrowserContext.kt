@@ -1,7 +1,7 @@
 package com.playwright.remote.engine.browser.api
 
-import com.playwright.remote.callback.api.IBindingCallback
-import com.playwright.remote.callback.api.IFunctionCallback
+import com.playwright.remote.engine.callback.api.IBindingCallback
+import com.playwright.remote.engine.callback.api.IFunctionCallback
 import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.route.api.IRoute
@@ -59,6 +59,7 @@ interface IBrowserContext : AutoCloseable {
      */
     fun pages(): List<IPage>
 
+
     /**
      * Performs action and waits for a new {@code Page} to be created in the context. If predicate is provided, it passes {@code Page}
      * value into the {@code predicate} function and waits for {@code predicate(event)} to return a truthy value. Will throw an error if
@@ -66,7 +67,16 @@ interface IBrowserContext : AutoCloseable {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForPage(options: WaitForPageOptions? = null, callback: () -> Unit): IPage
+    fun waitForPage(callback: () -> Unit): IPage = waitForPage(null, callback)
+
+    /**
+     * Performs action and waits for a new {@code Page} to be created in the context. If predicate is provided, it passes {@code Page}
+     * value into the {@code predicate} function and waits for {@code predicate(event)} to return a truthy value. Will throw an error if
+     * the context closes before new {@code Page} is created.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage
 
     /**
      * Adds cookies into this browser context. All pages within this context will have these cookies installed. Cookies can be
@@ -152,7 +162,8 @@ interface IBrowserContext : AutoCloseable {
      *
      * @param urls Optional list of URLs.
      */
-    fun cookies(url: String? = null): List<Cookie>
+    @Suppress("CAST_NEVER_SUCCEEDS")
+    fun cookies(): List<Cookie> = cookies(null as String)
 
     /**
      * If no URLs are specified, this method returns all cookies. If URLs are specified, only cookies that affect those URLs
@@ -160,7 +171,15 @@ interface IBrowserContext : AutoCloseable {
      *
      * @param urls Optional list of URLs.
      */
-    fun cookies(urls: List<String> = emptyList()): List<Cookie>
+    fun cookies(url: String?): List<Cookie>
+
+    /**
+     * If no URLs are specified, this method returns all cookies. If URLs are specified, only cookies that affect those URLs
+     * are returned.
+     *
+     * @param urls Optional list of URLs.
+     */
+    fun cookies(urls: List<String>?): List<Cookie>
 
     /**
      * The method adds a function called {@code name} on the {@code window} object of every frame in every page in the context. When
@@ -218,7 +237,65 @@ interface IBrowserContext : AutoCloseable {
      * @param name Name of the function on the window object.
      * @param callback Callback function that will be called in the Playwright's context.
      */
-    fun exposeBinding(name: String, callback: IBindingCallback, options: ExposeBindingOptions? = null)
+    fun exposeBinding(name: String, callback: IBindingCallback) = exposeBinding(name, callback, null)
+
+    /**
+     * The method adds a function called {@code name} on the {@code window} object of every frame in every page in the context. When
+     * called, the function executes {@code callback} and returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a> which
+     * resolves to the return value of {@code callback}. If the {@code callback} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, it will be
+     * awaited.
+     *
+     * <p> The first argument of the {@code callback} function contains information about the caller: {@code { browserContext: BrowserContext,
+     * page: Page, frame: Frame }}.
+     *
+     * <p> See {@link Page#exposeBinding Page.exposeBinding()} for page-only version.
+     *
+     * <p> An example of exposing page URL to all frames in all pages in the context:
+     * <pre>{@code
+     * import com.microsoft.playwright.*;
+     *
+     * public class Example {
+     *   public static void main(String[] args) {
+     *     try (Playwright playwright = Playwright.create()) {
+     *       BrowserType webkit = playwright.webkit()
+     *       Browser browser = webkit.launch(new BrowserType.LaunchOptions().setHeadless(false));
+     *       BrowserContext context = browser.newContext();
+     *       context.exposeBinding("pageURL", (source, args) -> source.page().url());
+     *       Page page = context.newPage();
+     *       page.setContent("<script>\n" +
+     *         "  async function onClick() {\n" +
+     *         "    document.querySelector('div').textContent = await window.pageURL();\n" +
+     *         "  }\n" +
+     *         "</script>\n" +
+     *         "<button onclick=\"onClick()\">Click me</button>\n" +
+     *         "<div></div>");
+     *       page.click("button");
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * <p> An example of passing an element handle:
+     * <pre>{@code
+     * context.exposeBinding("clicked", (source, args) -> {
+     *   ElementHandle element = (ElementHandle) args[0];
+     *   System.out.println(element.textContent());
+     *   return null;
+     * }, new BrowserContext.ExposeBindingOptions().setHandle(true));
+     * page.setContent("" +
+     *   "<script>\n" +
+     *   "  document.addEventListener('click', event => window.clicked(event.target));\n" +
+     *   "</script>\n" +
+     *   "<div>Click me</div>\n" +
+     *   "<div>Or click me</div>\n");
+     * }</pre>
+     *
+     * @param name Name of the function on the window object.
+     * @param callback Callback function that will be called in the Playwright's context.
+     */
+    fun exposeBinding(name: String, callback: IBindingCallback, options: ExposeBindingOptions?)
 
     /**
      * The method adds a function called {@code name} on the {@code window} object of every frame in every page in the context. When
@@ -300,9 +377,35 @@ interface IBrowserContext : AutoCloseable {
      * <li> {@code "payment-handler"}</li>
      * </ul>
      */
+    fun grantPermissions(permissions: List<String>) = grantPermissions(permissions, GrantPermissionsOptions {})
+
+    /**
+     * Grants specified permissions to the browser context. Only grants corresponding permissions to the given origin if
+     * specified.
+     *
+     * @param permissions A permission or an array of permissions to grant. Permissions can be one of the following values:
+     * <ul>
+     * <li> {@code "geolocation"}</li>
+     * <li> {@code "midi"}</li>
+     * <li> {@code "midi-sysex"} (system-exclusive midi)</li>
+     * <li> {@code "notifications"}</li>
+     * <li> {@code "push"}</li>
+     * <li> {@code "camera"}</li>
+     * <li> {@code "microphone"}</li>
+     * <li> {@code "background-sync"}</li>
+     * <li> {@code "ambient-light-sensor"}</li>
+     * <li> {@code "accelerometer"}</li>
+     * <li> {@code "gyroscope"}</li>
+     * <li> {@code "magnetometer"}</li>
+     * <li> {@code "accessibility-events"}</li>
+     * <li> {@code "clipboard-read"}</li>
+     * <li> {@code "clipboard-write"}</li>
+     * <li> {@code "payment-handler"}</li>
+     * </ul>
+     */
     fun grantPermissions(
-        permissions: List<String> = emptyList(),
-        options: GrantPermissionsOptions = GrantPermissionsOptions {}
+        permissions: List<String>?,
+        options: GrantPermissionsOptions
     )
 
     /**
@@ -453,7 +556,7 @@ interface IBrowserContext : AutoCloseable {
      * <p> <strong>NOTE:</strong> Consider using {@link BrowserContext#grantPermissions BrowserContext.grantPermissions()} to grant permissions for the
      * browser context pages to read its geolocation.
      */
-    fun setGeolocation(geolocation: Geolocation? = null)
+    fun setGeolocation(geolocation: Geolocation?)
 
     /**
      *
@@ -465,7 +568,12 @@ interface IBrowserContext : AutoCloseable {
     /**
      * Returns storage state for this browser context, contains current cookies and local storage snapshot.
      */
-    fun storageState(options: StorageStateOptions? = null): String
+    fun storageState(): String = storageState(null)
+
+    /**
+     * Returns storage state for this browser context, contains current cookies and local storage snapshot.
+     */
+    fun storageState(options: StorageStateOptions?): String
 
     /**
      * Removes a route created with {@link BrowserContext#route BrowserContext.route()}. When {@code handler} is not specified,
@@ -475,7 +583,27 @@ interface IBrowserContext : AutoCloseable {
      * BrowserContext.route()}.
      * @param handler Optional handler function used to register a routing with {@link BrowserContext#route BrowserContext.route()}.
      */
-    fun unRoute(url: String, handler: ((IRoute) -> Unit)? = null)
+    fun unRoute(url: String) = unRoute(url, null)
+
+    /**
+     * Removes a route created with {@link BrowserContext#route BrowserContext.route()}. When {@code handler} is not specified,
+     * removes all routes for the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] used to register a routing with {@link BrowserContext#route
+     * BrowserContext.route()}.
+     * @param handler Optional handler function used to register a routing with {@link BrowserContext#route BrowserContext.route()}.
+     */
+    fun unRoute(url: String, handler: ((IRoute) -> Unit)?)
+
+    /**
+     * Removes a route created with {@link BrowserContext#route BrowserContext.route()}. When {@code handler} is not specified,
+     * removes all routes for the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] used to register a routing with {@link BrowserContext#route
+     * BrowserContext.route()}.
+     * @param handler Optional handler function used to register a routing with {@link BrowserContext#route BrowserContext.route()}.
+     */
+    fun unRoute(url: Pattern) = unRoute(url, null)
 
     /**
      * Removes a route created with {@link BrowserContext#route BrowserContext.route()}. When {@code handler} is not specified,
@@ -495,5 +623,15 @@ interface IBrowserContext : AutoCloseable {
      * BrowserContext.route()}.
      * @param handler Optional handler function used to register a routing with {@link BrowserContext#route BrowserContext.route()}.
      */
-    fun unRoute(url: (String) -> Boolean, handler: ((IRoute) -> Unit)? = null)
+    fun unRoute(url: (String) -> Boolean) = unRoute(url, null)
+
+    /**
+     * Removes a route created with {@link BrowserContext#route BrowserContext.route()}. When {@code handler} is not specified,
+     * removes all routes for the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] used to register a routing with {@link BrowserContext#route
+     * BrowserContext.route()}.
+     * @param handler Optional handler function used to register a routing with {@link BrowserContext#route BrowserContext.route()}.
+     */
+    fun unRoute(url: (String) -> Boolean, handler: ((IRoute) -> Unit)?)
 }

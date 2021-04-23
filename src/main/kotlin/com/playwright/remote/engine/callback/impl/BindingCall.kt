@@ -1,9 +1,9 @@
-package com.playwright.remote.callback.impl
+package com.playwright.remote.engine.callback.impl
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.playwright.remote.callback.api.IBindingCall
-import com.playwright.remote.callback.api.IBindingCallback
+import com.playwright.remote.engine.callback.api.IBindingCall
+import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.domain.serialize.SerializedError
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.frame.api.IFrame
