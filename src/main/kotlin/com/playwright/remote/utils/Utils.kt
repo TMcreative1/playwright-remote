@@ -3,6 +3,7 @@ package com.playwright.remote.utils
 import com.playwright.remote.core.exceptions.PlaywrightException
 import okio.IOException
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -81,6 +82,26 @@ class Utils {
             try {
                 FileOutputStream(path.toFile()).use {
                     it.write(buffer)
+                }
+            } catch (e: IOException) {
+                throw PlaywrightException("Failed to write to file", e)
+            }
+        }
+
+        @JvmStatic
+        fun writeToFile(inputStream: InputStream, path: Path) {
+            mkParentDirs(path)
+            try {
+                FileOutputStream(path.toFile()).use {
+                    val buf = ByteArray(8192)
+                    var length: Int
+                    do {
+                        length = inputStream.read(buf)
+                        if (length > 0) {
+                            break
+                        }
+                        it.write(buf, 0, length)
+                    } while (true)
                 }
             } catch (e: IOException) {
                 throw PlaywrightException("Failed to write to file", e)

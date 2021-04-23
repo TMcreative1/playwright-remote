@@ -3,6 +3,7 @@ package com.playwright.remote.engine.page.api
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.dialog.api.IDialog
+import com.playwright.remote.engine.download.api.IDownload
 import com.playwright.remote.engine.options.NavigateOptions
 import com.playwright.remote.engine.route.response.api.IResponse
 
@@ -76,6 +77,32 @@ interface IPage {
      * Removes handler that was previously added with {@link #onDialog onDialog(handler)}.
      */
     fun offDialog(handler: (IDialog) -> Unit)
+
+    /**
+     * Emitted when the JavaScript <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/Events/DOMContentLoaded">{@code DOMContentLoaded}</a> event is dispatched.
+     */
+    fun onDomContentLoaded(handler: (IPage) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onDOMContentLoaded onDOMContentLoaded(handler)}.
+     */
+    fun offDomContentLoaded(handler: (IPage) -> Unit)
+
+    /**
+     * Emitted when attachment download started. User can access basic file operations on downloaded content via the passed
+     * {@code Download} instance.
+     *
+     * <p> <strong>NOTE:</strong> Browser context **must** be created with the {@code acceptDownloads} set to {@code true} when user needs access to the downloaded
+     * content. If {@code acceptDownloads} is not set, download events are emitted, but the actual download is not performed and user
+     * has no access to the downloaded files.
+     */
+    fun onDownload(handler: (IDownload) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onDownload onDownload(handler)}.
+     */
+    fun offDownload(handler: (IDownload) -> Unit)
 
     /**
      * Get the browser context that the page belongs to.
