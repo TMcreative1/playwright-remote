@@ -1,4 +1,4 @@
-package com.playwright.remote.callback.api
+package com.playwright.remote.engine.callback.api
 
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.frame.api.IFrame

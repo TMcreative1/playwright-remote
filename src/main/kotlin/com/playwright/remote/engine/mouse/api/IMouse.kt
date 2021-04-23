@@ -21,26 +21,52 @@ interface IMouse {
     /**
      * Shortcut for {@link Mouse#move Mouse.move()}, {@link Mouse#down Mouse.down()}, {@link Mouse#up Mouse.up()}.
      */
-    fun click(x: Double, y: Double, options: ClickOptions = ClickOptions {})
+    fun click(x: Double, y: Double) = click(x, y, ClickOptions {})
+
+    /**
+     * Shortcut for {@link Mouse#move Mouse.move()}, {@link Mouse#down Mouse.down()}, {@link Mouse#up Mouse.up()}.
+     */
+    fun click(x: Double, y: Double, options: ClickOptions)
 
     /**
      * Shortcut for {@link Mouse#move Mouse.move()}, {@link Mouse#down Mouse.down()}, {@link Mouse#up Mouse.up()}, {@link
      * Mouse#down Mouse.down()} and {@link Mouse#up Mouse.up()}.
      */
-    fun doubleClick(x: Double, y: Double, options: DoubleClickOptions? = null)
+    fun doubleClick(x: Double, y: Double) = doubleClick(x, y, null)
+
+    /**
+     * Shortcut for {@link Mouse#move Mouse.move()}, {@link Mouse#down Mouse.down()}, {@link Mouse#up Mouse.up()}, {@link
+     * Mouse#down Mouse.down()} and {@link Mouse#up Mouse.up()}.
+     */
+    fun doubleClick(x: Double, y: Double, options: DoubleClickOptions?)
 
     /**
      * Dispatches a {@code mousedown} event.
      */
-    fun down(options: DownOptions = DownOptions {})
+    fun down() = down(DownOptions {})
+
+    /**
+     * Dispatches a {@code mousedown} event.
+     */
+    fun down(options: DownOptions)
 
     /**
      * Dispatches a {@code mousemove} event.
      */
-    fun move(x: Double, y: Double, options: MoveOptions = MoveOptions {})
+    fun move(x: Double, y: Double) = move(x, y, MoveOptions {})
+
+    /**
+     * Dispatches a {@code mousemove} event.
+     */
+    fun move(x: Double, y: Double, options: MoveOptions)
 
     /**
      * Dispatches a {@code mouseup} event.
      */
-    fun up(options: UpOptions = UpOptions {})
+    fun up() = up(UpOptions {})
+
+    /**
+     * Dispatches a {@code mouseup} event.
+     */
+    fun up(options: UpOptions)
 }

@@ -7,7 +7,6 @@ import com.playwright.remote.engine.processor.ChannelOwner
 class Dialog(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IDialog {
 
-    @JvmOverloads
     override fun accept(promptText: String?) {
         val params = JsonObject()
         if (promptText != null) {

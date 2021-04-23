@@ -7,7 +7,7 @@ import com.playwright.remote.domain.serialize.SerializedError
 data class Message(
     val id: Int,
     val guid: String,
-    val method: String,
+    val method: String?,
     val params: JsonObject,
     val result: JsonElement,
     val error: SerializedError?

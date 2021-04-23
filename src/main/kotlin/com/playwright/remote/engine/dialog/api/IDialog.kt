@@ -7,7 +7,14 @@ interface IDialog {
      *
      * @param promptText A text to enter in prompt. Does not cause any effects if the dialog's {@code type} is not prompt. Optional.
      */
-    fun accept(promptText: String? = null)
+    fun accept() = accept(null)
+
+    /**
+     * Returns when the dialog has been accepted.
+     *
+     * @param promptText A text to enter in prompt. Does not cause any effects if the dialog's {@code type} is not prompt. Optional.
+     */
+    fun accept(promptText: String?)
 
     /**
      * If dialog is prompt, returns default prompt value. Otherwise, returns empty string.

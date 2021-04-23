@@ -47,7 +47,28 @@ interface IJSHandle {
      * as a function. Otherwise, evaluated as an expression.
      * @param arg Optional argument to pass to {@code expression}.
      */
-    fun evaluate(expression: String, arg: Any? = null): Any
+    fun evaluate(expression: String): Any = evaluate(expression, null)
+
+    /**
+     * Returns the return value of {@code expression}.
+     *
+     * <p> This method passes this handle as the first argument to {@code expression}.
+     *
+     * <p> If {@code expression} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then
+     * {@code handle.evaluate} would wait for the promise to resolve and return its value.
+     *
+     * <p> Examples:
+     * <pre>{@code
+     * ElementHandle tweetHandle = page.querySelector(".tweet .retweets");
+     * assertEquals("10 retweets", tweetHandle.evaluate("node => node.innerText"));
+     * }</pre>
+     *
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     * @param arg Optional argument to pass to {@code expression}.
+     */
+    fun evaluate(expression: String, arg: Any?): Any
 
     /**
      * Returns the return value of {@code expression} as a {@code JSHandle}.
@@ -67,7 +88,27 @@ interface IJSHandle {
      * as a function. Otherwise, evaluated as an expression.
      * @param arg Optional argument to pass to {@code expression}.
      */
-    fun evaluateHandle(expression: String, arg: Any? = null): IJSHandle
+    fun evaluateHandle(expression: String): IJSHandle = evaluateHandle(expression, null)
+
+    /**
+     * Returns the return value of {@code expression} as a {@code JSHandle}.
+     *
+     * <p> This method passes this handle as the first argument to {@code expression}.
+     *
+     * <p> The only difference between {@code jsHandle.evaluate} and {@code jsHandle.evaluateHandle} is that {@code jsHandle.evaluateHandle} returns
+     * {@code JSHandle}.
+     *
+     * <p> If the function passed to the {@code jsHandle.evaluateHandle} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then
+     * {@code jsHandle.evaluateHandle} would wait for the promise to resolve and return its value.
+     *
+     * <p> See {@link Page#evaluateHandle Page.evaluateHandle()} for more details.
+     *
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     * @param arg Optional argument to pass to {@code expression}.
+     */
+    fun evaluateHandle(expression: String, arg: Any?): IJSHandle
 
     /**
      * The method returns a map with **own property names** as keys and JSHandle instances for the property values.

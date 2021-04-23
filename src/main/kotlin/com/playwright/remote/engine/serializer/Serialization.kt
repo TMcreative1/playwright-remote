@@ -32,7 +32,7 @@ class Serialization {
         fun <T> deserialize(value: SerializedValue?): T {
             return when {
                 value?.n != null -> {
-                    if (value.n!!.toDouble() == (value.n!!.toInt() as Double)) value.n!!.toInt() as T
+                    if (value.n!!.toDouble() == (value.n!!.toInt().toDouble())) value.n!!.toInt() as T
                     else value.n!!.toDouble() as T
                 }
                 value?.b != null -> value.b as T
@@ -98,7 +98,7 @@ class Serialization {
                 is Map<*, *> -> {
                     val list = mutableListOf<SerializedValue.O>()
                     for (e in value.entries) {
-                        val serializedValue = SerializedValue.O{}
+                        val serializedValue = SerializedValue.O {}
                         serializedValue.k = e.key as String?
                         serializedValue.v = serializeValue(e.value, handles, depth + 1)
                         list.add(serializedValue)

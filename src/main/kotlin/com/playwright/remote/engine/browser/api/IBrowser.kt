@@ -10,7 +10,11 @@ interface IBrowser : AutoCloseable {
 
     fun offDisconnected(handler: (IBrowser) -> Unit)
 
-    fun newContext(options: NewContextOptions? = null): IBrowserContext
+    fun newContext(): IBrowserContext = newContext(null)
 
-    fun newPage(options: NewPageOptions? = null): IPage
+    fun newContext(options: NewContextOptions?): IBrowserContext
+
+    fun newPage() : IPage = newPage(null)
+
+    fun newPage(options: NewPageOptions?): IPage
 }
