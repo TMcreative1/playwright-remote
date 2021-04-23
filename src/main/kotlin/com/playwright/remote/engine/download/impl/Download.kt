@@ -5,7 +5,6 @@ import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.download.api.IDownload
 import com.playwright.remote.engine.download.stream.api.IStream
-import com.playwright.remote.engine.download.stream.impl.Stream
 import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.utils.Utils.Companion.writeToFile
 import java.io.InputStream
@@ -24,7 +23,7 @@ class Download(parent: ChannelOwner, type: String, guid: String, initializer: Js
         if (!result.has("stream")) {
             return null
         }
-        val stream = messageProcessor.getExistingObject<Stream>(result["stream"].asJsonObject["guid"].asString)
+        val stream = messageProcessor.getExistingObject<IStream>(result["stream"].asJsonObject["guid"].asString)
         return stream.stream()
     }
 
