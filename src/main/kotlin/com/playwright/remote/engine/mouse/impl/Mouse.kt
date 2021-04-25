@@ -3,6 +3,8 @@ package com.playwright.remote.engine.mouse.impl
 import com.google.gson.Gson
 import com.playwright.remote.engine.mouse.api.IMouse
 import com.playwright.remote.engine.options.*
+import com.playwright.remote.engine.options.mouse.ClickOptions
+import com.playwright.remote.engine.options.mouse.DoubleClickOptions
 import com.playwright.remote.engine.parser.IParser.Companion.convert
 import com.playwright.remote.engine.processor.ChannelOwner
 

@@ -1,10 +1,11 @@
-package com.playwright.remote.engine.options
+package com.playwright.remote.engine.options.element
 
 import com.playwright.remote.core.enums.KeyboardModifier
+import com.playwright.remote.engine.options.Position
 import com.playwright.remote.engine.options.api.IBuilder
 import com.playwright.remote.engine.options.enum.MouseButton
 
-data class ElementClickOptions @JvmOverloads constructor(
+data class ClickOptions @JvmOverloads constructor(
     /**
      * Defaults to {@code left}.
      */
@@ -44,7 +45,7 @@ data class ElementClickOptions @JvmOverloads constructor(
      * Page.setDefaultTimeout()} methods.
      */
     var timeout: Double? = null,
-    private val builder: IBuilder<ElementClickOptions>
+    @Transient private val builder: IBuilder<ClickOptions>
 ) {
     init {
         builder.build(this)

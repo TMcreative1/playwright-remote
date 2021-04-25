@@ -1,6 +1,8 @@
 package com.playwright.remote.engine.mouse.api
 
 import com.playwright.remote.engine.options.*
+import com.playwright.remote.engine.options.mouse.ClickOptions
+import com.playwright.remote.engine.options.mouse.DoubleClickOptions
 
 /**
  * The Mouse class operates in main-frame CSS pixels relative to the top-left corner of the viewport.
