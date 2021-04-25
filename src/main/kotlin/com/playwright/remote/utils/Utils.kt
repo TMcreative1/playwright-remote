@@ -1,6 +1,7 @@
 package com.playwright.remote.utils
 
 import com.playwright.remote.core.exceptions.PlaywrightException
+import com.playwright.remote.domain.file.FilePayload
 import okio.IOException
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -106,6 +107,25 @@ class Utils {
             } catch (e: IOException) {
                 throw PlaywrightException("Failed to write to file", e)
             }
+        }
+
+        @JvmStatic
+        fun toFilePayloads(files: Array<Path>): Array<FilePayload> {
+            val payloads = arrayListOf<FilePayload>()
+            for (file in files) {
+                val buffer: ByteArray
+                try {
+                    buffer = Files.readAllBytes(file)
+                } catch (e: IOException) {
+                    throw PlaywrightException("Failed to read from file", e)
+                }
+                payloads.add(FilePayload {
+                    it.name = file.fileName.toString()
+                    it.mimeType = mimeType(file)
+                    it.buffer = buffer
+                })
+            }
+            return payloads.toArray(arrayOfNulls(0))
         }
 
         private fun mkParentDirs(file: Path) {
