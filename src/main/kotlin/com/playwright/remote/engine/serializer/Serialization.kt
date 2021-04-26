@@ -1,15 +1,21 @@
 package com.playwright.remote.engine.serializer
 
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.playwright.remote.core.exceptions.PlaywrightException
+import com.playwright.remote.domain.file.FilePayload
 import com.playwright.remote.domain.serialize.SerializedArgument
 import com.playwright.remote.domain.serialize.SerializedError
 import com.playwright.remote.domain.serialize.SerializedError.SerializedValue
+import com.playwright.remote.engine.handle.element.api.IElementHandle
+import com.playwright.remote.engine.handle.element.impl.ElementHandle
 import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.handle.js.impl.JSHandle
 import com.playwright.remote.engine.parser.IParser
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets.UTF_8
+import java.util.*
 
 class Serialization {
 
@@ -62,6 +68,39 @@ class Serialization {
                 }
                 else -> throw PlaywrightException("Unexpected result: ${IParser.toJson(value)}")
             }
+        }
+
+        @JvmStatic
+        fun toProtocol(handles: Array<IElementHandle>): JsonArray {
+            val jsonElements = JsonArray()
+            for (handle in handles) {
+                val jsonHandle = JsonObject()
+                jsonHandle.addProperty("guid", (handle as ElementHandle).guid)
+                jsonElements.add(jsonHandle)
+            }
+            return jsonElements
+        }
+
+        @JvmStatic
+        fun parseStringList(array: JsonArray): List<String> {
+            val result = arrayListOf<String>()
+            for (element in array) {
+                result.add(element.asString)
+            }
+            return result
+        }
+
+        @JvmStatic
+        fun toJsonArray(files: Array<FilePayload>): JsonArray {
+            val jsonFiles = JsonArray()
+            for (file in files) {
+                val jsonFile = JsonObject()
+                jsonFile.addProperty("name", file.name)
+                jsonFile.addProperty("mimeType", file.mimeType)
+                jsonFile.addProperty("buffer", Base64.getEncoder().encodeToString(file.buffer))
+                jsonFiles.add(jsonFile)
+            }
+            return jsonFiles
         }
 
         private fun serializeValue(value: Any?, handles: MutableList<IJSHandle>, depth: Int): SerializedValue {
