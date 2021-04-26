@@ -10,7 +10,7 @@ import com.playwright.remote.domain.file.FilePayload
 import com.playwright.remote.domain.serialize.SerializedError
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.handle.js.api.IJSHandle
+import com.playwright.remote.engine.handle.js.impl.JSHandle
 import com.playwright.remote.engine.options.CheckOptions
 import com.playwright.remote.engine.options.SelectOption
 import com.playwright.remote.engine.options.element.*
@@ -26,7 +26,7 @@ import com.playwright.remote.utils.Utils.Companion.writeToFile
 import java.nio.file.Path
 import java.util.*
 
-class ElementHandle(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
+class ElementHandle(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : JSHandle(
     parent,
     type,
     guid,
@@ -287,51 +287,40 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
         sendMessage("tap", params)
     }
 
-    override fun textContent(): String {
-        TODO("Not yet implemented")
+    override fun textContent(): String? {
+        val json = sendMessage("textContent").asJsonObject
+        return if (json.has("value")) json["value"].asString else null
     }
 
     override fun type(text: String, options: TypeOptions?) {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: TypeOptions {}).asJsonObject
+        params.addProperty("text", text)
+        sendMessage("type", params)
     }
 
     override fun uncheck(options: UncheckOptions?) {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: UncheckOptions {}).asJsonObject
+        sendMessage("uncheck", params)
     }
 
-    override fun waitForElementState(state: ElementState, options: WaitForElementStateOptions?) {
-        TODO("Not yet implemented")
+    override fun waitForElementState(state: ElementState?, options: WaitForElementStateOptions?) {
+        if (state == null) {
+            throw IllegalArgumentException("State cannot be null")
+        }
+        val params = Gson().toJsonTree(options ?: WaitForElementStateOptions {}).asJsonObject
+        params.addProperty("state", state.toString().toLowerCase())
+        sendMessage("waitForElementState", params)
     }
 
-    override fun waitForSelector(selector: String, options: WaitForElementStateOptions?): IElementHandle {
-        TODO("Not yet implemented")
+    override fun waitForSelector(selector: String, options: WaitForElementStateOptions?): IElementHandle? {
+        val params = Gson().toJsonTree(options ?: WaitForElementStateOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("waitForSelector", params)
+        val element = json.asJsonObject["element"].asJsonObject ?: return null
+        return messageProcessor.getExistingObject(element["guid"].asString)
     }
 
-    override fun asElement(): IElementHandle? {
-        TODO("Not yet implemented")
-    }
-
-    override fun dispose() {
-        TODO("Not yet implemented")
-    }
-
-    override fun evaluate(expression: String, arg: Any?): Any {
-        TODO("Not yet implemented")
-    }
-
-    override fun evaluateHandle(expression: String, arg: Any?): IJSHandle {
-        TODO("Not yet implemented")
-    }
-
-    override fun getProperties(): Map<String, IJSHandle> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getProperty(propertyName: String): IJSHandle {
-        TODO("Not yet implemented")
-    }
-
-    override fun jsonValue(): Any {
-        TODO("Not yet implemented")
+    override fun asElement(): IElementHandle {
+        return this
     }
 }
