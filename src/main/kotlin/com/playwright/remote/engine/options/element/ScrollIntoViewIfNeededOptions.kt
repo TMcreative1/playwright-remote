@@ -9,7 +9,7 @@ data class ScrollIntoViewIfNeededOptions @JvmOverloads constructor(
      * Page.setDefaultTimeout()} methods.
      */
     var timeout: Double? = null,
-    private val builder: IBuilder<ScrollIntoViewIfNeededOptions>
+    @Transient private val builder: IBuilder<ScrollIntoViewIfNeededOptions>
 ) {
     init {
         builder.build(this)
