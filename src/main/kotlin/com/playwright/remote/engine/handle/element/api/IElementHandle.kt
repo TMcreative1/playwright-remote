@@ -1,4 +1,7 @@
 package com.playwright.remote.engine.handle.element.api
 
-interface IElementHandle {
+import com.playwright.remote.engine.handle.js.api.IJSHandle
+
+interface IElementHandle : IJSHandle{
+
 }

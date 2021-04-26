@@ -5,6 +5,8 @@ enum class EventType {
     CONSOLE,
     CRASH,
     DIALOG,
+    DOMCONTENTLOADED,
+    DOWNLOAD,
     DISCONNECTED,
     FILECHOOSER,
     FRAMERECEIVED,

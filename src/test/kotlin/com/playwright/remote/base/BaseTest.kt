@@ -44,7 +44,7 @@ open class BaseTest {
             server = ServerProvider()
             wsUrl = server.launchServer(
                 getCurrentPlatform(),
-                valueOf(System.getProperty("browser").ifEmpty { "chromium" }.toUpperCase())
+                valueOf(System.getProperty("browser").ifEmpty { "webkit" }.toUpperCase())
             )!!
         }
 

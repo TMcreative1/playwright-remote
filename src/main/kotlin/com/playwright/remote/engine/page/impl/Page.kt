@@ -8,6 +8,7 @@ import com.playwright.remote.engine.browser.impl.BrowserContext
 import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.dialog.api.IDialog
+import com.playwright.remote.engine.download.api.IDownload
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.keyboard.api.IKeyboard
 import com.playwright.remote.engine.keyboard.impl.Keyboard
@@ -107,6 +108,26 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     @Suppress("UNCHECKED_CAST")
     override fun offDialog(handler: (IDialog) -> Unit) {
         listeners.remove(DIALOG, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onDomContentLoaded(handler: (IPage) -> Unit) {
+        listeners.add(DOMCONTENTLOADED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offDomContentLoaded(handler: (IPage) -> Unit) {
+        listeners.remove(DOMCONTENTLOADED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onDownload(handler: (IDownload) -> Unit) {
+        listeners.add(DOWNLOAD, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offDownload(handler: (IDownload) -> Unit) {
+        listeners.remove(DOWNLOAD, handler as UniversalConsumer)
     }
 
     override fun context(): IBrowserContext {
