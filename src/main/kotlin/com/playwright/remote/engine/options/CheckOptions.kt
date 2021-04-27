@@ -25,7 +25,7 @@ data class CheckOptions @JvmOverloads constructor(
      * Page.setDefaultTimeout()} methods.
      */
     var timeout: Double? = null,
-    private val builder: IBuilder<CheckOptions>
+    @Transient private val builder: IBuilder<CheckOptions>
 ) {
     init {
         builder.build(this)

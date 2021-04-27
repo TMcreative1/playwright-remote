@@ -9,7 +9,7 @@ data class WaitForElementStateOptions @JvmOverloads constructor(
      * Page.setDefaultTimeout()} methods.
      */
     var timeout: Double? = null,
-    private val builder: IBuilder<WaitForElementStateOptions>
+    @Transient private val builder: IBuilder<WaitForElementStateOptions>
 ) {
     init {
         builder.build(this)

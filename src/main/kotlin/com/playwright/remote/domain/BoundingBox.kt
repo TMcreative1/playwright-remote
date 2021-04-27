@@ -1,6 +1,6 @@
 package com.playwright.remote.domain
 
-data class BoundingBox @JvmOverloads constructor(
+data class BoundingBox(
     /**
      * the x coordinate of the element in pixels.
      */
