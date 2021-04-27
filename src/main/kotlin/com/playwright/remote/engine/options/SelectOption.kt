@@ -15,7 +15,7 @@ data class SelectOption @JvmOverloads constructor(
      * Matches by the index. Optional.
      */
     var index: Int? = null,
-    private val builder: IBuilder<SelectOption>
+    @Transient private val builder: IBuilder<SelectOption>
 ) {
     init {
         builder.build(this)
