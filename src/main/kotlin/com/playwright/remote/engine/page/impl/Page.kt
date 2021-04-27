@@ -257,7 +257,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return WaitRace(listOf(WaitPageClose(listeners), WaitPageCrash(listeners)))
     }
 
-    fun <T> createWaitTimout(timeout: Double?): IWait<T> {
+    fun <T> createWaitTimeout(timeout: Double?): IWait<T> {
         return timeoutSettings.createWait(timeout)
     }
 
