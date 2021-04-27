@@ -13,7 +13,7 @@ data class WaitForFrameSentOptions @JvmOverloads constructor(
      * value can be changed by using the {@link BrowserContext#setDefaultTimeout BrowserContext.setDefaultTimeout()}.
      */
     var timeout: Double? = null,
-    private val builder: IBuilder<WaitForFrameSentOptions>
+    @Transient private val builder: IBuilder<WaitForFrameSentOptions>
 ) {
     init {
         builder.build(this)
