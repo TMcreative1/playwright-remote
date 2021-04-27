@@ -13,12 +13,17 @@ import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
 import com.playwright.remote.engine.browser.impl.Selectors
+import com.playwright.remote.engine.callback.impl.BindingCall
 import com.playwright.remote.engine.console.impl.ConsoleMessage
+import com.playwright.remote.engine.dialog.impl.Dialog
+import com.playwright.remote.engine.download.impl.Artifact
+import com.playwright.remote.engine.download.stream.impl.Stream
 import com.playwright.remote.engine.frame.impl.Frame
 import com.playwright.remote.engine.handle.js.impl.JSHandle
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.parser.IParser.Companion.toJson
+import com.playwright.remote.engine.route.impl.Route
 import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.impl.Response
 import com.playwright.remote.engine.transport.ITransport
@@ -100,16 +105,21 @@ class MessageProcessor(private val transport: ITransport) {
             ?: throw PlaywrightException("Cannot find parent object $parentGuid to create $guid")
         val initializer = params["initializer"].asJsonObject
         when (type) {
+            ARTIFACT.type -> Artifact(parent, type, guid, initializer)
+            BINDING_CALL.type -> BindingCall(parent, type, guid, initializer)
             BROWSER.type -> Browser(parent, type, guid, initializer)
             BROWSER_CONTEXT.type -> BrowserContext(parent, type, guid, initializer)
             CONSOLE_MESSAGE.type -> ConsoleMessage(parent, type, guid, initializer)
+            DIALOG.type -> Dialog(parent, type, guid, initializer)
             FRAME.type -> Frame(parent, type, guid, initializer)
             JS_HANDLE.type -> JSHandle(parent, type, guid, initializer)
             PAGE.type -> Page(parent, type, guid, initializer)
             SELECTORS.type -> Selectors(parent, type, guid, initializer)
             REMOTE_BROWSER.type -> RemoteBrowser(parent, type, guid, initializer)
-            RESPONSE.type -> Response(parent, type, guid, initializer)
             REQUEST.type -> Request(parent, type, guid, initializer)
+            RESPONSE.type -> Response(parent, type, guid, initializer)
+            ROUTE.type -> Route(parent, type, guid, initializer)
+            STREAM.type -> Stream(parent, type, guid, initializer)
             else -> println("Uncomment it after implemented all types: currentType = $type")//TODO throw PlaywrightException("Unknown type $type")
         }
     }

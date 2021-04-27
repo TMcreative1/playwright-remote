@@ -4,7 +4,9 @@ import com.playwright.remote.domain.file.FilePayload
 import com.playwright.remote.engine.filechooser.api.IFileChooser
 import com.playwright.remote.engine.handle.element.api.IElementHandle
 import com.playwright.remote.engine.options.SetFilesOptions
+import com.playwright.remote.engine.options.element.SetInputFilesOptions
 import com.playwright.remote.engine.page.api.IPage
+import com.playwright.remote.engine.parser.IParser.Companion.convert
 import com.playwright.remote.utils.Utils.Companion.toFilePayloads
 import java.nio.file.Path
 
@@ -38,6 +40,6 @@ class FileChooser(
     }
 
     override fun setFiles(files: Array<FilePayload>, options: SetFilesOptions?) {
-        TODO("Not yet implemented")
+        element.setInputFiles(files, convert(options, SetInputFilesOptions::class.java))
     }
 }

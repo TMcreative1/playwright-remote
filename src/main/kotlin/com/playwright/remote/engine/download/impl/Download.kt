@@ -11,7 +11,6 @@ class Download(
     private val initializer: JsonObject
 ) : IDownload {
 
-
     override fun createReadStream(): InputStream? {
         return artifact.createReadStream()
     }

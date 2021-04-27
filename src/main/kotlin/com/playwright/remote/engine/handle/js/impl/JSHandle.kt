@@ -10,7 +10,7 @@ import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.serializer.Serialization.Companion.deserialize
 import com.playwright.remote.engine.serializer.Serialization.Companion.serializeArgument
 
-class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
+open class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IJSHandle {
     private var preview: String = initializer["preview"].asString
 
