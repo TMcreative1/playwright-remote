@@ -27,6 +27,10 @@ import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.touchscreen.api.ITouchScreen
 import com.playwright.remote.engine.touchscreen.impl.TouchScreen
 import com.playwright.remote.engine.waits.TimeoutSettings
+import com.playwright.remote.engine.waits.api.IWait
+import com.playwright.remote.engine.waits.impl.WaitPageClose
+import com.playwright.remote.engine.waits.impl.WaitPageCrash
+import com.playwright.remote.engine.waits.impl.WaitRace
 
 class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
     parent,
@@ -248,6 +252,14 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
 
     override fun navigate(url: String, options: NavigateOptions): IResponse? =
         mainFrame.navigate(url, options)
+
+    fun <T> createWaitForCloseHelper(): IWait<T> {
+        return WaitRace(listOf(WaitPageClose(listeners), WaitPageCrash(listeners)))
+    }
+
+    fun <T> createWaitTimout(timeout: Double?): IWait<T> {
+        return timeoutSettings.createWait(timeout)
+    }
 
     fun didClose() {
         isClosed = true
