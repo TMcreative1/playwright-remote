@@ -9,6 +9,7 @@ import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.dialog.api.IDialog
 import com.playwright.remote.engine.download.api.IDownload
+import com.playwright.remote.engine.filechooser.api.IFileChooser
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.keyboard.api.IKeyboard
 import com.playwright.remote.engine.keyboard.impl.Keyboard
@@ -21,10 +22,15 @@ import com.playwright.remote.engine.options.ViewportSize
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.engine.processor.ChannelOwner
+import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.touchscreen.api.ITouchScreen
 import com.playwright.remote.engine.touchscreen.impl.TouchScreen
 import com.playwright.remote.engine.waits.TimeoutSettings
+import com.playwright.remote.engine.waits.api.IWait
+import com.playwright.remote.engine.waits.impl.WaitPageClose
+import com.playwright.remote.engine.waits.impl.WaitPageCrash
+import com.playwright.remote.engine.waits.impl.WaitRace
 
 class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
     parent,
@@ -130,12 +136,130 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         listeners.remove(DOWNLOAD, handler as UniversalConsumer)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    override fun onFileChooser(handler: (IFileChooser) -> Unit) {
+        listeners.add(FILECHOOSER, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offFileChooser(handler: (IFileChooser) -> Unit) {
+        listeners.remove(FILECHOOSER, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onFrameAttached(handler: (IFrame) -> Unit) {
+        listeners.add(FRAMEATTACHED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offFrameAttached(handler: (IFrame) -> Unit) {
+        listeners.remove(FRAMEATTACHED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onFrameDetached(handler: (IFrame) -> Unit) {
+        listeners.add(FRAMEDETACHED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offFrameDetached(handler: (IFrame) -> Unit) {
+        listeners.remove(FRAMEDETACHED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onFrameNavigated(handler: (IFrame) -> Unit) {
+        listeners.add(FRAMENAVIGATED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offFrameNavigated(handler: (IFrame) -> Unit) {
+        listeners.remove(FRAMENAVIGATED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onLoad(handler: (IPage) -> Unit) {
+        listeners.add(LOAD, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offLoad(handler: (IPage) -> Unit) {
+        listeners.remove(LOAD, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onPageError(handler: (String) -> Unit) {
+        listeners.add(PAGEERROR, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offPageError(handler: (String) -> Unit) {
+        listeners.remove(PAGEERROR, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onPopup(handler: (IPage) -> Unit) {
+        listeners.add(POPUP, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offPopup(handler: (IPage) -> Unit) {
+        listeners.remove(POPUP, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onRequest(handler: (IRequest) -> Unit) {
+        listeners.add(REQUEST, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offRequest(handler: (IRequest) -> Unit) {
+        listeners.remove(REQUEST, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onRequestFailed(handler: (IRequest) -> Unit) {
+        listeners.add(REQUESTFAILED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offRequestFailed(handler: (IRequest) -> Unit) {
+        listeners.remove(REQUESTFAILED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onRequestFinished(handler: (IRequest) -> Unit) {
+        listeners.add(REQUESTFINISHED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offRequestFinished(handler: (IRequest) -> Unit) {
+        listeners.remove(REQUESTFINISHED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onResponse(handler: (IResponse) -> Unit) {
+        listeners.add(RESPONSE, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offResponse(handler: (IResponse) -> Unit) {
+        listeners.remove(RESPONSE, handler as UniversalConsumer)
+    }
+
     override fun context(): IBrowserContext {
         return browserContext
     }
 
     override fun navigate(url: String, options: NavigateOptions): IResponse? =
         mainFrame.navigate(url, options)
+
+    fun <T> createWaitForCloseHelper(): IWait<T> {
+        return WaitRace(listOf(WaitPageClose(listeners), WaitPageCrash(listeners)))
+    }
+
+    fun <T> createWaitTimeout(timeout: Double?): IWait<T> {
+        return timeoutSettings.createWait(timeout)
+    }
 
     fun didClose() {
         isClosed = true

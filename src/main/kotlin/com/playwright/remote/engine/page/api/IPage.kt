@@ -4,7 +4,10 @@ import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.dialog.api.IDialog
 import com.playwright.remote.engine.download.api.IDownload
+import com.playwright.remote.engine.filechooser.api.IFileChooser
+import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.options.NavigateOptions
+import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
 
 interface IPage {
@@ -103,6 +106,145 @@ interface IPage {
      * Removes handler that was previously added with {@link #onDownload onDownload(handler)}.
      */
     fun offDownload(handler: (IDownload) -> Unit)
+
+    /**
+     * Emitted when a file chooser is supposed to appear, such as after clicking the  {@code <input type=file>}. Playwright can
+     * respond to it via setting the input files using {@link FileChooser#setFiles FileChooser.setFiles()} that can be uploaded
+     * after that.
+     * <pre>{@code
+     * page.onFileChooser(fileChooser -> {
+     *   fileChooser.setFiles(Paths.get("/tmp/myfile.pdf"));
+     * });
+     * }</pre>
+     */
+    fun onFileChooser(handler: (IFileChooser) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onFileChooser onFileChooser(handler)}.
+     */
+    fun offFileChooser(handler: (IFileChooser) -> Unit)
+
+    /**
+     * Emitted when a frame is attached.
+     */
+    fun onFrameAttached(handler: (IFrame) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onFrameAttached onFrameAttached(handler)}.
+     */
+    fun offFrameAttached(handler: (IFrame) -> Unit)
+
+    /**
+     * Emitted when a frame is detached.
+     */
+    fun onFrameDetached(handler: (IFrame) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onFrameDetached onFrameDetached(handler)}.
+     */
+    fun offFrameDetached(handler: (IFrame) -> Unit)
+
+    /**
+     * Emitted when a frame is navigated to a new url.
+     */
+    fun onFrameNavigated(handler: (IFrame) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onFrameNavigated onFrameNavigated(handler)}.
+     */
+    fun offFrameNavigated(handler: (IFrame) -> Unit)
+
+    /**
+     * Emitted when the JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/Events/load">{@code load}</a> event is
+     * dispatched.
+     */
+    fun onLoad(handler: (IPage) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onLoad onLoad(handler)}.
+     */
+    fun offLoad(handler: (IPage) -> Unit)
+
+    /**
+     * Emitted when an uncaught exception happens within the page.
+     */
+    fun onPageError(handler: (String) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onPageError onPageError(handler)}.
+     */
+    fun offPageError(handler: (String) -> Unit)
+
+    /**
+     * Emitted when the page opens a new tab or window. This event is emitted in addition to the {@link BrowserContext#onPage
+     * BrowserContext.onPage()}, but only for popups relevant to this page.
+     *
+     * <p> The earliest moment that page is available is when it has navigated to the initial url. For example, when opening a
+     * popup with {@code window.open('http://example.com')}, this event will fire when the network request to "http://example.com" is
+     * done and its response has started loading in the popup.
+     * <pre>{@code
+     * Page popup = page.waitForPopup(() -> {
+     *   page.evaluate("() => window.open('https://example.com')");
+     * });
+     * System.out.println(popup.evaluate("location.href"));
+     * }</pre>
+     *
+     * <p> <strong>NOTE:</strong> Use {@link Page#waitForLoadState Page.waitForLoadState()} to wait until the page gets to a particular state (you should
+     * not need it in most cases).
+     */
+    fun onPopup(handler: (IPage) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onPopup onPopup(handler)}.
+     */
+    fun offPopup(handler: (IPage) -> Unit)
+
+    /**
+     * Emitted when a page issues a request. The [request] object is read-only. In order to intercept and mutate requests, see
+     * {@link Page#route Page.route()} or {@link BrowserContext#route BrowserContext.route()}.
+     */
+    fun onRequest(handler: (IRequest) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onRequest onRequest(handler)}.
+     */
+    fun offRequest(handler: (IRequest) -> Unit)
+
+    /**
+     * Emitted when a request fails, for example by timing out.
+     *
+     * <p> <strong>NOTE:</strong> HTTP Error responses, such as 404 or 503, are still successful responses from HTTP standpoint, so request will complete
+     * with {@link Page#onRequestFinished Page.onRequestFinished()} event and not with {@link Page#onRequestFailed
+     * Page.onRequestFailed()}.
+     */
+    fun onRequestFailed(handler: (IRequest) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onRequestFailed onRequestFailed(handler)}.
+     */
+    fun offRequestFailed(handler: (IRequest) -> Unit)
+
+    /**
+     * Emitted when a request finishes successfully after downloading the response body. For a successful response, the
+     * sequence of events is {@code request}, {@code response} and {@code requestfinished}.
+     */
+    fun onRequestFinished(handler: (IRequest) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onRequestFinished onRequestFinished(handler)}.
+     */
+    fun offRequestFinished(handler: (IRequest) -> Unit)
+
+    /**
+     * Emitted when [response] status and headers are received for a request. For a successful response, the sequence of events
+     * is {@code request}, {@code response} and {@code requestfinished}.
+     */
+    fun onResponse(handler: (IResponse) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onResponse onResponse(handler)}.
+     */
+    fun offResponse(handler: (IResponse) -> Unit)
 
     /**
      * Get the browser context that the page belongs to.
