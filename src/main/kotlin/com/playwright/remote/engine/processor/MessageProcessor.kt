@@ -29,6 +29,7 @@ import com.playwright.remote.engine.route.response.impl.Response
 import com.playwright.remote.engine.transport.ITransport
 import com.playwright.remote.engine.waits.impl.WaitResult
 import com.playwright.remote.engine.websocket.impl.WebSocket
+import com.playwright.remote.engine.worker.impl.Worker
 
 class MessageProcessor(private val transport: ITransport) {
     private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")
@@ -122,7 +123,8 @@ class MessageProcessor(private val transport: ITransport) {
             SELECTORS.type -> Selectors(parent, type, guid, initializer)
             STREAM.type -> Stream(parent, type, guid, initializer)
             WEBSOCKET.type -> WebSocket(parent, type, guid, initializer)
-            else -> println("Uncomment it after implemented all types: currentType = $type")//TODO throw PlaywrightException("Unknown type $type")
+            WORKER.type -> Worker(parent, type, guid, initializer)
+            else -> throw PlaywrightException("Unknown type $type")
         }
     }
 

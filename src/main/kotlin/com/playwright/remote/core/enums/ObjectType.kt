@@ -16,5 +16,6 @@ enum class ObjectType(val type: String) {
     ROUTE("Route"),
     SELECTORS("Selectors"),
     STREAM("Stream"),
-    WEBSOCKET("WebSocket")
+    WEBSOCKET("WebSocket"),
+    WORKER("Worker")
 }

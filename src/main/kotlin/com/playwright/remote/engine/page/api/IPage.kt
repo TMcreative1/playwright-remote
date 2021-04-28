@@ -9,6 +9,8 @@ import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.options.NavigateOptions
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
+import com.playwright.remote.engine.websocket.api.IWebSocket
+import com.playwright.remote.engine.worker.api.IWorker
 
 interface IPage {
     /**
@@ -245,6 +247,27 @@ interface IPage {
      * Removes handler that was previously added with {@link #onResponse onResponse(handler)}.
      */
     fun offResponse(handler: (IResponse) -> Unit)
+
+    /**
+     * Emitted when {@code WebSocket} request is sent.
+     */
+    fun onWebSocket(handler: (IWebSocket) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onWebSocket onWebSocket(handler)}.
+     */
+    fun offWebSocket(handler: (IWebSocket) -> Unit)
+
+    /**
+     * Emitted when a dedicated <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">WebWorker</a> is
+     * spawned by the page.
+     */
+    fun onWorker(handler: (IWorker) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onWorker onWorker(handler)}.
+     */
+    fun offWorker(handler: (IWorker) -> Unit)
 
     /**
      * Get the browser context that the page belongs to.
