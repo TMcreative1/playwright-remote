@@ -31,6 +31,8 @@ import com.playwright.remote.engine.waits.api.IWait
 import com.playwright.remote.engine.waits.impl.WaitPageClose
 import com.playwright.remote.engine.waits.impl.WaitPageCrash
 import com.playwright.remote.engine.waits.impl.WaitRace
+import com.playwright.remote.engine.websocket.api.IWebSocket
+import com.playwright.remote.engine.worker.api.IWorker
 
 class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
     parent,
@@ -49,6 +51,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     private val frames = linkedSetOf<IFrame>()
     private val timeoutSettings: TimeoutSettings
     val bindings = hashMapOf<String, IBindingCallback>()
+    val workers = hashSetOf<IWorker>()
 
     private val listeners = object : ListenerCollection<EventType>() {
         override fun add(eventType: EventType, listener: UniversalConsumer) {
@@ -244,6 +247,26 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     @Suppress("UNCHECKED_CAST")
     override fun offResponse(handler: (IResponse) -> Unit) {
         listeners.remove(RESPONSE, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onWebSocket(handler: (IWebSocket) -> Unit) {
+        listeners.add(WEBSOCKET, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offWebSocket(handler: (IWebSocket) -> Unit) {
+        listeners.remove(WEBSOCKET, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onWorker(handler: (IWorker) -> Unit) {
+        listeners.add(WORKER, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offWorker(handler: (IWorker) -> Unit) {
+        listeners.remove(WORKER, handler as UniversalConsumer)
     }
 
     override fun context(): IBrowserContext {

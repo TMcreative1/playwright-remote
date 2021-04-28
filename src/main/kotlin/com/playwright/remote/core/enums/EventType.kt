@@ -22,5 +22,7 @@ enum class EventType {
     REQUESTFAILED,
     REQUESTFINISHED,
     RESPONSE,
-    SOCKETERROR
+    SOCKETERROR,
+    WEBSOCKET,
+    WORKER
 }

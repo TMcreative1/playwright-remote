@@ -99,7 +99,7 @@ class WebSocket(parent: ChannelOwner, type: String, guid: String, initializer: J
         waitList.add(WaitWebSocketClose(listeners))
         waitList.add(WaitWebSocketError(listeners))
         waitList.add((page as Page).createWaitForCloseHelper())
-        waitList.add(page.createWaitTimout(timeout))
+        waitList.add(page.createWaitTimeout(timeout))
         return runUtil(WaitRace(waitList), code)
     }
 
