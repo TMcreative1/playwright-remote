@@ -3,6 +3,7 @@ package com.playwright.remote.engine.browser.api
 import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.callback.api.IFunctionCallback
 import com.playwright.remote.engine.options.*
+import com.playwright.remote.engine.options.wait.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.route.api.IRoute
 import java.nio.file.Path

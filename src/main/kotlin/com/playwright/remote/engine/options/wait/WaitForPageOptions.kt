@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.options
+package com.playwright.remote.engine.options.wait
 
 import com.playwright.remote.engine.options.api.IBuilder
 import com.playwright.remote.engine.page.api.IPage
