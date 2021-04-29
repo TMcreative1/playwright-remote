@@ -128,6 +128,13 @@ class Utils {
             return payloads.toArray(arrayOfNulls(0))
         }
 
+        @JvmStatic
+        fun isSafeCloseError(exception: PlaywrightException): Boolean =
+            isSafeCloseError(exception.message!!)
+
+        private fun isSafeCloseError(error: String): Boolean =
+            error.endsWith("Browser has been closed") || error.endsWith("Target page, context or browser has been closed")
+
         private fun mkParentDirs(file: Path) {
             val dir = file.parent
             if (dir != null) {

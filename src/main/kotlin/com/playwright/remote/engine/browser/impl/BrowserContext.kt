@@ -46,7 +46,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     private var isClosedOrClosing: Boolean = false
     val timeoutSettings = TimeoutSettings()
     private val routes = Router()
-    private val bindings = hashMapOf<String, IBindingCallback>()
+    val bindings = hashMapOf<String, IBindingCallback>()
 
     @Suppress("UNCHECKED_CAST")
     override fun onClose(handler: (IBrowserContext) -> Unit) {
@@ -129,6 +129,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     override fun clearPermissions() {
         sendMessage("clearPermissions")
     }
+
 
     override fun cookies(url: String?): List<Cookie> =
         cookies(if (url != null) listOf(url) else emptyList())
