@@ -1,24 +1,32 @@
 package com.playwright.remote.engine.page.impl
 
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.*
+import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.browser.impl.BrowserContext
 import com.playwright.remote.engine.callback.api.IBindingCallback
+import com.playwright.remote.engine.callback.api.IBindingCallback.ISource
+import com.playwright.remote.engine.callback.api.IFunctionCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.dialog.api.IDialog
 import com.playwright.remote.engine.download.api.IDownload
 import com.playwright.remote.engine.filechooser.api.IFileChooser
 import com.playwright.remote.engine.frame.api.IFrame
+import com.playwright.remote.engine.frame.impl.Frame
+import com.playwright.remote.engine.handle.element.api.IElementHandle
+import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.keyboard.api.IKeyboard
 import com.playwright.remote.engine.keyboard.impl.Keyboard
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
 import com.playwright.remote.engine.mouse.api.IMouse
 import com.playwright.remote.engine.mouse.impl.Mouse
-import com.playwright.remote.engine.options.NavigateOptions
-import com.playwright.remote.engine.options.ViewportSize
+import com.playwright.remote.engine.options.*
+import com.playwright.remote.engine.options.element.ClickOptions
+import com.playwright.remote.engine.options.element.DoubleClickOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.engine.processor.ChannelOwner
@@ -33,6 +41,11 @@ import com.playwright.remote.engine.waits.impl.WaitPageCrash
 import com.playwright.remote.engine.waits.impl.WaitRace
 import com.playwright.remote.engine.websocket.api.IWebSocket
 import com.playwright.remote.engine.worker.api.IWorker
+import com.playwright.remote.utils.Utils.Companion.isSafeCloseError
+import okio.IOException
+import java.nio.charset.StandardCharsets.UTF_8
+import java.nio.file.Files.readAllBytes
+import java.nio.file.Path
 
 class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
     parent,
@@ -269,8 +282,115 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         listeners.remove(WORKER, handler as UniversalConsumer)
     }
 
+
+    override fun addInitScript(script: String) {
+        val params = JsonObject()
+        params.addProperty("source", script)
+        sendMessage("addInitScript", params)
+    }
+
+    override fun addInitScript(script: Path) {
+        try {
+            val bytes = readAllBytes(script)
+            addInitScript(String(bytes, UTF_8))
+        } catch (e: IOException) {
+            throw PlaywrightException("Failed to read script from file", e)
+        }
+    }
+
+    override fun addScriptTag(options: AddScriptTagOptions?): IElementHandle {
+        return (mainFrame as Frame).addScriptTag(options)
+    }
+
+    override fun addStyleTag(options: AddStyleTagOptions?): IElementHandle {
+        return (mainFrame as Frame).addStyleTag(options)
+    }
+
+    override fun bringToFront() {
+        sendMessage("bringToFront")
+    }
+
+    override fun check(selector: String, options: CheckOptions?) {
+        (mainFrame as Frame).check(selector, options)
+    }
+
+    override fun click(selector: String, options: ClickOptions?) {
+        (mainFrame as Frame).click(selector, options)
+    }
+
+    override fun close(options: CloseOptions?) {
+        if (isClosed) {
+            return
+        }
+        val params = if (options == null) JsonObject() else Gson().toJsonTree(options).asJsonObject
+        try {
+            sendMessage("close", params)
+        } catch (e: PlaywrightException) {
+            if (!isSafeCloseError(e)) {
+                throw e
+            }
+        }
+        if (ownedContext != null) {
+            (ownedContext as BrowserContext).close()
+        }
+    }
+
+    override fun content(): String {
+        return (mainFrame as Frame).content()
+    }
+
     override fun context(): IBrowserContext {
         return browserContext
+    }
+
+    override fun doubleClick(selector: String, options: DoubleClickOptions?) {
+        (mainFrame as Frame).doubleClick(selector, options)
+    }
+
+    override fun dispatchEvent(selector: String, type: String, eventInit: Any?, options: DispatchEventOptions?) {
+        (mainFrame as Frame).dispatchEvent(selector, type, eventInit, options)
+    }
+
+    override fun emulateMedia(options: EmulateMediaOptions?) {
+        val params = Gson().toJsonTree(options ?: EmulateMediaOptions {}).asJsonObject
+        sendMessage("emulateMedia", params)
+    }
+
+    override fun evalOnSelector(selector: String, expression: String, arg: Any?): Any {
+        return (mainFrame as Frame).evalOnSelector(selector, expression, arg)
+    }
+
+    override fun evalOnSelectorAll(selector: String, expression: String, arg: Any?): Any {
+        return (mainFrame as Frame).evalOnSelectorAll(selector, expression, arg)
+    }
+
+    override fun evaluate(expression: String, arg: Any?): Any {
+        return (mainFrame as Frame).evaluate(expression, arg)
+    }
+
+    override fun evaluateHandle(expression: String, arg: Any?): IJSHandle {
+        return (mainFrame as Frame).evaluateHandle(expression, arg)
+    }
+
+    override fun exposeBinding(name: String, callback: IBindingCallback, options: ExposeBindingOptions?) {
+        if (bindings.containsKey(name)) {
+            throw PlaywrightException("Function $name has been already registered")
+        }
+        if ((browserContext as BrowserContext).bindings.containsKey(name)) {
+            throw PlaywrightException("Function $name has been already registered in browser context")
+        }
+        bindings[name] = callback
+
+        val params = JsonObject()
+        params.addProperty("name", name)
+        if (options?.handle != null && options.handle!!) {
+            params.addProperty("needsHandle", true)
+        }
+        sendMessage("exposeBinding", params)
+    }
+
+    override fun exposeFunction(name: String, callback: IFunctionCallback) {
+        exposeBinding(name, { _: ISource, arg: Any -> callback.call(arg) }, null)
     }
 
     override fun navigate(url: String, options: NavigateOptions): IResponse? =
