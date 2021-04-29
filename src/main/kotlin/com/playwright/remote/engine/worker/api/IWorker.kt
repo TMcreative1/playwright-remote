@@ -1,7 +1,7 @@
 package com.playwright.remote.engine.worker.api
 
 import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.options.WaitForCloseOptions
+import com.playwright.remote.engine.options.wait.WaitForCloseOptions
 
 interface IWorker {
     /**

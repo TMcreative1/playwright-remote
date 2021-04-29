@@ -6,8 +6,8 @@ import com.playwright.remote.core.enums.EventType.*
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.options.WaitForFrameReceivedOptions
-import com.playwright.remote.engine.options.WaitForFrameSentOptions
+import com.playwright.remote.engine.options.wait.WaitForFrameReceivedOptions
+import com.playwright.remote.engine.options.wait.WaitForFrameSentOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.processor.ChannelOwner

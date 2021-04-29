@@ -16,6 +16,7 @@ import com.playwright.remote.engine.callback.api.IFunctionCallback
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
 import com.playwright.remote.engine.options.*
+import com.playwright.remote.engine.options.wait.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser

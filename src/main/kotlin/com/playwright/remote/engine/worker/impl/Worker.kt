@@ -8,7 +8,7 @@ import com.playwright.remote.domain.serialize.SerializedError.SerializedValue
 import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.options.WaitForCloseOptions
+import com.playwright.remote.engine.options.wait.WaitForCloseOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser
