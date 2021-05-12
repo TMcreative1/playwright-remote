@@ -635,4 +635,6 @@ interface IBrowserContext : AutoCloseable {
      * @param handler Optional handler function used to register a routing with {@link BrowserContext#route BrowserContext.route()}.
      */
     fun unRoute(url: (String) -> Boolean, handler: ((IRoute) -> Unit)?)
+
+    fun pause()
 }

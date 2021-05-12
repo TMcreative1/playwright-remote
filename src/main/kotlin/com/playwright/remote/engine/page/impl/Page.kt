@@ -27,9 +27,13 @@ import com.playwright.remote.engine.mouse.impl.Mouse
 import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.element.ClickOptions
 import com.playwright.remote.engine.options.element.DoubleClickOptions
+import com.playwright.remote.engine.options.element.FillOptions
+import com.playwright.remote.engine.options.element.HoverOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser
+import com.playwright.remote.engine.parser.IParser.Companion.convert
 import com.playwright.remote.engine.processor.ChannelOwner
+import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.touchscreen.api.ITouchScreen
@@ -41,11 +45,15 @@ import com.playwright.remote.engine.waits.impl.WaitPageCrash
 import com.playwright.remote.engine.waits.impl.WaitRace
 import com.playwright.remote.engine.websocket.api.IWebSocket
 import com.playwright.remote.engine.worker.api.IWorker
+import com.playwright.remote.utils.Utils
 import com.playwright.remote.utils.Utils.Companion.isSafeCloseError
+import com.playwright.remote.utils.Utils.Companion.writeToFile
 import okio.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files.readAllBytes
 import java.nio.file.Path
+import java.util.*
+import java.util.regex.Pattern
 
 class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
     parent,
@@ -63,6 +71,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     private val touchScreen: ITouchScreen
     private val frames = linkedSetOf<IFrame>()
     private val timeoutSettings: TimeoutSettings
+    private var opener: IPage? = null
     val bindings = hashMapOf<String, IBindingCallback>()
     val workers = hashSetOf<IWorker>()
 
@@ -393,8 +402,141 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         exposeBinding(name, { _: ISource, arg: Any -> callback.call(arg) }, null)
     }
 
+    override fun fill(selector: String, value: String, options: FillOptions?) {
+        (mainFrame as Frame).fill(selector, value, options)
+    }
+
+    override fun focus(selector: String, options: FocusOptions?) {
+        (mainFrame as Frame).focus(selector, options)
+    }
+
+    override fun frame(name: String): IFrame? {
+        for (frame in frames) {
+            if (name == frame.name()) {
+                return frame
+            }
+        }
+        return null
+    }
+
+    override fun frameByUrl(url: String): IFrame? {
+        return frameFor(UrlMatcher(url))
+    }
+
+    override fun frameByUrl(url: Pattern): IFrame? {
+        return frameFor(UrlMatcher(url))
+    }
+
+    override fun frameByUrl(url: (String) -> Boolean): IFrame? {
+        return frameFor(UrlMatcher(url))
+    }
+
+    override fun frames(): List<IFrame> {
+        return frames.toList()
+    }
+
+    override fun getAttribute(selector: String, name: String, options: GetAttributeOptions?): String? {
+        return (mainFrame as Frame).getAttribute(selector, name, options)
+    }
+
+    override fun goBack(options: GoBackOptions?): IResponse? {
+        val params = Gson().toJsonTree(options ?: GoForwardOptions {}).asJsonObject
+        val json = sendMessage("goBack", params).asJsonObject
+        if (json.has("response")) {
+            return messageProcessor.getExistingObject(json["response"].asJsonObject["guid"].asString)
+        }
+        return null
+    }
+
+    override fun goForward(options: GoForwardOptions?): IResponse? {
+        val params = Gson().toJsonTree(options ?: GoForwardOptions {}).asJsonObject
+        val json = sendMessage("goForward", params).asJsonObject
+        if (json.has("response")) {
+            return messageProcessor.getExistingObject(json["response"].asJsonObject["guid"].asString)
+        }
+        return null
+    }
+
     override fun navigate(url: String, options: NavigateOptions): IResponse? =
         mainFrame.navigate(url, options)
+
+    override fun hover(selector: String, options: HoverOptions?) {
+        mainFrame.hover(selector, options)
+    }
+
+    override fun innerHTML(selector: String, options: InnerHTMLOptions?): String {
+        return mainFrame.innerHTML(selector, options)
+    }
+
+    override fun innerText(selector: String, options: InnerTextOptions?): String {
+        return mainFrame.innerText(selector, options)
+    }
+
+    override fun isChecked(selector: String, options: IsCheckedOptions?): Boolean {
+        return mainFrame.isChecked(selector, options)
+    }
+
+    override fun isClosed(): Boolean {
+        return isClosed
+    }
+
+    override fun isDisabled(selector: String, options: IsDisabledOptions?): Boolean {
+        return mainFrame.isDisabled(selector, options)
+    }
+
+    override fun isEditable(selector: String, options: IsEditableOptions?): Boolean {
+        return mainFrame.isEditable(selector, options)
+    }
+
+    override fun isEnabled(selector: String, options: IsEnabledOptions?): Boolean {
+        return mainFrame.isEnabled(selector, options)
+    }
+
+    override fun isHidden(selector: String, options: IsHiddenOptions?): Boolean {
+        return mainFrame.isHidden(selector, options)
+    }
+
+    override fun isVisible(selector: String, options: IsVisibleOptions?): Boolean {
+        return mainFrame.isVisible(selector, options)
+    }
+
+    override fun keyboard(): IKeyboard {
+        return keyboard
+    }
+
+    override fun mainFrame(): IFrame {
+        return mainFrame
+    }
+
+    override fun mouse(): IMouse {
+        return mouse
+    }
+
+    override fun opener(): IPage? {
+        if (opener == null || opener!!.isClosed()) {
+            return null
+        }
+        return opener
+    }
+
+    override fun pause() {
+        context().pause()
+    }
+
+    override fun pdf(options: PdfOptions?): ByteArray {
+        if (browserContext.browser().name() == "chromium") {
+            throw PlaywrightException("Page.pdf only supported in headless Chromium")
+        }
+        val opt = options ?: PdfOptions {}
+        val params = Gson().toJsonTree(opt).asJsonObject
+        params.remove("path")
+        val json = sendMessage("pdf", params).asJsonObject
+        val buffer = Base64.getDecoder().decode(json["pdf"].asString)
+        if (opt.path != null) {
+            writeToFile(buffer, opt.path!!)
+        }
+        return buffer
+    }
 
     fun <T> createWaitForCloseHelper(): IWait<T> {
         return WaitRace(listOf(WaitPageClose(listeners), WaitPageCrash(listeners)))
@@ -416,5 +558,14 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
             params.addProperty("intercepted", enabled)
             sendMessage("setFileChooserInterceptedNoReply", params)
         }
+    }
+
+    private fun frameFor(matcher: UrlMatcher): IFrame? {
+        for (frame in frames) {
+            if (matcher.test(frame.url())) {
+                return frame
+            }
+        }
+        return null
     }
 }

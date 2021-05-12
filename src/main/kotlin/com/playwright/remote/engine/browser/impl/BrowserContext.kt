@@ -251,6 +251,10 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         unRoute(UrlMatcher(url), handler)
     }
 
+    override fun pause() {
+        sendMessage("pause")
+    }
+
     private fun unRoute(matcher: UrlMatcher, handler: ((IRoute) -> Unit)?) {
         routes.remove(matcher, handler)
         if (routes.size() == 0) {

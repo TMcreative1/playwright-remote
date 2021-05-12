@@ -1,6 +1,7 @@
 package com.playwright.remote.engine.frame.api
 
-import com.playwright.remote.engine.options.NavigateOptions
+import com.playwright.remote.engine.options.*
+import com.playwright.remote.engine.options.element.HoverOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.route.response.api.IResponse
 
@@ -42,6 +43,20 @@ import com.playwright.remote.engine.route.response.api.IResponse
  * }</pre>
  */
 interface IFrame {
+
+    /**
+     * Returns frame's name attribute as specified in the tag.
+     *
+     * <p> If the name is empty, returns the id attribute instead.
+     *
+     * <p> <strong>NOTE:</strong> This value is calculated once when the frame is created, and will not update if the attribute is changed later.
+     */
+    fun name(): String
+
+    /**
+     * Returns frame's url.
+     */
+    fun url(): String
 
     /**
      * Returns the page containing this frame.
@@ -101,4 +116,201 @@ interface IFrame {
      * @param url URL to navigate frame to. The url should include scheme, e.g. {@code https://}.
      */
     fun navigate(url: String, options: NavigateOptions): IResponse?
+
+    /**
+     * This method hovers over an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to hover over the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun hover(selector: String) {
+        hover(selector, null)
+    }
+
+    /**
+     * This method hovers over an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to hover over the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun hover(selector: String, options: HoverOptions?)
+
+    /**
+     * Returns {@code element.innerHTML}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun innerHTML(selector: String): String {
+        return innerHTML(selector, null)
+    }
+
+    /**
+     * Returns {@code element.innerHTML}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun innerHTML(selector: String, options: InnerHTMLOptions?): String
+
+    /**
+     * Returns {@code element.innerText}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun innerText(selector: String): String {
+        return innerText(selector, null)
+    }
+
+    /**
+     * Returns {@code element.innerText}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun innerText(selector: String, options: InnerTextOptions?): String
+
+    /**
+     * Returns whether the element is checked. Throws if the element is not a checkbox or radio input.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isChecked(selector: String): Boolean {
+        return isChecked(selector, null)
+    }
+
+    /**
+     * Returns whether the element is checked. Throws if the element is not a checkbox or radio input.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isChecked(selector: String, options: IsCheckedOptions?): Boolean
+
+    /**
+     * Returns {@code true} if the frame has been detached, or {@code false} otherwise.
+     */
+    fun isDetached(): Boolean
+
+    /**
+     * Returns whether the element is disabled, the opposite of <a
+     * href="https://playwright.dev/java/docs/actionability/#enabled">enabled</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isDisabled(selector: String): Boolean {
+        return isDisabled(selector, null)
+    }
+
+    /**
+     * Returns whether the element is disabled, the opposite of <a
+     * href="https://playwright.dev/java/docs/actionability/#enabled">enabled</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isDisabled(selector: String, options: IsDisabledOptions?): Boolean
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#editable">editable</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isEditable(selector: String): Boolean {
+        return isEditable(selector, null)
+    }
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#editable">editable</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isEditable(selector: String, options: IsEditableOptions?): Boolean
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#enabled">enabled</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isEnabled(selector: String): Boolean {
+        return isEnabled(selector, null)
+    }
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#enabled">enabled</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isEnabled(selector: String, options: IsEnabledOptions?): Boolean
+
+    /**
+     * Returns whether the element is hidden, the opposite of <a
+     * href="https://playwright.dev/java/docs/actionability/#visible">visible</a>.  {@code selector} that does not match any elements
+     * is considered hidden.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isHidden(selector: String): Boolean {
+        return isHidden(selector, null)
+    }
+
+    /**
+     * Returns whether the element is hidden, the opposite of <a
+     * href="https://playwright.dev/java/docs/actionability/#visible">visible</a>.  {@code selector} that does not match any elements
+     * is considered hidden.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isHidden(selector: String, options: IsHiddenOptions?): Boolean
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#visible">visible</a>. {@code selector}
+     * that does not match any elements is considered not visible.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isVisible(selector: String): Boolean {
+        return isVisible(selector, null)
+    }
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#visible">visible</a>. {@code selector}
+     * that does not match any elements is considered not visible.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isVisible(selector: String, options: IsVisibleOptions?): Boolean
 }
