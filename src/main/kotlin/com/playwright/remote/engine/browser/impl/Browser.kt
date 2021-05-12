@@ -72,6 +72,10 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         notifyRemoteClosed()
     }
 
+    override fun name(): String {
+        return initializer["name"].asString
+    }
+
     private fun getStorageState(options: NewContextOptions?): JsonObject? {
         if (options?.storageStatePath != null) {
             try {

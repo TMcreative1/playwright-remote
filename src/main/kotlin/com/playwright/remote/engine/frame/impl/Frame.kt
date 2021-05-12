@@ -11,6 +11,8 @@ import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.element.ClickOptions
 import com.playwright.remote.engine.options.element.DoubleClickOptions
+import com.playwright.remote.engine.options.element.FillOptions
+import com.playwright.remote.engine.options.element.HoverOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.processor.ChannelOwner
@@ -33,6 +35,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     private val childFrames = linkedSetOf<IFrame>()
     private val loadStates = hashSetOf<LoadState>()
     private var page: IPage? = null
+    var isDetachedValue = false
 
     init {
         if (initializer.has("parentFrame")) {
@@ -44,16 +47,16 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         }
     }
 
-    override fun page(): IPage? {
-        return page
+    override fun name(): String {
+        return name
     }
 
-    override fun navigate(url: String, options: NavigateOptions): IResponse? {
-        val params = Gson().toJsonTree(options).asJsonObject
-        params.addProperty("url", url)
-        val result = sendMessage("goto", params)
-        val jsonResponse = result.asJsonObject["response"].asJsonObject ?: return null
-        return messageProcessor.getExistingObject(jsonResponse["guid"].asString)
+    override fun url(): String {
+        return url
+    }
+
+    override fun page(): IPage? {
+        return page
     }
 
     fun addScriptTag(options: AddScriptTagOptions?): IElementHandle {
@@ -159,5 +162,103 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("evaluateExpressionHandle", params)
         return messageProcessor.getExistingObject(json.asJsonObject["handle"].asJsonObject["guid"].asString)
+    }
+
+    fun fill(selector: String, value: String, options: FillOptions?) {
+        val params = Gson().toJsonTree(options ?: FillOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        params.addProperty("value", value)
+        sendMessage("fill", params)
+    }
+
+    fun focus(selector: String, options: FocusOptions?) {
+        val params = Gson().toJsonTree(options ?: FocusOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        sendMessage("focus", params)
+    }
+
+    fun getAttribute(selector: String, name: String, options: GetAttributeOptions?): String? {
+        val params = Gson().toJsonTree(options ?: GetAttributeOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        params.addProperty("name", name)
+        val json = sendMessage("getAttribute", params).asJsonObject
+        if (json.has("value")) {
+            return json["value"].asString
+        }
+        return null
+    }
+
+    override fun navigate(url: String, options: NavigateOptions): IResponse? {
+        val params = Gson().toJsonTree(options).asJsonObject
+        params.addProperty("url", url)
+        val result = sendMessage("goto", params)
+        val jsonResponse = result.asJsonObject["response"].asJsonObject ?: return null
+        return messageProcessor.getExistingObject(jsonResponse["guid"].asString)
+    }
+
+    override fun hover(selector: String, options: HoverOptions?) {
+        val params = Gson().toJsonTree(options ?: HoverOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        sendMessage("hover", params)
+    }
+
+    override fun innerHTML(selector: String, options: InnerHTMLOptions?): String {
+        val params = Gson().toJsonTree(options ?: InnerHTMLOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("innerHTML", params).asJsonObject
+        return json["value"].asString
+    }
+
+    override fun innerText(selector: String, options: InnerTextOptions?): String {
+        val params = Gson().toJsonTree(options ?: InnerTextOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("innerText", params).asJsonObject
+        return json["value"].asString
+    }
+
+    override fun isChecked(selector: String, options: IsCheckedOptions?): Boolean {
+        val params = Gson().toJsonTree(options ?: IsCheckedOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("isChecked", params).asJsonObject
+        return json["value"].asBoolean
+    }
+
+    override fun isDetached(): Boolean {
+        return isDetachedValue
+    }
+
+    override fun isDisabled(selector: String, options: IsDisabledOptions?): Boolean {
+        val params = Gson().toJsonTree(options ?: IsDisabledOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("isDisabled", params).asJsonObject
+        return json["value"].asBoolean
+    }
+
+    override fun isEditable(selector: String, options: IsEditableOptions?): Boolean {
+        val params = Gson().toJsonTree(options ?: IsEditableOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("isEditable", params).asJsonObject
+        return json["value"].asBoolean
+    }
+
+    override fun isEnabled(selector: String, options: IsEnabledOptions?): Boolean {
+        val params = Gson().toJsonTree(options ?: IsEnabledOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("isEnabled", params).asJsonObject
+        return json["value"].asBoolean
+    }
+
+    override fun isHidden(selector: String, options: IsHiddenOptions?): Boolean {
+        val params = Gson().toJsonTree(options ?: IsHiddenOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("isHidden", params).asJsonObject
+        return json["value"].asBoolean
+    }
+
+    override fun isVisible(selector: String, options: IsVisibleOptions?): Boolean {
+        val params = Gson().toJsonTree(options ?: IsVisibleOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("isVisible", params).asJsonObject
+        return json["value"].asBoolean
     }
 }

@@ -14,7 +14,9 @@ interface IBrowser : AutoCloseable {
 
     fun newContext(options: NewContextOptions?): IBrowserContext
 
-    fun newPage() : IPage = newPage(null)
+    fun newPage(): IPage = newPage(null)
 
     fun newPage(options: NewPageOptions?): IPage
+
+    fun name(): String
 }

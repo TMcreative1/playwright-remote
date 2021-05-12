@@ -10,14 +10,19 @@ import com.playwright.remote.engine.filechooser.api.IFileChooser
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.handle.element.api.IElementHandle
 import com.playwright.remote.engine.handle.js.api.IJSHandle
+import com.playwright.remote.engine.keyboard.api.IKeyboard
+import com.playwright.remote.engine.mouse.api.IMouse
 import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.element.ClickOptions
 import com.playwright.remote.engine.options.element.DoubleClickOptions
+import com.playwright.remote.engine.options.element.FillOptions
+import com.playwright.remote.engine.options.element.HoverOptions
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.websocket.api.IWebSocket
 import com.playwright.remote.engine.worker.api.IWorker
 import java.nio.file.Path
+import java.util.regex.Pattern
 
 interface IPage {
     /**
@@ -1145,10 +1150,167 @@ interface IPage {
     fun exposeFunction(name: String, callback: IFunctionCallback)
 
     /**
+     * This method waits for an element matching {@code selector}, waits for <a
+     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, focuses the element, fills it and
+     * triggers an {@code input} event after filling. If the element is inside the {@code <label>} element that has associated <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, that control will be
+     * filled instead. If the element to be filled is not an {@code <input>}, {@code <textarea>} or {@code [contenteditable]} element, this
+     * method throws an error. Note that you can pass an empty string to clear the input field.
+     *
+     * <p> To send fine-grained keyboard events, use {@link Page#type Page.type()}.
+     *
+     * <p> Shortcut for main frame's {@link Frame#fill Frame.fill()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param value Value to fill for the {@code <input>}, {@code <textarea>} or {@code [contenteditable]} element.
+     */
+    fun fill(selector: String, value: String) {
+        fill(selector, value, null)
+    }
+
+    /**
+     * This method waits for an element matching {@code selector}, waits for <a
+     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, focuses the element, fills it and
+     * triggers an {@code input} event after filling. If the element is inside the {@code <label>} element that has associated <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, that control will be
+     * filled instead. If the element to be filled is not an {@code <input>}, {@code <textarea>} or {@code [contenteditable]} element, this
+     * method throws an error. Note that you can pass an empty string to clear the input field.
+     *
+     * <p> To send fine-grained keyboard events, use {@link Page#type Page.type()}.
+     *
+     * <p> Shortcut for main frame's {@link Frame#fill Frame.fill()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param value Value to fill for the {@code <input>}, {@code <textarea>} or {@code [contenteditable]} element.
+     */
+    fun fill(selector: String, value: String, options: FillOptions?)
+
+    /**
+     * This method fetches an element with {@code selector} and focuses it. If there's no element matching {@code selector}, the method
+     * waits until a matching element appears in the DOM.
+     *
+     * <p> Shortcut for main frame's {@link Frame#focus Frame.focus()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun focus(selector: String) {
+        focus(selector, null)
+    }
+
+    /**
+     * This method fetches an element with {@code selector} and focuses it. If there's no element matching {@code selector}, the method
+     * waits until a matching element appears in the DOM.
+     *
+     * <p> Shortcut for main frame's {@link Frame#focus Frame.focus()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun focus(selector: String, options: FocusOptions?)
+
+    /**
+     * Returns frame matching the specified criteria. Either {@code name} or {@code url} must be specified.
+     * <pre>{@code
+     * Frame frame = page.frame("frame-name");
+     * }</pre>
+     * <pre>{@code
+     * Frame frame = page.frameByUrl(Pattern.compile(".*domain.*");
+     * }</pre>
+     *
+     * @param name Frame name specified in the {@code iframe}'s {@code name} attribute.
+     */
+    fun frame(name: String): IFrame?
+
+    /**
+     * Returns frame with matching URL.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving frame's {@code url} as a [URL] object.
+     */
+    fun frameByUrl(url: String): IFrame?
+
+    /**
+     * Returns frame with matching URL.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving frame's {@code url} as a [URL] object.
+     */
+    fun frameByUrl(url: Pattern): IFrame?
+
+    /**
+     * Returns frame with matching URL.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving frame's {@code url} as a [URL] object.
+     */
+    fun frameByUrl(url: (String) -> Boolean): IFrame?
+
+    /**
+     * An array of all frames attached to the page.
+     */
+    fun frames(): List<IFrame>
+
+    /**
+     * Returns element attribute value.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param name Attribute name to get the value for.
+     */
+    fun getAttribute(selector: String, name: String): String? {
+        return getAttribute(selector, name, null)
+    }
+
+    /**
+     * Returns element attribute value.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param name Attribute name to get the value for.
+     */
+    fun getAttribute(selector: String, name: String, options: GetAttributeOptions?): String?
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
+     * last redirect. If can not go back, returns {@code null}.
+     *
+     * <p> Navigate to the previous page in history.
+     */
+    fun goBack(): IResponse? {
+        return goBack(null)
+    }
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
+     * last redirect. If can not go back, returns {@code null}.
+     *
+     * <p> Navigate to the previous page in history.
+     */
+    fun goBack(options: GoBackOptions?): IResponse?
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
+     * last redirect. If can not go forward, returns {@code null}.
+     *
+     * <p> Navigate to the next page in history.
+     */
+    fun goForward(): IResponse? {
+        return goForward(null)
+    }
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
+     * last redirect. If can not go forward, returns {@code null}.
+     *
+     * <p> Navigate to the next page in history.
+     */
+    fun goForward(options: GoForwardOptions?): IResponse?
+
+    /**
      * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
      * last redirect.
      *
-     * <p> {@code page.goto} will throw an error if:
+     * <P> {@CODE PAGE.GOTO} WILL THROW AN ERROR IF:
      * <ul>
      * <li> there's an SSL error (e.g. in case of self-signed certificates).</li>
      * <li> target URL is invalid.</li>
@@ -1202,4 +1364,340 @@ interface IPage {
      */
     fun navigate(url: String, options: NavigateOptions): IResponse?
 
+    /**
+     * This method hovers over an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to hover over the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * <p> Shortcut for main frame's {@link Frame#hover Frame.hover()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun hover(selector: String) {
+        hover(selector, null)
+    }
+
+    /**
+     * This method hovers over an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to hover over the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * <p> Shortcut for main frame's {@link Frame#hover Frame.hover()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun hover(selector: String, options: HoverOptions?)
+
+    /**
+     * Returns {@code element.innerHTML}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun innerHTML(selector: String): String {
+        return innerHTML(selector, null)
+    }
+
+    /**
+     * Returns {@code element.innerHTML}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun innerHTML(selector: String, options: InnerHTMLOptions?): String
+
+    /**
+     * Returns {@code element.innerText}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun innerText(selector: String): String {
+        return innerText(selector, null)
+    }
+
+    /**
+     * Returns {@code element.innerText}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun innerText(selector: String, options: InnerTextOptions?): String
+
+    /**
+     * Returns whether the element is checked. Throws if the element is not a checkbox or radio input.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isChecked(selector: String): Boolean {
+        return isChecked(selector, null)
+    }
+
+    /**
+     * Returns whether the element is checked. Throws if the element is not a checkbox or radio input.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isChecked(selector: String, options: IsCheckedOptions?): Boolean
+
+    /**
+     * Indicates that the page has been closed.
+     */
+    fun isClosed(): Boolean
+
+    /**
+     * Returns whether the element is disabled, the opposite of <a
+     * href="https://playwright.dev/java/docs/actionability/#enabled">enabled</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isDisabled(selector: String): Boolean {
+        return isDisabled(selector, null)
+    }
+
+    /**
+     * Returns whether the element is disabled, the opposite of <a
+     * href="https://playwright.dev/java/docs/actionability/#enabled">enabled</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isDisabled(selector: String, options: IsDisabledOptions?): Boolean
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#editable">editable</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isEditable(selector: String): Boolean {
+        return isEditable(selector, null)
+    }
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#editable">editable</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isEditable(selector: String, options: IsEditableOptions?): Boolean
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#enabled">enabled</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isEnabled(selector: String): Boolean {
+        return isEnabled(selector, null)
+    }
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#enabled">enabled</a>.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isEnabled(selector: String, options: IsEnabledOptions?): Boolean
+
+    /**
+     * Returns whether the element is hidden, the opposite of <a
+     * href="https://playwright.dev/java/docs/actionability/#visible">visible</a>.  {@code selector} that does not match any elements
+     * is considered hidden.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isHidden(selector: String): Boolean {
+        return isHidden(selector, null)
+    }
+
+    /**
+     * Returns whether the element is hidden, the opposite of <a
+     * href="https://playwright.dev/java/docs/actionability/#visible">visible</a>.  {@code selector} that does not match any elements
+     * is considered hidden.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isHidden(selector: String, options: IsHiddenOptions?): Boolean
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#visible">visible</a>. {@code selector}
+     * that does not match any elements is considered not visible.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isVisible(selector: String): Boolean {
+        return isVisible(selector, null)
+    }
+
+    /**
+     * Returns whether the element is <a href="https://playwright.dev/java/docs/actionability/#visible">visible</a>. {@code selector}
+     * that does not match any elements is considered not visible.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun isVisible(selector: String, options: IsVisibleOptions?): Boolean
+
+    fun keyboard(): IKeyboard
+
+    /**
+     * The page's main frame. Page is guaranteed to have a main frame which persists during navigations.
+     */
+    fun mainFrame(): IFrame
+
+    fun mouse(): IMouse
+
+    /**
+     * Returns the opener for popup pages and {@code null} for others. If the opener has been closed already the returns {@code null}.
+     */
+    fun opener(): IPage?
+
+    /**
+     * Pauses script execution. Playwright will stop executing the script and wait for the user to either press 'Resume' button
+     * in the page overlay or to call {@code playwright.resume()} in the DevTools console.
+     *
+     * <p> User can inspect selectors or perform manual steps while paused. Resume will continue running the original script from
+     * the place it was paused.
+     *
+     * <p> <strong>NOTE:</strong> This method requires Playwright to be started in a headed mode, with a falsy {@code headless} value in the {@link
+     * BrowserType#launch BrowserType.launch()}.
+     */
+    fun pause()
+
+    /**
+     * Returns the PDF buffer.
+     *
+     * <p> <strong>NOTE:</strong> Generating a pdf is currently only supported in Chromium headless.
+     *
+     * <p> {@code page.pdf()} generates a pdf of the page with {@code print} css media. To generate a pdf with {@code screen} media, call {@link
+     * Page#emulateMedia Page.emulateMedia()} before calling {@code page.pdf()}:
+     *
+     * <p> <strong>NOTE:</strong> By default, {@code page.pdf()} generates a pdf with modified colors for printing. Use the <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-print-color-adjust">{@code -webkit-print-color-adjust}</a>
+     * property to force rendering of exact colors.
+     * <pre>{@code
+     * // Generates a PDF with "screen" media type.
+     * page.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.SCREEN));
+     * page.pdf(new Page.PdfOptions().setPath(Paths.get("page.pdf")));
+     * }</pre>
+     *
+     * <p> The {@code width}, {@code height}, and {@code margin} options accept values labeled with units. Unlabeled values are treated as pixels.
+     *
+     * <p> A few examples:
+     * <ul>
+     * <li> {@code page.pdf({width: 100})} - prints with width set to 100 pixels</li>
+     * <li> {@code page.pdf({width: '100px'})} - prints with width set to 100 pixels</li>
+     * <li> {@code page.pdf({width: '10cm'})} - prints with width set to 10 centimeters.</li>
+     * </ul>
+     *
+     * <p> All possible units are:
+     * <ul>
+     * <li> {@code px} - pixel</li>
+     * <li> {@code in} - inch</li>
+     * <li> {@code cm} - centimeter</li>
+     * <li> {@code mm} - millimeter</li>
+     * </ul>
+     *
+     * <p> The {@code format} options are:
+     * <ul>
+     * <li> {@code Letter}: 8.5in x 11in</li>
+     * <li> {@code Legal}: 8.5in x 14in</li>
+     * <li> {@code Tabloid}: 11in x 17in</li>
+     * <li> {@code Ledger}: 17in x 11in</li>
+     * <li> {@code A0}: 33.1in x 46.8in</li>
+     * <li> {@code A1}: 23.4in x 33.1in</li>
+     * <li> {@code A2}: 16.54in x 23.4in</li>
+     * <li> {@code A3}: 11.7in x 16.54in</li>
+     * <li> {@code A4}: 8.27in x 11.7in</li>
+     * <li> {@code A5}: 5.83in x 8.27in</li>
+     * <li> {@code A6}: 4.13in x 5.83in</li>
+     * </ul>
+     *
+     * <p> <strong>NOTE:</strong> {@code headerTemplate} and {@code footerTemplate} markup have the following limitations: > 1. Script tags inside templates are not
+     * evaluated. > 2. Page styles are not visible inside templates.
+     */
+    fun pdf(): ByteArray {
+        return pdf(null)
+    }
+
+    /**
+     * Returns the PDF buffer.
+     *
+     * <p> <strong>NOTE:</strong> Generating a pdf is currently only supported in Chromium headless.
+     *
+     * <p> {@code page.pdf()} generates a pdf of the page with {@code print} css media. To generate a pdf with {@code screen} media, call {@link
+     * Page#emulateMedia Page.emulateMedia()} before calling {@code page.pdf()}:
+     *
+     * <p> <strong>NOTE:</strong> By default, {@code page.pdf()} generates a pdf with modified colors for printing. Use the <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-print-color-adjust">{@code -webkit-print-color-adjust}</a>
+     * property to force rendering of exact colors.
+     * <pre>{@code
+     * // Generates a PDF with "screen" media type.
+     * page.emulateMedia(new Page.EmulateMediaOptions().setMedia(Media.SCREEN));
+     * page.pdf(new Page.PdfOptions().setPath(Paths.get("page.pdf")));
+     * }</pre>
+     *
+     * <p> The {@code width}, {@code height}, and {@code margin} options accept values labeled with units. Unlabeled values are treated as pixels.
+     *
+     * <p> A few examples:
+     * <ul>
+     * <li> {@code page.pdf({width: 100})} - prints with width set to 100 pixels</li>
+     * <li> {@code page.pdf({width: '100px'})} - prints with width set to 100 pixels</li>
+     * <li> {@code page.pdf({width: '10cm'})} - prints with width set to 10 centimeters.</li>
+     * </ul>
+     *
+     * <p> All possible units are:
+     * <ul>
+     * <li> {@code px} - pixel</li>
+     * <li> {@code in} - inch</li>
+     * <li> {@code cm} - centimeter</li>
+     * <li> {@code mm} - millimeter</li>
+     * </ul>
+     *
+     * <p> The {@code format} options are:
+     * <ul>
+     * <li> {@code Letter}: 8.5in x 11in</li>
+     * <li> {@code Legal}: 8.5in x 14in</li>
+     * <li> {@code Tabloid}: 11in x 17in</li>
+     * <li> {@code Ledger}: 17in x 11in</li>
+     * <li> {@code A0}: 33.1in x 46.8in</li>
+     * <li> {@code A1}: 23.4in x 33.1in</li>
+     * <li> {@code A2}: 16.54in x 23.4in</li>
+     * <li> {@code A3}: 11.7in x 16.54in</li>
+     * <li> {@code A4}: 8.27in x 11.7in</li>
+     * <li> {@code A5}: 5.83in x 8.27in</li>
+     * <li> {@code A6}: 4.13in x 5.83in</li>
+     * </ul>
+     *
+     * <p> <strong>NOTE:</strong> {@code headerTemplate} and {@code footerTemplate} markup have the following limitations: > 1. Script tags inside templates are not
+     * evaluated. > 2. Page styles are not visible inside templates.
+     */
+    fun pdf(options: PdfOptions?): ByteArray
 }
