@@ -1,10 +1,15 @@
 package com.playwright.remote.engine.page.impl
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.*
+import com.playwright.remote.core.enums.LoadState
+import com.playwright.remote.core.enums.ScreenshotType.JPEG
+import com.playwright.remote.core.enums.ScreenshotType.PNG
 import com.playwright.remote.core.exceptions.PlaywrightException
+import com.playwright.remote.domain.file.FilePayload
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.browser.impl.BrowserContext
 import com.playwright.remote.engine.callback.api.IBindingCallback
@@ -25,27 +30,31 @@ import com.playwright.remote.engine.listener.UniversalConsumer
 import com.playwright.remote.engine.mouse.api.IMouse
 import com.playwright.remote.engine.mouse.impl.Mouse
 import com.playwright.remote.engine.options.*
-import com.playwright.remote.engine.options.element.ClickOptions
-import com.playwright.remote.engine.options.element.DoubleClickOptions
-import com.playwright.remote.engine.options.element.FillOptions
-import com.playwright.remote.engine.options.element.HoverOptions
+import com.playwright.remote.engine.options.ScreenshotOptions
+import com.playwright.remote.engine.options.element.*
+import com.playwright.remote.engine.options.element.PressOptions
+import com.playwright.remote.engine.options.element.TypeOptions
+import com.playwright.remote.engine.options.wait.*
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser
-import com.playwright.remote.engine.parser.IParser.Companion.convert
 import com.playwright.remote.engine.processor.ChannelOwner
+import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
+import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.touchscreen.api.ITouchScreen
 import com.playwright.remote.engine.touchscreen.impl.TouchScreen
+import com.playwright.remote.engine.video.api.IVideo
+import com.playwright.remote.engine.video.impl.Video
 import com.playwright.remote.engine.waits.TimeoutSettings
 import com.playwright.remote.engine.waits.api.IWait
+import com.playwright.remote.engine.waits.impl.WaitEvent
 import com.playwright.remote.engine.waits.impl.WaitPageClose
 import com.playwright.remote.engine.waits.impl.WaitPageCrash
 import com.playwright.remote.engine.waits.impl.WaitRace
 import com.playwright.remote.engine.websocket.api.IWebSocket
 import com.playwright.remote.engine.worker.api.IWorker
-import com.playwright.remote.utils.Utils
 import com.playwright.remote.utils.Utils.Companion.isSafeCloseError
 import com.playwright.remote.utils.Utils.Companion.writeToFile
 import okio.IOException
@@ -72,6 +81,9 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     private val frames = linkedSetOf<IFrame>()
     private val timeoutSettings: TimeoutSettings
     private var opener: IPage? = null
+    private val routes = Router()
+    private var video: IVideo? = null
+    val waitClosedOrCrasched: IWait<Unit>
     val bindings = hashMapOf<String, IBindingCallback>()
     val workers = hashSetOf<IWorker>()
 
@@ -94,6 +106,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     init {
         browserContext = parent as BrowserContext
         mainFrame = messageProcessor.getExistingObject(initializer["mainFrame"].asJsonObject["guid"].asString)
+        (mainFrame as Frame).page = this
         isClosed = initializer["isClosed"].asBoolean
         if (initializer.has("viewportSize")) {
             viewPort = IParser.fromJson(initializer["viewportSize"], ViewportSize::class.java)
@@ -103,6 +116,9 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         touchScreen = TouchScreen(this)
         frames.add(mainFrame)
         timeoutSettings = TimeoutSettings(browserContext.timeoutSettings)
+        waitClosedOrCrasched = createWaitForCloseHelper()
+        opener =
+            if (initializer.has("opener")) messageProcessor.getExistingObject(initializer["opener"].asJsonObject["guid"].asString) else null
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -538,12 +554,396 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return buffer
     }
 
+    override fun press(selector: String, key: String, options: PressOptions?) {
+        mainFrame.press(selector, key, options)
+    }
+
+    override fun querySelector(selector: String): IElementHandle {
+        return mainFrame.querySelector(selector)
+    }
+
+    override fun querySelectorAll(selector: String): List<IElementHandle> {
+        return mainFrame.querySelectorAll(selector)
+    }
+
+    override fun reload(options: ReloadOptions?): IResponse? {
+        val params = Gson().toJsonTree(options ?: ReloadOptions {}).asJsonObject
+        val json = sendMessage("reload", params).asJsonObject
+        if (json.has("response")) {
+            return messageProcessor.getExistingObject(json["response"].asJsonObject["guid"].asString)
+        }
+        return null
+    }
+
+    override fun route(url: String, handler: (IRoute) -> Unit) {
+        route(UrlMatcher(url), handler)
+    }
+
+    override fun route(url: Pattern, handler: (IRoute) -> Unit) {
+        route(UrlMatcher(url), handler)
+    }
+
+    override fun route(url: (String) -> Boolean, handler: (IRoute) -> Unit) {
+        route(UrlMatcher(url), handler)
+    }
+
+    private fun route(matcher: UrlMatcher, handler: (IRoute) -> Unit) {
+        routes.add(matcher, handler)
+        if (routes.size() == 1) {
+            val params = JsonObject()
+            params.addProperty("enabled", true)
+            sendMessage("setNetworkInterceptionEnabled", params)
+        }
+    }
+
+    override fun screenshot(options: ScreenshotOptions?): ByteArray {
+        val opt = options ?: ScreenshotOptions {}
+        if (opt.type == null) {
+            opt.type = PNG
+            if (opt.path != null) {
+                val fileName = opt.path!!.fileName.toString()
+                val extStart = fileName.lastIndexOf('.')
+                if (extStart != -1) {
+                    val extension = fileName.substring(extStart).toLowerCase()
+                    if (".jpeg" == extension || ".jpg" == (extension)) {
+                        opt.type = JPEG
+                    }
+                }
+            }
+        }
+        val params = Gson().toJsonTree(opt).asJsonObject
+        params.remove("path")
+        val json = sendMessage("screenshot", params).asJsonObject
+
+        val buffer = Base64.getDecoder().decode(json["binary"].asString)
+        if (opt.path != null) {
+            writeToFile(buffer, opt.path!!)
+        }
+        return buffer
+    }
+
+    override fun selectOption(selector: String, value: String?, options: SelectOptionOptions?): List<String> {
+        val values = if (value == null) null else arrayOf(value)
+        return selectOption(selector, values, options)
+    }
+
+    override fun selectOption(selector: String, value: IElementHandle?, options: SelectOptionOptions?): List<String> {
+        val values = if (value == null) null else arrayOf(value)
+        return selectOption(selector, values, options)
+    }
+
+    override fun selectOption(selector: String, values: Array<String>?, options: SelectOptionOptions?): List<String> {
+        if (values == null) {
+            return selectOption(selector, emptyArray<SelectOption>(), options)
+        }
+        return selectOption(selector, values.map { value -> SelectOption { it.value = value } }.toTypedArray(), options)
+    }
+
+    override fun selectOption(selector: String, value: SelectOption?, options: SelectOptionOptions?): List<String> {
+        val values = if (value == null) null else arrayOf(value)
+        return selectOption(selector, values, options)
+    }
+
+    override fun selectOption(
+        selector: String,
+        values: Array<IElementHandle>?,
+        options: SelectOptionOptions?
+    ): List<String> {
+        return mainFrame.selectOption(selector, values, options)
+    }
+
+    override fun selectOption(
+        selector: String,
+        values: Array<SelectOption>?,
+        options: SelectOptionOptions?
+    ): List<String> {
+        return mainFrame.selectOption(selector, values, options)
+    }
+
+    override fun setContent(html: String, options: SetContentOptions?) {
+        mainFrame.setContent(html, options)
+    }
+
+    override fun setDefaultNavigationTimeout(timeout: Double) {
+        timeoutSettings.defaultNavigationTimeout = timeout
+        val params = JsonObject()
+        params.addProperty("timeout", timeout)
+        sendMessage("setDefaultNavigationTimeoutNoReply", params)
+    }
+
+    override fun setDefaultTimeout(timeout: Double) {
+        timeoutSettings.defaultTimeout = timeout
+        val params = JsonObject()
+        params.addProperty("timeout", timeout)
+        sendMessage("setDefaultTimeoutNoReply", params)
+    }
+
+    override fun setExtraHTTPHeaders(headers: Map<String, String>) {
+        val params = JsonObject()
+        val jsonHeaders = JsonArray()
+        for (entry in headers.entries) {
+            val header = JsonObject()
+            header.addProperty("name", entry.key)
+            header.addProperty("value", entry.value)
+            jsonHeaders.add(header)
+        }
+        params.add("headers", jsonHeaders)
+        sendMessage("setExtraHTTPHeaders", params)
+    }
+
+    override fun setInputFiles(selector: String, files: Path, options: SetInputFilesOptions?) {
+        setInputFiles(selector, arrayOf(files), options)
+    }
+
+    override fun setInputFiles(selector: String, files: Array<Path>, options: SetInputFilesOptions?) {
+        mainFrame.setInputFiles(selector, files, options)
+    }
+
+    override fun setInputFiles(selector: String, files: FilePayload, options: SetInputFilesOptions?) {
+        setInputFiles(selector, arrayOf(files), options)
+    }
+
+    override fun setInputFiles(selector: String, files: Array<FilePayload>, options: SetInputFilesOptions?) {
+        mainFrame.setInputFiles(selector, files, options)
+    }
+
+    override fun setViewportSize(width: Int, height: Int) {
+        viewPort = ViewportSize {
+            it.height = height
+            it.width = width
+        }
+        val params = JsonObject()
+        params.add("viewportSize", Gson().toJsonTree(viewPort))
+        sendMessage("setViewportSize", params)
+    }
+
+    override fun tap(selector: String, options: TapOptions?) {
+        mainFrame.tap(selector, options)
+    }
+
+    override fun textContent(selector: String, options: TextContentOptions?): String {
+        return mainFrame.textContent(selector, options)
+    }
+
+    override fun title(): String {
+        return mainFrame.title()
+    }
+
+    override fun touchScreen(): ITouchScreen {
+        return touchScreen
+    }
+
+    override fun type(selector: String, text: String, options: TypeOptions?) {
+        mainFrame.type(selector, text, options)
+    }
+
+    override fun uncheck(selector: String, options: UncheckOptions?) {
+        mainFrame.uncheck(selector, options)
+    }
+
+    override fun unroute(url: String, handler: ((IRoute) -> Unit)?) {
+        unroute(UrlMatcher(url), handler)
+    }
+
+    override fun unroute(url: Pattern, handler: ((IRoute) -> Unit)?) {
+        unroute(UrlMatcher(url), handler)
+    }
+
+    override fun unroute(url: (String) -> Boolean, handler: ((IRoute) -> Unit)?) {
+        unroute(UrlMatcher(url), handler)
+    }
+
+    private fun unroute(matcher: UrlMatcher, handler: ((IRoute) -> Unit)?) {
+        routes.remove(matcher, handler)
+        if (routes.size() == 0) {
+            val params = JsonObject()
+            params.addProperty("enabled", false)
+            sendMessage("setNetworkInterceptionEnabled", params)
+        }
+    }
+
+    override fun url(): String {
+        return mainFrame.url()
+    }
+
+    override fun video(): IVideo? {
+        // Note: we are creating Video object lazily, because we do not know
+        // BrowserContextOptions when constructing the page - it is assigned
+        // too late during launchPersistentContext.
+        if ((browserContext as BrowserContext).videosDir == null) {
+            return null
+        }
+        return forceVideo()
+    }
+
+    private fun forceVideo(): IVideo? {
+        if (video == null) {
+            video = Video(this)
+        }
+        return video
+    }
+
+    override fun viewportSize(): ViewportSize {
+        return viewPort
+    }
+
+    override fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IPage {
+        return waitForEventWithTimeout(CLOSE, (options ?: WaitForCloseOptions {}).timeout, callback)
+    }
+
+    override fun waitForConsoleMessage(options: WaitForConsoleMessageOptions?, callback: () -> Unit): IConsoleMessage {
+        return waitForEventWithTimeout(CONSOLE, (options ?: WaitForConsoleMessageOptions {}).timeout, callback)
+    }
+
+    override fun waitForDownload(options: WaitForDownloadOptions?, callback: () -> Unit): IDownload {
+        return waitForEventWithTimeout(DOWNLOAD, (options ?: WaitForDownloadOptions {}).timeout, callback)
+    }
+
+    override fun waitForFileChooser(options: WaitForFileChooserOptions?, callback: () -> Unit): IFileChooser {
+        return waitForEventWithTimeout(FILECHOOSER, (options ?: WaitForFileChooserOptions {}).timeout, callback)
+    }
+
+    override fun waitForFunction(expression: String, arg: Any?, options: WaitForFunctionOptions?): IJSHandle {
+        return mainFrame.waitForFunction(expression, arg, options)
+    }
+
+    override fun waitForLoadState(state: LoadState?, options: WaitForLoadStateOptions?) {
+        return mainFrame.waitForLoadState(state, options)
+    }
+
+    override fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse {
+        return mainFrame.waitForNavigation(options, callback)
+    }
+
+    override fun waitForPopup(options: WaitForPopupOptions?, callback: () -> Unit): IPage {
+        return waitForEventWithTimeout(POPUP, (options ?: WaitForPopupOptions {}).timeout, callback)
+    }
+
+    override fun waitForRequest(
+        urlOrPredicate: String?,
+        options: WaitForRequestOptions?,
+        callback: () -> Unit
+    ): IRequest {
+        return waitForRequest(toRequestPredicate(UrlMatcher(urlOrPredicate ?: "")), options, callback)
+    }
+
+    override fun waitForRequest(
+        urlOrPredicate: Pattern,
+        options: WaitForRequestOptions?,
+        callback: () -> Unit
+    ): IRequest {
+        return waitForRequest(toRequestPredicate(UrlMatcher(urlOrPredicate)), options, callback)
+    }
+
+    override fun waitForRequest(
+        urlOrPredicate: ((IRequest) -> Boolean)?,
+        options: WaitForRequestOptions?,
+        callback: () -> Unit
+    ): IRequest {
+        val waits = arrayListOf<IWait<IRequest>>()
+        waits.add(WaitEvent(listeners, REQUEST, { request -> urlOrPredicate == null || urlOrPredicate(request) }))
+        waits.add(createWaitForCloseHelper())
+        waits.add(createWaitTimeout((options ?: WaitForRequestOptions {}).timeout))
+        return runUtil(WaitRace(waits), callback)
+    }
+
+    override fun waitForResponse(
+        urlOrPredicate: String?,
+        options: WaitForResponseOptions?,
+        callback: () -> Unit
+    ): IResponse {
+        return waitForResponse(toResponsePredicate(UrlMatcher(urlOrPredicate ?: "")), options, callback)
+    }
+
+    override fun waitForResponse(
+        urlOrPredicate: Pattern?,
+        options: WaitForResponseOptions?,
+        callback: () -> Unit
+    ): IResponse {
+        return waitForResponse(toResponsePredicate(UrlMatcher(urlOrPredicate ?: "")), options, callback)
+    }
+
+    override fun waitForResponse(
+        urlOrPredicate: ((IResponse) -> Boolean)?,
+        options: WaitForResponseOptions?,
+        callback: () -> Unit
+    ): IResponse {
+        val waits = arrayListOf<IWait<IResponse>>()
+        waits.add(WaitEvent(listeners, RESPONSE, { response -> urlOrPredicate == null || urlOrPredicate(response) }))
+        waits.add(createWaitForCloseHelper())
+        waits.add(createWaitTimeout((options ?: WaitForResponseOptions {}).timeout))
+        return runUtil(WaitRace(waits), callback)
+    }
+
+    override fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle {
+        return mainFrame.waitForSelector(selector, options)
+    }
+
+    override fun waitForTimeout(timeout: Double) {
+        mainFrame.waitForTimeout(timeout)
+    }
+
+    override fun waitForURL(url: String, options: WaitForURLOptions?) {
+        waitForUrl(UrlMatcher(url), options)
+    }
+
+    override fun waitForURL(url: Pattern, options: WaitForURLOptions?) {
+        waitForUrl(UrlMatcher(url), options)
+    }
+
+    override fun waitForURL(url: (String) -> Boolean, options: WaitForURLOptions?) {
+        waitForUrl(UrlMatcher(url), options)
+    }
+
+    private fun waitForUrl(matcher: UrlMatcher, options: WaitForURLOptions?) {
+        (mainFrame as Frame).waitForURL(matcher, options)
+    }
+
+    override fun waitForWebSocket(options: WaitForWebSocketOptions?, callback: () -> Unit): IWebSocket {
+        return waitForEventWithTimeout(WEBSOCKET, (options ?: WaitForWebSocketOptions {}).timeout, callback)
+    }
+
+    override fun waitForWorker(options: WaitForWorkerOptions?, callback: () -> Unit): IWorker {
+        return waitForEventWithTimeout(WORKER, (options ?: WaitForWorkerOptions {}).timeout, callback)
+    }
+
+    override fun workers(): List<IWorker> {
+        return workers.toList()
+    }
+
+    override fun onceDialog(handler: (IDialog) -> Unit) {
+        val consumer: (IDialog) -> Unit = {
+            try {
+                handler(it)
+            } finally {
+                offDialog(handler)
+            }
+        }
+        onDialog(consumer)
+    }
+
     fun <T> createWaitForCloseHelper(): IWait<T> {
         return WaitRace(listOf(WaitPageClose(listeners), WaitPageCrash(listeners)))
     }
 
     fun <T> createWaitTimeout(timeout: Double?): IWait<T> {
         return timeoutSettings.createWait(timeout)
+    }
+
+    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T {
+        val waits = arrayListOf<IWait<T>>()
+        waits.add(WaitEvent(listeners, eventType))
+        waits.add(createWaitForCloseHelper())
+        waits.add(createWaitTimeout(timeout))
+        return runUtil(WaitRace(waits), code)
+    }
+
+    private fun toRequestPredicate(matcher: UrlMatcher): (IRequest) -> Boolean {
+        return { request -> matcher.test(request.url()) }
+    }
+
+    private fun toResponsePredicate(matcher: UrlMatcher): (IResponse) -> Boolean {
+        return { response -> matcher.test(response.url()) }
     }
 
     fun didClose() {

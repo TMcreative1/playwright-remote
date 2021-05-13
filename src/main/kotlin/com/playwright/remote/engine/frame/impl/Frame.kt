@@ -4,24 +4,31 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.LoadState
 import com.playwright.remote.core.exceptions.PlaywrightException
+import com.playwright.remote.domain.file.FilePayload
 import com.playwright.remote.domain.serialize.SerializedError.SerializedValue
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.handle.element.api.IElementHandle
 import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.options.*
-import com.playwright.remote.engine.options.element.ClickOptions
-import com.playwright.remote.engine.options.element.DoubleClickOptions
-import com.playwright.remote.engine.options.element.FillOptions
-import com.playwright.remote.engine.options.element.HoverOptions
+import com.playwright.remote.engine.options.element.*
+import com.playwright.remote.engine.options.element.PressOptions
+import com.playwright.remote.engine.options.element.TypeOptions
+import com.playwright.remote.engine.options.wait.WaitForFunctionOptions
+import com.playwright.remote.engine.options.wait.WaitForLoadStateOptions
+import com.playwright.remote.engine.options.wait.WaitForNavigationOptions
+import com.playwright.remote.engine.options.wait.WaitForURLOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.processor.ChannelOwner
+import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.serializer.Serialization.Companion.deserialize
 import com.playwright.remote.engine.serializer.Serialization.Companion.serializeArgument
 import okio.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files.readAllBytes
+import java.nio.file.Path
+import java.util.regex.Pattern
 
 class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
     parent,
@@ -34,7 +41,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     private var parentFrame: IFrame? = null
     private val childFrames = linkedSetOf<IFrame>()
     private val loadStates = hashSetOf<LoadState>()
-    private var page: IPage? = null
+    var page: IPage? = null
     var isDetachedValue = false
 
     init {
@@ -260,5 +267,125 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         params.addProperty("selector", selector)
         val json = sendMessage("isVisible", params).asJsonObject
         return json["value"].asBoolean
+    }
+
+    override fun press(selector: String, key: String, options: PressOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun querySelector(selector: String): IElementHandle {
+        TODO("Not yet implemented")
+    }
+
+    override fun querySelectorAll(selector: String): List<IElementHandle> {
+        TODO("Not yet implemented")
+    }
+
+    override fun selectOption(selector: String, values: String, options: SelectOptionOptions?): List<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun selectOption(selector: String, values: IElementHandle, options: SelectOptionOptions?): List<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun selectOption(selector: String, values: Array<String>, options: SelectOptionOptions?): List<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun selectOption(selector: String, values: SelectOption, options: SelectOptionOptions?): List<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun selectOption(
+        selector: String,
+        values: Array<IElementHandle>?,
+        options: SelectOptionOptions?
+    ): List<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun selectOption(
+        selector: String,
+        values: Array<SelectOption>?,
+        options: SelectOptionOptions?
+    ): List<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun setContent(html: String, options: SetContentOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setInputFiles(selector: String, files: Path, options: SetInputFilesOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setInputFiles(selector: String, files: Array<Path>, options: SetInputFilesOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setInputFiles(selector: String, files: FilePayload, options: SetInputFilesOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setInputFiles(selector: String, files: Array<FilePayload>, options: SetInputFilesOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun tap(selector: String, options: TapOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun textContent(selector: String, options: TextContentOptions?): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun title(): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun type(selector: String, text: String, options: TypeOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun uncheck(selector: String, options: UncheckOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun waitForFunction(expression: String, arg: Any?, options: WaitForFunctionOptions?): IJSHandle {
+        TODO("Not yet implemented")
+    }
+
+    override fun waitForLoadState(state: LoadState?, options: WaitForLoadStateOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle {
+        TODO("Not yet implemented")
+    }
+
+    override fun waitForTimeout(timeout: Double) {
+        TODO("Not yet implemented")
+    }
+
+    override fun waitForURL(url: String, options: WaitForURLOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun waitForURL(url: Pattern, options: WaitForURLOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun waitForURL(url: (String) -> Boolean, options: WaitForURLOptions?) {
+        TODO("Not yet implemented")
+    }
+
+    fun waitForURL(matcher: UrlMatcher, options: WaitForURLOptions?) {
+        TODO("Not yet implemented")
     }
 }

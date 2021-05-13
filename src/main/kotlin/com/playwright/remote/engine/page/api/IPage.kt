@@ -1,5 +1,7 @@
 package com.playwright.remote.engine.page.api
 
+import com.playwright.remote.core.enums.LoadState
+import com.playwright.remote.domain.file.FilePayload
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.callback.api.IFunctionCallback
@@ -13,12 +15,16 @@ import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.keyboard.api.IKeyboard
 import com.playwright.remote.engine.mouse.api.IMouse
 import com.playwright.remote.engine.options.*
-import com.playwright.remote.engine.options.element.ClickOptions
-import com.playwright.remote.engine.options.element.DoubleClickOptions
-import com.playwright.remote.engine.options.element.FillOptions
-import com.playwright.remote.engine.options.element.HoverOptions
+import com.playwright.remote.engine.options.ScreenshotOptions
+import com.playwright.remote.engine.options.element.*
+import com.playwright.remote.engine.options.element.PressOptions
+import com.playwright.remote.engine.options.element.TypeOptions
+import com.playwright.remote.engine.options.wait.*
+import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
+import com.playwright.remote.engine.touchscreen.api.ITouchScreen
+import com.playwright.remote.engine.video.api.IVideo
 import com.playwright.remote.engine.websocket.api.IWebSocket
 import com.playwright.remote.engine.worker.api.IWorker
 import java.nio.file.Path
@@ -1700,4 +1706,1844 @@ interface IPage {
      * evaluated. > 2. Page styles are not visible inside templates.
      */
     fun pdf(options: PdfOptions?): ByteArray
+
+    /**
+     * Focuses the element, and then uses {@link Keyboard#down Keyboard.down()} and {@link Keyboard#up Keyboard.up()}.
+     *
+     * <p> {@code key} can specify the intended <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key">keyboardEvent.key</a> value or a single
+     * character to generate the text for. A superset of the {@code key} values can be found <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values">here</a>. Examples of the keys are:
+     *
+     * <p> {@code F1} - {@code F12}, {@code Digit0}- {@code Digit9}, {@code KeyA}- {@code KeyZ}, {@code Backquote}, {@code Minus}, {@code Equal}, {@code Backslash}, {@code Backspace}, {@code Tab},
+     * {@code Delete}, {@code Escape}, {@code ArrowDown}, {@code End}, {@code Enter}, {@code Home}, {@code Insert}, {@code PageDown}, {@code PageUp}, {@code ArrowRight}, {@code ArrowUp}, etc.
+     *
+     * <p> Following modification shortcuts are also supported: {@code Shift}, {@code Control}, {@code Alt}, {@code Meta}, {@code ShiftLeft}.
+     *
+     * <p> Holding down {@code Shift} will type the text that corresponds to the {@code key} in the upper case.
+     *
+     * <p> If {@code key} is a single character, it is case-sensitive, so the values {@code a} and {@code A} will generate different respective
+     * texts.
+     *
+     * <p> Shortcuts such as {@code key: "Control+o"} or {@code key: "Control+Shift+T"} are supported as well. When specified with the
+     * modifier, modifier is pressed and being held while the subsequent key is being pressed.
+     * <pre>{@code
+     * Page page = browser.newPage();
+     * page.navigate("https://keycode.info");
+     * page.press("body", "A");
+     * page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("A.png")));
+     * page.press("body", "ArrowLeft");
+     * page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("ArrowLeft.png" )));
+     * page.press("body", "Shift+O");
+     * page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("O.png" )));
+     * }</pre>
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param key Name of the key to press or a character to generate, such as {@code ArrowLeft} or {@code a}.
+     */
+    fun press(selector: String, key: String) {
+        press(selector, key, null)
+    }
+
+    /**
+     * Focuses the element, and then uses {@link Keyboard#down Keyboard.down()} and {@link Keyboard#up Keyboard.up()}.
+     *
+     * <p> {@code key} can specify the intended <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key">keyboardEvent.key</a> value or a single
+     * character to generate the text for. A superset of the {@code key} values can be found <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values">here</a>. Examples of the keys are:
+     *
+     * <p> {@code F1} - {@code F12}, {@code Digit0}- {@code Digit9}, {@code KeyA}- {@code KeyZ}, {@code Backquote}, {@code Minus}, {@code Equal}, {@code Backslash}, {@code Backspace}, {@code Tab},
+     * {@code Delete}, {@code Escape}, {@code ArrowDown}, {@code End}, {@code Enter}, {@code Home}, {@code Insert}, {@code PageDown}, {@code PageUp}, {@code ArrowRight}, {@code ArrowUp}, etc.
+     *
+     * <p> Following modification shortcuts are also supported: {@code Shift}, {@code Control}, {@code Alt}, {@code Meta}, {@code ShiftLeft}.
+     *
+     * <p> Holding down {@code Shift} will type the text that corresponds to the {@code key} in the upper case.
+     *
+     * <p> If {@code key} is a single character, it is case-sensitive, so the values {@code a} and {@code A} will generate different respective
+     * texts.
+     *
+     * <p> Shortcuts such as {@code key: "Control+o"} or {@code key: "Control+Shift+T"} are supported as well. When specified with the
+     * modifier, modifier is pressed and being held while the subsequent key is being pressed.
+     * <pre>{@code
+     * Page page = browser.newPage();
+     * page.navigate("https://keycode.info");
+     * page.press("body", "A");
+     * page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("A.png")));
+     * page.press("body", "ArrowLeft");
+     * page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("ArrowLeft.png" )));
+     * page.press("body", "Shift+O");
+     * page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("O.png" )));
+     * }</pre>
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param key Name of the key to press or a character to generate, such as {@code ArrowLeft} or {@code a}.
+     */
+    fun press(selector: String, key: String, options: PressOptions?)
+
+    /**
+     * The method finds an element matching the specified selector within the page. If no elements match the selector, the
+     * return value resolves to {@code null}.
+     *
+     * <p> Shortcut for main frame's {@link Frame#querySelector Frame.querySelector()}.
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     */
+    fun querySelector(selector: String): IElementHandle
+
+    /**
+     * The method finds all elements matching the specified selector within the page. If no elements match the selector, the
+     * return value resolves to {@code []}.
+     *
+     * <p> Shortcut for main frame's {@link Frame#querySelectorAll Frame.querySelectorAll()}.
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     */
+    fun querySelectorAll(selector: String): List<IElementHandle>
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
+     * last redirect.
+     */
+    fun reload(): IResponse? {
+        return reload(null)
+    }
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
+     * last redirect.
+     */
+    fun reload(options: ReloadOptions?): IResponse?
+
+    /**
+     * Routing provides the capability to modify network requests that are made by a page.
+     *
+     * <p> Once routing is enabled, every request matching the url pattern will stall unless it's continued, fulfilled or aborted.
+     *
+     * <p> <strong>NOTE:</strong> The handler will only be called for the first url if the response is a redirect.
+     *
+     * <p> An example of a naive handler that aborts all image requests:
+     * <pre>{@code
+     * Page page = browser.newPage();
+     * page.route("**\/ *.{png,jpg,jpeg}", route -> route.abort());
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> or the same snippet using a regex pattern instead:
+     * <pre>{@code
+     * Page page = browser.newPage();
+     * page.route(Pattern.compile("(\\.png$)|(\\.jpg$)"),route -> route.abort());
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> Page routes take precedence over browser context routes (set up with {@link BrowserContext#route
+     * BrowserContext.route()}) when request matches both handlers.
+     *
+     * <p> To remove a route with its handler you can use {@link Page#unroute Page.unroute()}.
+     *
+     * <p> <strong>NOTE:</strong> Enabling routing disables http cache.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param handler handler function to route the request.
+     */
+    fun route(url: String, handler: (IRoute) -> Unit)
+
+    /**
+     * Routing provides the capability to modify network requests that are made by a page.
+     *
+     * <p> Once routing is enabled, every request matching the url pattern will stall unless it's continued, fulfilled or aborted.
+     *
+     * <p> <strong>NOTE:</strong> The handler will only be called for the first url if the response is a redirect.
+     *
+     * <p> An example of a naive handler that aborts all image requests:
+     * <pre>{@code
+     * Page page = browser.newPage();
+     * page.route("**\/ *.{png,jpg,jpeg}", route -> route.abort());
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> or the same snippet using a regex pattern instead:
+     * <pre>{@code
+     * Page page = browser.newPage();
+     * page.route(Pattern.compile("(\\.png$)|(\\.jpg$)"),route -> route.abort());
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> Page routes take precedence over browser context routes (set up with {@link BrowserContext#route
+     * BrowserContext.route()}) when request matches both handlers.
+     *
+     * <p> To remove a route with its handler you can use {@link Page#unroute Page.unroute()}.
+     *
+     * <p> <strong>NOTE:</strong> Enabling routing disables http cache.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param handler handler function to route the request.
+     */
+    fun route(url: Pattern, handler: (IRoute) -> Unit)
+
+    /**
+     * Routing provides the capability to modify network requests that are made by a page.
+     *
+     * <p> Once routing is enabled, every request matching the url pattern will stall unless it's continued, fulfilled or aborted.
+     *
+     * <p> <strong>NOTE:</strong> The handler will only be called for the first url if the response is a redirect.
+     *
+     * <p> An example of a naive handler that aborts all image requests:
+     * <pre>{@code
+     * Page page = browser.newPage();
+     * page.route("**\/ *.{png,jpg,jpeg}", route -> route.abort());
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> or the same snippet using a regex pattern instead:
+     * <pre>{@code
+     * Page page = browser.newPage();
+     * page.route(Pattern.compile("(\\.png$)|(\\.jpg$)"),route -> route.abort());
+     * page.navigate("https://example.com");
+     * browser.close();
+     * }</pre>
+     *
+     * <p> Page routes take precedence over browser context routes (set up with {@link BrowserContext#route
+     * BrowserContext.route()}) when request matches both handlers.
+     *
+     * <p> To remove a route with its handler you can use {@link Page#unroute Page.unroute()}.
+     *
+     * <p> <strong>NOTE:</strong> Enabling routing disables http cache.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param handler handler function to route the request.
+     */
+    fun route(url: (String) -> Boolean, handler: (IRoute) -> Unit)
+
+    /**
+     * Returns the buffer with the captured screenshot.
+     */
+    fun screenshot(): ByteArray {
+        return screenshot(null)
+    }
+
+    /**
+     * Returns the buffer with the captured screenshot.
+     */
+    fun screenshot(options: ScreenshotOptions?): ByteArray
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, value: String): List<String> {
+        return selectOption(selector, value, null)
+    }
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, value: String?, options: SelectOptionOptions?): List<String>
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, values: IElementHandle): List<String> {
+        return selectOption(selector, values, null)
+    }
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, value: IElementHandle?, options: SelectOptionOptions?): List<String>
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, values: Array<String>): List<String> {
+        return selectOption(selector, values, null)
+    }
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, values: Array<String>?, options: SelectOptionOptions?): List<String>
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, values: SelectOption): List<String> {
+        return selectOption(selector, values, null)
+    }
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, value: SelectOption?, options: SelectOptionOptions?): List<String>
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, values: Array<IElementHandle>): List<String> {
+        return selectOption(selector, values, null)
+    }
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, values: Array<IElementHandle>?, options: SelectOptionOptions?): List<String>
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, values: Array<SelectOption>): List<String> {
+        return selectOption(selector, values, null)
+    }
+
+    /**
+     * Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected. If there's no {@code <select>} element
+     * matching {@code selector}, the method throws an error.
+     *
+     * <p> Will wait until all specified options are present in the {@code <select>} element.
+     * <pre>{@code
+     * // single selection matching the value
+     * page.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * page.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * page.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#selectOption Frame.selectOption()}
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, values: Array<SelectOption>?, options: SelectOptionOptions?): List<String>
+
+    /**
+     *
+     *
+     * @param html HTML markup to assign to the page.
+     */
+    fun setContent(html: String) {
+        setContent(html, null)
+    }
+
+    /**
+     *
+     *
+     * @param html HTML markup to assign to the page.
+     */
+    fun setContent(html: String, options: SetContentOptions?)
+
+    /**
+     * This setting will change the default maximum navigation time for the following methods and related shortcuts:
+     * <ul>
+     * <li> {@link Page#goBack Page.goBack()}</li>
+     * <li> {@link Page#goForward Page.goForward()}</li>
+     * <li> {@link Page#goto Page.goto()}</li>
+     * <li> {@link Page#reload Page.reload()}</li>
+     * <li> {@link Page#setContent Page.setContent()}</li>
+     * <li> {@link Page#waitForNavigation Page.waitForNavigation()}</li>
+     * <li> {@link Page#waitForURL Page.waitForURL()}</li>
+     * </ul>
+     *
+     * <p> <strong>NOTE:</strong> {@link Page#setDefaultNavigationTimeout Page.setDefaultNavigationTimeout()} takes priority over {@link
+     * Page#setDefaultTimeout Page.setDefaultTimeout()}, {@link BrowserContext#setDefaultTimeout
+     * BrowserContext.setDefaultTimeout()} and {@link BrowserContext#setDefaultNavigationTimeout
+     * BrowserContext.setDefaultNavigationTimeout()}.
+     *
+     * @param timeout Maximum navigation time in milliseconds
+     */
+    fun setDefaultNavigationTimeout(timeout: Double)
+
+    /**
+     * This setting will change the default maximum time for all the methods accepting {@code timeout} option.
+     *
+     * <p> <strong>NOTE:</strong> {@link Page#setDefaultNavigationTimeout Page.setDefaultNavigationTimeout()} takes priority over {@link
+     * Page#setDefaultTimeout Page.setDefaultTimeout()}.
+     *
+     * @param timeout Maximum time in milliseconds
+     */
+    fun setDefaultTimeout(timeout: Double)
+
+    /**
+     * The extra HTTP headers will be sent with every request the page initiates.
+     *
+     * <p> <strong>NOTE:</strong> {@link Page#setExtraHTTPHeaders Page.setExtraHTTPHeaders()} does not guarantee the order of headers in the outgoing
+     * requests.
+     *
+     * @param headers An object containing additional HTTP headers to be sent with every request. All header values must be strings.
+     */
+    fun setExtraHTTPHeaders(headers: Map<String, String>)
+
+    /**
+     * This method expects {@code selector} to point to an <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input">input element</a>.
+     *
+     * <p> Sets the value of the file input to these file paths or files. If some of the {@code filePaths} are relative paths, then they
+     * are resolved relative to the the current working directory. For empty array, clears the selected files.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun setInputFiles(selector: String, files: Path) {
+        setInputFiles(selector, files)
+    }
+
+    /**
+     * This method expects {@code selector} to point to an <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input">input element</a>.
+     *
+     * <p> Sets the value of the file input to these file paths or files. If some of the {@code filePaths} are relative paths, then they
+     * are resolved relative to the the current working directory. For empty array, clears the selected files.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun setInputFiles(selector: String, files: Path, options: SetInputFilesOptions?)
+
+    /**
+     * This method expects {@code selector} to point to an <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input">input element</a>.
+     *
+     * <p> Sets the value of the file input to these file paths or files. If some of the {@code filePaths} are relative paths, then they
+     * are resolved relative to the the current working directory. For empty array, clears the selected files.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun setInputFiles(selector: String, files: Array<Path>) {
+        setInputFiles(selector, files, null)
+    }
+
+    /**
+     * This method expects {@code selector} to point to an <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input">input element</a>.
+     *
+     * <p> Sets the value of the file input to these file paths or files. If some of the {@code filePaths} are relative paths, then they
+     * are resolved relative to the the current working directory. For empty array, clears the selected files.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun setInputFiles(selector: String, files: Array<Path>, options: SetInputFilesOptions?)
+
+    /**
+     * This method expects {@code selector} to point to an <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input">input element</a>.
+     *
+     * <p> Sets the value of the file input to these file paths or files. If some of the {@code filePaths} are relative paths, then they
+     * are resolved relative to the the current working directory. For empty array, clears the selected files.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun setInputFiles(selector: String, files: FilePayload) {
+        setInputFiles(selector, files, null)
+    }
+
+    /**
+     * This method expects {@code selector} to point to an <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input">input element</a>.
+     *
+     * <p> Sets the value of the file input to these file paths or files. If some of the {@code filePaths} are relative paths, then they
+     * are resolved relative to the the current working directory. For empty array, clears the selected files.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun setInputFiles(selector: String, files: FilePayload, options: SetInputFilesOptions?)
+
+    /**
+     * This method expects {@code selector} to point to an <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input">input element</a>.
+     *
+     * <p> Sets the value of the file input to these file paths or files. If some of the {@code filePaths} are relative paths, then they
+     * are resolved relative to the the current working directory. For empty array, clears the selected files.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun setInputFiles(selector: String, files: Array<FilePayload>) {
+        setInputFiles(selector, files, null)
+    }
+
+    /**
+     * This method expects {@code selector} to point to an <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input">input element</a>.
+     *
+     * <p> Sets the value of the file input to these file paths or files. If some of the {@code filePaths} are relative paths, then they
+     * are resolved relative to the the current working directory. For empty array, clears the selected files.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun setInputFiles(selector: String, files: Array<FilePayload>, options: SetInputFilesOptions?)
+
+    /**
+     * In the case of multiple pages in a single browser, each page can have its own viewport size. However, {@link
+     * Browser#newContext Browser.newContext()} allows to set viewport size (and more) for all pages in the context at once.
+     *
+     * <p> {@code page.setViewportSize} will resize the page. A lot of websites don't expect phones to change size, so you should set the
+     * viewport size before navigating to the page.
+     * <pre>{@code
+     * Page page = browser.newPage();
+     * page.setViewportSize(640, 480);
+     * page.navigate("https://example.com");
+     * }</pre>
+     */
+    fun setViewportSize(width: Int, height: Int)
+
+    /**
+     * This method taps an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#touchscreen Page.touchscreen()} to tap the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * <p> <strong>NOTE:</strong> {@link Page#tap Page.tap()} requires that the {@code hasTouch} option of the browser context be set to true.
+     *
+     * <p> Shortcut for main frame's {@link Frame#tap Frame.tap()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun tap(selector: String) {
+        tap(selector, null)
+    }
+
+    /**
+     * This method taps an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#touchscreen Page.touchscreen()} to tap the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * <p> <strong>NOTE:</strong> {@link Page#tap Page.tap()} requires that the {@code hasTouch} option of the browser context be set to true.
+     *
+     * <p> Shortcut for main frame's {@link Frame#tap Frame.tap()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun tap(selector: String, options: TapOptions?)
+
+    /**
+     * Returns {@code element.textContent}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun textContent(selector: String): String {
+        return textContent(selector, null)
+    }
+
+    /**
+     * Returns {@code element.textContent}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun textContent(selector: String, options: TextContentOptions?): String
+
+    /**
+     * Returns the page's title. Shortcut for main frame's {@link Frame#title Frame.title()}.
+     */
+    fun title(): String
+
+    fun touchScreen(): ITouchScreen
+
+    /**
+     * Sends a {@code keydown}, {@code keypress}/{@code input}, and {@code keyup} event for each character in the text. {@code page.type} can be used to send
+     * fine-grained keyboard events. To fill values in form fields, use {@link Page#fill Page.fill()}.
+     *
+     * <p> To press a special key, like {@code Control} or {@code ArrowDown}, use {@link Keyboard#press Keyboard.press()}.
+     * <pre>{@code
+     * // Types instantly
+     * page.type("#mytextarea", "Hello");
+     * // Types slower, like a user
+     * page.type("#mytextarea", "World", new Page.TypeOptions().setDelay(100));
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#type Frame.type()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param text A text to type into a focused element.
+     */
+    fun type(selector: String, text: String) {
+        type(selector, text, null)
+    }
+
+    /**
+     * Sends a {@code keydown}, {@code keypress}/{@code input}, and {@code keyup} event for each character in the text. {@code page.type} can be used to send
+     * fine-grained keyboard events. To fill values in form fields, use {@link Page#fill Page.fill()}.
+     *
+     * <p> To press a special key, like {@code Control} or {@code ArrowDown}, use {@link Keyboard#press Keyboard.press()}.
+     * <pre>{@code
+     * // Types instantly
+     * page.type("#mytextarea", "Hello");
+     * // Types slower, like a user
+     * page.type("#mytextarea", "World", new Page.TypeOptions().setDelay(100));
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#type Frame.type()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param text A text to type into a focused element.
+     */
+    fun type(selector: String, text: String, options: TypeOptions?)
+
+    /**
+     * This method unchecks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Ensure that matched element is a checkbox or a radio input. If not, this method throws. If the element is already
+     * unchecked, this method returns immediately.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * <li> Ensure that the element is now unchecked. If not, this method throws.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * <p> Shortcut for main frame's {@link Frame#uncheck Frame.uncheck()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun uncheck(selector: String) {
+        uncheck(selector, null)
+    }
+
+    /**
+     * This method unchecks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Ensure that matched element is a checkbox or a radio input. If not, this method throws. If the element is already
+     * unchecked, this method returns immediately.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * <li> Ensure that the element is now unchecked. If not, this method throws.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * <p> Shortcut for main frame's {@link Frame#uncheck Frame.uncheck()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun uncheck(selector: String, options: UncheckOptions?)
+
+    /**
+     * Removes a route created with {@link Page#route Page.route()}. When {@code handler} is not specified, removes all routes for
+     * the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     */
+    fun unroute(url: String) {
+        unroute(url, null)
+    }
+
+    /**
+     * Removes a route created with {@link Page#route Page.route()}. When {@code handler} is not specified, removes all routes for
+     * the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param handler Optional handler function to route the request.
+     */
+    fun unroute(url: String, handler: ((IRoute) -> Unit)?)
+
+    /**
+     * Removes a route created with {@link Page#route Page.route()}. When {@code handler} is not specified, removes all routes for
+     * the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     */
+    fun unroute(url: Pattern) {
+        unroute(url, null)
+    }
+
+    /**
+     * Removes a route created with {@link Page#route Page.route()}. When {@code handler} is not specified, removes all routes for
+     * the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param handler Optional handler function to route the request.
+     */
+    fun unroute(url: Pattern, handler: ((IRoute) -> Unit)?)
+
+    /**
+     * Removes a route created with {@link Page#route Page.route()}. When {@code handler} is not specified, removes all routes for
+     * the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     */
+    fun unroute(url: (String) -> Boolean) {
+        unroute(url, null)
+    }
+
+    /**
+     * Removes a route created with {@link Page#route Page.route()}. When {@code handler} is not specified, removes all routes for
+     * the {@code url}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param handler Optional handler function to route the request.
+     */
+    fun unroute(url: (String) -> Boolean, handler: ((IRoute) -> Unit)?)
+
+    /**
+     * Shortcut for main frame's {@link Frame#url Frame.url()}.
+     */
+    fun url(): String
+
+    /**
+     * Video object associated with this page.
+     */
+    fun video(): IVideo?
+
+    fun viewportSize(): ViewportSize
+
+    /**
+     * Performs action and waits for the Page to close.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForClose(callback: () -> Unit): IPage {
+        return waitForClose(null, callback)
+    }
+
+    /**
+     * Performs action and waits for the Page to close.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IPage
+
+    /**
+     * Performs action and waits for a {@code ConsoleMessage} to be logged by in the page. If predicate is provided, it passes
+     * {@code ConsoleMessage} value into the {@code predicate} function and waits for {@code predicate(message)} to return a truthy value. Will
+     * throw an error if the page is closed before the console event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForConsoleMessage(callback: () -> Unit): IConsoleMessage {
+        return waitForConsoleMessage(null, callback)
+    }
+
+    /**
+     * Performs action and waits for a {@code ConsoleMessage} to be logged by in the page. If predicate is provided, it passes
+     * {@code ConsoleMessage} value into the {@code predicate} function and waits for {@code predicate(message)} to return a truthy value. Will
+     * throw an error if the page is closed before the console event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForConsoleMessage(options: WaitForConsoleMessageOptions?, callback: () -> Unit): IConsoleMessage
+
+    /**
+     * Performs action and waits for a new {@code Download}. If predicate is provided, it passes {@code Download} value into the
+     * {@code predicate} function and waits for {@code predicate(download)} to return a truthy value. Will throw an error if the page is
+     * closed before the download event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForDownload(callback: () -> Unit): IDownload {
+        return waitForDownload(null, callback)
+    }
+
+    /**
+     * Performs action and waits for a new {@code Download}. If predicate is provided, it passes {@code Download} value into the
+     * {@code predicate} function and waits for {@code predicate(download)} to return a truthy value. Will throw an error if the page is
+     * closed before the download event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForDownload(options: WaitForDownloadOptions?, callback: () -> Unit): IDownload
+
+    /**
+     * Performs action and waits for a new {@code FileChooser} to be created. If predicate is provided, it passes {@code FileChooser} value
+     * into the {@code predicate} function and waits for {@code predicate(fileChooser)} to return a truthy value. Will throw an error if
+     * the page is closed before the file chooser is opened.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForFileChooser(callback: () -> Unit): IFileChooser {
+        return waitForFileChooser(null, callback)
+    }
+
+    /**
+     * Performs action and waits for a new {@code FileChooser} to be created. If predicate is provided, it passes {@code FileChooser} value
+     * into the {@code predicate} function and waits for {@code predicate(fileChooser)} to return a truthy value. Will throw an error if
+     * the page is closed before the file chooser is opened.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForFileChooser(options: WaitForFileChooserOptions?, callback: () -> Unit): IFileChooser
+
+    /**
+     * Returns when the {@code expression} returns a truthy value. It resolves to a JSHandle of the truthy value.
+     *
+     * <p> The {@link Page#waitForFunction Page.waitForFunction()} can be used to observe viewport size change:
+     * <pre>{@code
+     * import com.microsoft.playwright.*;
+     *
+     * public class Example {
+     *   public static void main(String[] args) {
+     *     try (Playwright playwright = Playwright.create()) {
+     *       BrowserType webkit = playwright.webkit();
+     *       Browser browser = webkit.launch();
+     *       Page page = browser.newPage();
+     *       page.setViewportSize(50,  50);
+     *       page.waitForFunction("() => window.innerWidth < 100");
+     *       browser.close();
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * <p> To pass an argument to the predicate of {@link Page#waitForFunction Page.waitForFunction()} function:
+     * <pre>{@code
+     * String selector = ".foo";
+     * page.waitForFunction("selector => !!document.querySelector(selector)", selector);
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForFunction Frame.waitForFunction()}.
+     *
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     */
+    fun waitForFunction(expression: String): IJSHandle {
+        return waitForFunction(expression, null)
+    }
+
+    /**
+     * Returns when the {@code expression} returns a truthy value. It resolves to a JSHandle of the truthy value.
+     *
+     * <p> The {@link Page#waitForFunction Page.waitForFunction()} can be used to observe viewport size change:
+     * <pre>{@code
+     * import com.microsoft.playwright.*;
+     *
+     * public class Example {
+     *   public static void main(String[] args) {
+     *     try (Playwright playwright = Playwright.create()) {
+     *       BrowserType webkit = playwright.webkit();
+     *       Browser browser = webkit.launch();
+     *       Page page = browser.newPage();
+     *       page.setViewportSize(50,  50);
+     *       page.waitForFunction("() => window.innerWidth < 100");
+     *       browser.close();
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * <p> To pass an argument to the predicate of {@link Page#waitForFunction Page.waitForFunction()} function:
+     * <pre>{@code
+     * String selector = ".foo";
+     * page.waitForFunction("selector => !!document.querySelector(selector)", selector);
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForFunction Frame.waitForFunction()}.
+     *
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     * @param arg Optional argument to pass to {@code expression}.
+     */
+    fun waitForFunction(expression: String, arg: Any?): IJSHandle {
+        return waitForFunction(expression, arg, null)
+    }
+
+    /**
+     * Returns when the {@code expression} returns a truthy value. It resolves to a JSHandle of the truthy value.
+     *
+     * <p> The {@link Page#waitForFunction Page.waitForFunction()} can be used to observe viewport size change:
+     * <pre>{@code
+     * import com.microsoft.playwright.*;
+     *
+     * public class Example {
+     *   public static void main(String[] args) {
+     *     try (Playwright playwright = Playwright.create()) {
+     *       BrowserType webkit = playwright.webkit();
+     *       Browser browser = webkit.launch();
+     *       Page page = browser.newPage();
+     *       page.setViewportSize(50,  50);
+     *       page.waitForFunction("() => window.innerWidth < 100");
+     *       browser.close();
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * <p> To pass an argument to the predicate of {@link Page#waitForFunction Page.waitForFunction()} function:
+     * <pre>{@code
+     * String selector = ".foo";
+     * page.waitForFunction("selector => !!document.querySelector(selector)", selector);
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForFunction Frame.waitForFunction()}.
+     *
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     * @param arg Optional argument to pass to {@code expression}.
+     */
+    fun waitForFunction(expression: String, arg: Any?, options: WaitForFunctionOptions?): IJSHandle
+
+    /**
+     * Returns when the required load state has been reached.
+     *
+     * <p> This resolves when the page reaches a required load state, {@code load} by default. The navigation must have been committed
+     * when this method is called. If current document has already reached the required state, resolves immediately.
+     * <pre>{@code
+     * page.click("button"); // Click triggers navigation.
+     * page.waitForLoadState(); // The promise resolves after "load" event.
+     * }</pre>
+     * <pre>{@code
+     * Page popup = page.waitForPopup(() -> {
+     *   page.click("button"); // Click triggers a popup.
+     * });
+     * popup.waitForLoadState(LoadState.DOMCONTENTLOADED);
+     * System.out.println(popup.title()); // Popup is ready to use.
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForLoadState Frame.waitForLoadState()}.
+     */
+    fun waitForLoadState() {
+        waitForLoadState(null)
+    }
+
+    /**
+     * Returns when the required load state has been reached.
+     *
+     * <p> This resolves when the page reaches a required load state, {@code load} by default. The navigation must have been committed
+     * when this method is called. If current document has already reached the required state, resolves immediately.
+     * <pre>{@code
+     * page.click("button"); // Click triggers navigation.
+     * page.waitForLoadState(); // The promise resolves after "load" event.
+     * }</pre>
+     * <pre>{@code
+     * Page popup = page.waitForPopup(() -> {
+     *   page.click("button"); // Click triggers a popup.
+     * });
+     * popup.waitForLoadState(LoadState.DOMCONTENTLOADED);
+     * System.out.println(popup.title()); // Popup is ready to use.
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForLoadState Frame.waitForLoadState()}.
+     *
+     * @param state Optional load state to wait for, defaults to {@code load}. If the state has been already reached while loading current
+     * document, the method resolves immediately. Can be one of:
+     * <ul>
+     * <li> {@code "load"} - wait for the {@code load} event to be fired.</li>
+     * <li> {@code "domcontentloaded"} - wait for the {@code DOMContentLoaded} event to be fired.</li>
+     * <li> {@code "networkidle"} - wait until there are no network connections for at least {@code 500} ms.</li>
+     * </ul>
+     */
+    fun waitForLoadState(state: LoadState?) {
+        return waitForLoadState(state, null)
+    }
+
+    /**
+     * Returns when the required load state has been reached.
+     *
+     * <p> This resolves when the page reaches a required load state, {@code load} by default. The navigation must have been committed
+     * when this method is called. If current document has already reached the required state, resolves immediately.
+     * <pre>{@code
+     * page.click("button"); // Click triggers navigation.
+     * page.waitForLoadState(); // The promise resolves after "load" event.
+     * }</pre>
+     * <pre>{@code
+     * Page popup = page.waitForPopup(() -> {
+     *   page.click("button"); // Click triggers a popup.
+     * });
+     * popup.waitForLoadState(LoadState.DOMCONTENTLOADED);
+     * System.out.println(popup.title()); // Popup is ready to use.
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForLoadState Frame.waitForLoadState()}.
+     *
+     * @param state Optional load state to wait for, defaults to {@code load}. If the state has been already reached while loading current
+     * document, the method resolves immediately. Can be one of:
+     * <ul>
+     * <li> {@code "load"} - wait for the {@code load} event to be fired.</li>
+     * <li> {@code "domcontentloaded"} - wait for the {@code DOMContentLoaded} event to be fired.</li>
+     * <li> {@code "networkidle"} - wait until there are no network connections for at least {@code 500} ms.</li>
+     * </ul>
+     */
+    fun waitForLoadState(state: LoadState?, options: WaitForLoadStateOptions?)
+
+    /**
+     * Waits for the main frame navigation and returns the main resource response. In case of multiple redirects, the
+     * navigation will resolve with the response of the last redirect. In case of navigation to a different anchor or
+     * navigation due to History API usage, the navigation will resolve with {@code null}.
+     *
+     * <p> This resolves when the page navigates to a new URL or reloads. It is useful for when you run code which will indirectly
+     * cause the page to navigate. e.g. The click target has an {@code onclick} handler that triggers navigation from a {@code setTimeout}.
+     * Consider this example:
+     * <pre>{@code
+     * // The method returns after navigation has finished
+     * Response response = page.waitForNavigation(() -> {
+     *   page.click("a.delayed-navigation"); // Clicking the link will indirectly cause a navigation
+     * });
+     * }</pre>
+     *
+     * <p> <strong>NOTE:</strong> Usage of the <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API">History API</a> to change the URL is
+     * considered a navigation.
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForNavigation Frame.waitForNavigation()}.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForNavigation(callback: () -> Unit): IResponse {
+        return waitForNavigation(null, callback)
+    }
+
+    /**
+     * Waits for the main frame navigation and returns the main resource response. In case of multiple redirects, the
+     * navigation will resolve with the response of the last redirect. In case of navigation to a different anchor or
+     * navigation due to History API usage, the navigation will resolve with {@code null}.
+     *
+     * <p> This resolves when the page navigates to a new URL or reloads. It is useful for when you run code which will indirectly
+     * cause the page to navigate. e.g. The click target has an {@code onclick} handler that triggers navigation from a {@code setTimeout}.
+     * Consider this example:
+     * <pre>{@code
+     * // The method returns after navigation has finished
+     * Response response = page.waitForNavigation(() -> {
+     *   page.click("a.delayed-navigation"); // Clicking the link will indirectly cause a navigation
+     * });
+     * }</pre>
+     *
+     * <p> <strong>NOTE:</strong> Usage of the <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API">History API</a> to change the URL is
+     * considered a navigation.
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForNavigation Frame.waitForNavigation()}.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse
+
+    /**
+     * Performs action and waits for a popup {@code Page}. If predicate is provided, it passes [Popup] value into the {@code predicate}
+     * function and waits for {@code predicate(page)} to return a truthy value. Will throw an error if the page is closed before the
+     * popup event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForPopup(callback: () -> Unit): IPage {
+        return waitForPopup(null, callback)
+    }
+
+    /**
+     * Performs action and waits for a popup {@code Page}. If predicate is provided, it passes [Popup] value into the {@code predicate}
+     * function and waits for {@code predicate(page)} to return a truthy value. Will throw an error if the page is closed before the
+     * popup event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForPopup(options: WaitForPopupOptions?, callback: () -> Unit): IPage
+
+    /**
+     * Waits for the matching request and returns it.  See <a
+     * href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Request request = page.waitForRequest("https://example.com/resource", () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     *
+     * // Waits for the next request matching some conditions
+     * Request request = page.waitForRequest(request -> "https://example.com".equals(request.url()) && "GET".equals(request.method()), () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForRequest(urlOrPredicate: String, callback: () -> Unit): IRequest {
+        return waitForRequest(urlOrPredicate, null, callback)
+    }
+
+    /**
+     * Waits for the matching request and returns it.  See <a
+     * href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Request request = page.waitForRequest("https://example.com/resource", () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     *
+     * // Waits for the next request matching some conditions
+     * Request request = page.waitForRequest(request -> "https://example.com".equals(request.url()) && "GET".equals(request.method()), () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForRequest(urlOrPredicate: String?, options: WaitForRequestOptions?, callback: () -> Unit): IRequest
+
+    /**
+     * Waits for the matching request and returns it.  See <a
+     * href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Request request = page.waitForRequest("https://example.com/resource", () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     *
+     * // Waits for the next request matching some conditions
+     * Request request = page.waitForRequest(request -> "https://example.com".equals(request.url()) && "GET".equals(request.method()), () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForRequest(urlOrPredicate: Pattern, callback: () -> Unit): IRequest {
+        return waitForRequest(urlOrPredicate, callback)
+    }
+
+    /**
+     * Waits for the matching request and returns it.  See <a
+     * href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Request request = page.waitForRequest("https://example.com/resource", () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     *
+     * // Waits for the next request matching some conditions
+     * Request request = page.waitForRequest(request -> "https://example.com".equals(request.url()) && "GET".equals(request.method()), () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
+     * @param callback       Callback that performs the action triggering the event.
+     */
+    fun waitForRequest(urlOrPredicate: Pattern, options: WaitForRequestOptions?, callback: () -> Unit): IRequest
+
+    /**
+     * Waits for the matching request and returns it.  See <a
+     * href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Request request = page.waitForRequest("https://example.com/resource", () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     *
+     * // Waits for the next request matching some conditions
+     * Request request = page.waitForRequest(request -> "https://example.com".equals(request.url()) && "GET".equals(request.method()), () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
+     * @param callback       Callback that performs the action triggering the event.
+     */
+    fun waitForRequest(urlOrPredicate: ((IRequest) -> Boolean), callback: () -> Unit): IRequest {
+        return waitForRequest(urlOrPredicate, callback)
+    }
+
+    /**
+     * Waits for the matching request and returns it.  See <a
+     * href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Request request = page.waitForRequest("https://example.com/resource", () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     *
+     * // Waits for the next request matching some conditions
+     * Request request = page.waitForRequest(request -> "https://example.com".equals(request.url()) && "GET".equals(request.method()), () -> {
+     *   // Triggers the request
+     *   page.click("button.triggers-request");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
+     * @param callback       Callback that performs the action triggering the event.
+     */
+    fun waitForRequest(
+        urlOrPredicate: ((IRequest) -> Boolean)?,
+        options: WaitForRequestOptions?,
+        callback: () -> Unit
+    ): IRequest
+
+    /**
+     * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
+     * event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Response response = page.waitForResponse("https://example.com/resource", () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     *
+     * // Waits for the next response matching some conditions
+     * Response response = page.waitForResponse(response -> "https://example.com".equals(response.url()) && response.status() == 200, () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
+     * @param callback       Callback that performs the action triggering the event.
+     */
+    fun waitForResponse(urlOrPredicate: String, callback: () -> Unit): IResponse {
+        return waitForResponse(urlOrPredicate, null, callback)
+    }
+
+    /**
+     * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
+     * event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Response response = page.waitForResponse("https://example.com/resource", () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     *
+     * // Waits for the next response matching some conditions
+     * Response response = page.waitForResponse(response -> "https://example.com".equals(response.url()) && response.status() == 200, () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
+     * @param callback       Callback that performs the action triggering the event.
+     */
+    fun waitForResponse(urlOrPredicate: String?, options: WaitForResponseOptions?, callback: () -> Unit): IResponse
+
+    /**
+     * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
+     * event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Response response = page.waitForResponse("https://example.com/resource", () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     *
+     * // Waits for the next response matching some conditions
+     * Response response = page.waitForResponse(response -> "https://example.com".equals(response.url()) && response.status() == 200, () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
+     * @param callback       Callback that performs the action triggering the event.
+     */
+    fun waitForResponse(urlOrPredicate: Pattern, callback: () -> Unit): IResponse {
+        return waitForResponse(urlOrPredicate, null, callback)
+    }
+
+    /**
+     * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
+     * event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Response response = page.waitForResponse("https://example.com/resource", () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     *
+     * // Waits for the next response matching some conditions
+     * Response response = page.waitForResponse(response -> "https://example.com".equals(response.url()) && response.status() == 200, () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
+     * @param callback       Callback that performs the action triggering the event.
+     */
+    fun waitForResponse(urlOrPredicate: Pattern?, options: WaitForResponseOptions?, callback: () -> Unit): IResponse
+
+    /**
+     * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
+     * event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Response response = page.waitForResponse("https://example.com/resource", () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     *
+     * // Waits for the next response matching some conditions
+     * Response response = page.waitForResponse(response -> "https://example.com".equals(response.url()) && response.status() == 200, () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
+     * @param callback       Callback that performs the action triggering the event.
+     */
+    fun waitForResponse(urlOrPredicate: ((IResponse) -> Boolean), callback: () -> Unit): IResponse {
+        return waitForResponse(urlOrPredicate, null, callback)
+    }
+
+    /**
+     * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
+     * event</a> for more details about events.
+     * <pre>{@code
+     * // Waits for the next response with the specified url
+     * Response response = page.waitForResponse("https://example.com/resource", () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     *
+     * // Waits for the next response matching some conditions
+     * Response response = page.waitForResponse(response -> "https://example.com".equals(response.url()) && response.status() == 200, () -> {
+     *   // Triggers the response
+     *   page.click("button.triggers-response");
+     * });
+     * }</pre>
+     *
+     * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
+     * @param callback       Callback that performs the action triggering the event.
+     */
+    fun waitForResponse(
+        urlOrPredicate: ((IResponse) -> Boolean)?,
+        options: WaitForResponseOptions?,
+        callback: () -> Unit
+    ): IResponse
+
+    /**
+     * Returns when element specified by selector satisfies {@code state} option. Returns {@code null} if waiting for {@code hidden} or
+     * {@code detached}.
+     *
+     * <p> Wait for the {@code selector} to satisfy {@code state} option (either appear/disappear from dom, or become visible/hidden). If at
+     * the moment of calling the method {@code selector} already satisfies the condition, the method will return immediately. If the
+     * selector doesn't satisfy the condition for the {@code timeout} milliseconds, the function will throw.
+     *
+     * <p> This method works across navigations:
+     * <pre>{@code
+     * import com.microsoft.playwright.*;
+     *
+     * public class Example {
+     *   public static void main(String[] args) {
+     *     try (Playwright playwright = Playwright.create()) {
+     *       BrowserType chromium = playwright.chromium();
+     *       Browser browser = chromium.launch();
+     *       Page page = browser.newPage();
+     *       for (String currentURL : Arrays.asList("https://google.com", "https://bbc.com")) {
+     *         page.navigate(currentURL);
+     *         ElementHandle element = page.waitForSelector("img");
+     *         System.out.println("Loaded image: " + element.getAttribute("src"));
+     *       }
+     *       browser.close();
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     *                 details.
+     */
+    fun waitForSelector(selector: String): IElementHandle {
+        return waitForSelector(selector, null)
+    }
+
+    /**
+     * Returns when element specified by selector satisfies {@code state} option. Returns {@code null} if waiting for {@code hidden} or
+     * {@code detached}.
+     *
+     * <p> Wait for the {@code selector} to satisfy {@code state} option (either appear/disappear from dom, or become visible/hidden). If at
+     * the moment of calling the method {@code selector} already satisfies the condition, the method will return immediately. If the
+     * selector doesn't satisfy the condition for the {@code timeout} milliseconds, the function will throw.
+     *
+     * <p> This method works across navigations:
+     * <pre>{@code
+     * import com.microsoft.playwright.*;
+     *
+     * public class Example {
+     *   public static void main(String[] args) {
+     *     try (Playwright playwright = Playwright.create()) {
+     *       BrowserType chromium = playwright.chromium();
+     *       Browser browser = chromium.launch();
+     *       Page page = browser.newPage();
+     *       for (String currentURL : Arrays.asList("https://google.com", "https://bbc.com")) {
+     *         page.navigate(currentURL);
+     *         ElementHandle element = page.waitForSelector("img");
+     *         System.out.println("Loaded image: " + element.getAttribute("src"));
+     *       }
+     *       browser.close();
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     *                 details.
+     */
+    fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle
+
+    /**
+     * Waits for the given {@code timeout} in milliseconds.
+     *
+     * <p> Note that {@code page.waitForTimeout()} should only be used for debugging. Tests using the timer in production are going to be
+     * flaky. Use signals such as network events, selectors becoming visible and others instead.
+     * <pre>{@code
+     * // wait for 1 second
+     * page.waitForTimeout(1000);
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForTimeout Frame.waitForTimeout()}.
+     *
+     * @param timeout A timeout to wait for
+     */
+    fun waitForTimeout(timeout: Double)
+
+    /**
+     * Waits for the main frame to navigate to the given URL.
+     * <pre>{@code
+     * page.click("a.delayed-navigation"); // Clicking the link will indirectly cause a navigation
+     * page.waitForURL("**\/target.html");
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForURL Frame.waitForURL()}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
+     */
+    fun waitForURL(url: String) {
+        waitForURL(url, null)
+    }
+
+    /**
+     * Waits for the main frame to navigate to the given URL.
+     * <pre>{@code
+     * page.click("a.delayed-navigation"); // Clicking the link will indirectly cause a navigation
+     * page.waitForURL("**\/target.html");
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForURL Frame.waitForURL()}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
+     */
+    fun waitForURL(url: String, options: WaitForURLOptions?)
+
+    /**
+     * Waits for the main frame to navigate to the given URL.
+     * <pre>{@code
+     * page.click("a.delayed-navigation"); // Clicking the link will indirectly cause a navigation
+     * page.waitForURL("**\/target.html");
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForURL Frame.waitForURL()}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
+     */
+    fun waitForURL(url: Pattern) {
+        waitForURL(url, null)
+    }
+
+    /**
+     * Waits for the main frame to navigate to the given URL.
+     * <pre>{@code
+     * page.click("a.delayed-navigation"); // Clicking the link will indirectly cause a navigation
+     * page.waitForURL("**\/target.html");
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForURL Frame.waitForURL()}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
+     */
+    fun waitForURL(url: Pattern, options: WaitForURLOptions?)
+
+    /**
+     * Waits for the main frame to navigate to the given URL.
+     * <pre>{@code
+     * page.click("a.delayed-navigation"); // Clicking the link will indirectly cause a navigation
+     * page.waitForURL("**\/target.html");
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForURL Frame.waitForURL()}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
+     */
+    fun waitForURL(url: (String) -> Boolean) {
+        waitForURL(url, null)
+    }
+
+    /**
+     * Waits for the main frame to navigate to the given URL.
+     * <pre>{@code
+     * page.click("a.delayed-navigation"); // Clicking the link will indirectly cause a navigation
+     * page.waitForURL("**\/target.html");
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#waitForURL Frame.waitForURL()}.
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
+     */
+    fun waitForURL(url: (String) -> Boolean, options: WaitForURLOptions?)
+
+    /**
+     * Performs action and waits for a new {@code WebSocket}. If predicate is provided, it passes {@code WebSocket} value into the
+     * {@code predicate} function and waits for {@code predicate(webSocket)} to return a truthy value. Will throw an error if the page is
+     * closed before the WebSocket event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForWebSocket(callback: () -> Unit): IWebSocket {
+        return waitForWebSocket(null, callback)
+    }
+
+    /**
+     * Performs action and waits for a new {@code WebSocket}. If predicate is provided, it passes {@code WebSocket} value into the
+     * {@code predicate} function and waits for {@code predicate(webSocket)} to return a truthy value. Will throw an error if the page is
+     * closed before the WebSocket event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForWebSocket(options: WaitForWebSocketOptions?, callback: () -> Unit): IWebSocket
+
+    /**
+     * Performs action and waits for a new {@code Worker}. If predicate is provided, it passes {@code Worker} value into the {@code predicate}
+     * function and waits for {@code predicate(worker)} to return a truthy value. Will throw an error if the page is closed before
+     * the worker event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForWorker(callback: () -> Unit): IWorker {
+        return waitForWorker(null, callback)
+    }
+
+    /**
+     * Performs action and waits for a new {@code Worker}. If predicate is provided, it passes {@code Worker} value into the {@code predicate}
+     * function and waits for {@code predicate(worker)} to return a truthy value. Will throw an error if the page is closed before
+     * the worker event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForWorker(options: WaitForWorkerOptions?, callback: () -> Unit): IWorker
+
+    /**
+     * This method returns all of the dedicated <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">WebWorkers</a> associated with the page.
+     *
+     * <p> <strong>NOTE:</strong> This does not contain ServiceWorkers
+     */
+    fun workers(): List<IWorker>
+
+    /**
+     * Adds one-off {@code Dialog} handler. The handler will be removed immediately after next {@code Dialog} is created.
+     * <pre>{@code
+     * page.onceDialog(dialog -> {
+     *   dialog.accept("foo");
+     * });
+     *
+     * // prints 'foo'
+     * System.out.println(page.evaluate("prompt('Enter string:')"));
+     *
+     * // prints 'null' as the dialog will be auto-dismissed because there are no handlers.
+     * System.out.println(page.evaluate("prompt('Enter string:')"));
+     * }</pre>
+     *
+     * <p> This code above is equivalent to:
+     * <pre>{@code
+     * Consumer<Dialog> handler = new Consumer<Dialog>() {
+     *   @Override
+     *   public void accept(Dialog dialog) {
+     *     dialog.accept("foo");
+     *     page.offDialog(this);
+     *   }
+     * };
+     * page.onDialog(handler);
+     *
+     * // prints 'foo'
+     * System.out.println(page.evaluate("prompt('Enter string:')"));
+     *
+     * // prints 'null' as the dialog will be auto-dismissed because there are no handlers.
+     * System.out.println(page.evaluate("prompt('Enter string:')"));
+     * }</pre>
+     *
+     * @param handler Receives the {@code Dialog} object, it **must** either {@link Dialog#accept Dialog.accept()} or {@link Dialog#dismiss
+     *                Dialog.dismiss()} the dialog - otherwise the page will <a
+     *                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#never_blocking">freeze</a> waiting for the
+     *                dialog, and actions like click will never finish.
+     */
+    fun onceDialog(handler: (IDialog) -> Unit)
 }

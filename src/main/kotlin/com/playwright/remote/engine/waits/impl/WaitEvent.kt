@@ -10,8 +10,8 @@ typealias Predicate<T> = (T) -> Boolean
 open class WaitEvent<EventType, T>(
     private val listeners: ListenerCollection<EventType>,
     private val type: EventType,
-    private var eventArg: T? = null,
-    private val predicate: Predicate<T> = { false }
+    private val predicate: Predicate<T> = { false },
+    private var eventArg: T? = null
 ) : IWait<T>, Consumer<T> {
 
     init {
