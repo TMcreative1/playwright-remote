@@ -19,7 +19,7 @@ data class WaitForURLOptions @JvmOverloads constructor(
      * <li> {@code "networkidle"} - consider operation to be finished when there are no network connections for at least {@code 500} ms.</li>
      * </ul>
      */
-    var waitUntil: WaitUntilState,
+    var waitUntil: WaitUntilState? = null,
     @Transient private val builder: IBuilder<WaitForURLOptions>
 ) {
     init {
