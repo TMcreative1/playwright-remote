@@ -14,7 +14,7 @@ class Request : ChannelOwner, IRequest {
     private var redirectedFrom: IRequest? = null
     private var redirectedTo: IRequest? = null
     val headers = hashMapOf<String, String>()
-    private val failure: String = ""
+    var failure: String = ""
     var timing: Timing = Timing {}
 
     constructor(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : super(

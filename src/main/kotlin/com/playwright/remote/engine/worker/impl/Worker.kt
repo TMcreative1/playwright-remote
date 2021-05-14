@@ -27,7 +27,7 @@ class Worker(parent: ChannelOwner, type: String, guid: String, initializer: Json
     initializer
 ), IWorker {
     private val listeners = ListenerCollection<EventType>()
-    private var page: IPage? = null
+    var page: IPage? = null
 
     @Suppress("UNCHECKED_CAST")
     override fun onClose(handler: (IWorker) -> Unit) {

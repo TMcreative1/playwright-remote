@@ -2,13 +2,17 @@ package com.playwright.remote.engine.frame.impl
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.playwright.remote.core.enums.InternalEventType
 import com.playwright.remote.core.enums.LoadState
+import com.playwright.remote.core.enums.WaitUntilState
+import com.playwright.remote.core.enums.WaitUntilState.LOAD
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.domain.file.FilePayload
 import com.playwright.remote.domain.serialize.SerializedError.SerializedValue
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.handle.element.api.IElementHandle
 import com.playwright.remote.engine.handle.js.api.IJSHandle
+import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.element.*
 import com.playwright.remote.engine.options.element.PressOptions
@@ -18,12 +22,23 @@ import com.playwright.remote.engine.options.wait.WaitForLoadStateOptions
 import com.playwright.remote.engine.options.wait.WaitForNavigationOptions
 import com.playwright.remote.engine.options.wait.WaitForURLOptions
 import com.playwright.remote.engine.page.api.IPage
+import com.playwright.remote.engine.page.impl.Page
+import com.playwright.remote.engine.parser.IParser.Companion.convert
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.serializer.Serialization.Companion.deserialize
+import com.playwright.remote.engine.serializer.Serialization.Companion.parseStringList
 import com.playwright.remote.engine.serializer.Serialization.Companion.serializeArgument
+import com.playwright.remote.engine.serializer.Serialization.Companion.toJsonArray
+import com.playwright.remote.engine.serializer.Serialization.Companion.toProtocol
+import com.playwright.remote.engine.waits.api.IWait
+import com.playwright.remote.engine.waits.impl.WaitLoadState
+import com.playwright.remote.engine.waits.impl.WaitNavigation
+import com.playwright.remote.engine.waits.impl.WaitRace
+import com.playwright.remote.engine.waits.impl.WaitTimeout
+import com.playwright.remote.utils.Utils.Companion.toFilePayloads
 import okio.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files.readAllBytes
@@ -38,9 +53,10 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
 ), IFrame {
     private val name: String = initializer["name"].asString
     private val url: String = initializer["url"].asString
-    private var parentFrame: IFrame? = null
-    private val childFrames = linkedSetOf<IFrame>()
+    var parentFrame: IFrame? = null
+    val childFrames = linkedSetOf<IFrame>()
     private val loadStates = hashSetOf<LoadState>()
+    private val internalListeners = ListenerCollection<InternalEventType>()
     var page: IPage? = null
     var isDetachedValue = false
 
@@ -270,31 +286,52 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     }
 
     override fun press(selector: String, key: String, options: PressOptions?) {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: PressOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        params.addProperty("key", key)
+        sendMessage("press", params)
     }
 
-    override fun querySelector(selector: String): IElementHandle {
-        TODO("Not yet implemented")
+    override fun querySelector(selector: String): IElementHandle? {
+        val params = JsonObject()
+        params.addProperty("selector", selector)
+        val json = sendMessage("querySelector", params)
+        val element = json.asJsonObject["element"].asJsonObject ?: return null
+        return messageProcessor.getExistingObject(element["guid"].asString)
     }
 
-    override fun querySelectorAll(selector: String): List<IElementHandle> {
-        TODO("Not yet implemented")
+    override fun querySelectorAll(selector: String): List<IElementHandle>? {
+        val params = JsonObject()
+        params.addProperty("selector", selector)
+        val json = sendMessage("querySelectorAll", params)
+        val elements = json.asJsonObject["elements"].asJsonArray ?: return null
+        val handles = arrayListOf<IElementHandle>()
+        for (element in elements) {
+            handles.add(messageProcessor.getExistingObject(element.asJsonObject["guid"].asString))
+        }
+        return handles
     }
 
-    override fun selectOption(selector: String, values: String, options: SelectOptionOptions?): List<String> {
-        TODO("Not yet implemented")
+    override fun selectOption(selector: String, value: String?, options: SelectOptionOptions?): List<String> {
+        val values = if (value == null) null else arrayOf(value)
+        return selectOption(selector, values, options)
     }
 
-    override fun selectOption(selector: String, values: IElementHandle, options: SelectOptionOptions?): List<String> {
-        TODO("Not yet implemented")
+    override fun selectOption(selector: String, value: IElementHandle?, options: SelectOptionOptions?): List<String> {
+        val values = if (value == null) null else arrayOf(value)
+        return selectOption(selector, values, options)
     }
 
-    override fun selectOption(selector: String, values: Array<String>, options: SelectOptionOptions?): List<String> {
-        TODO("Not yet implemented")
+    override fun selectOption(selector: String, values: Array<String>?, options: SelectOptionOptions?): List<String> {
+        if (values == null) {
+            return selectOption(selector, emptyArray<SelectOption>(), options)
+        }
+        return selectOption(selector, values.map { value -> SelectOption { it.value = value } }.toTypedArray(), options)
     }
 
-    override fun selectOption(selector: String, values: SelectOption, options: SelectOptionOptions?): List<String> {
-        TODO("Not yet implemented")
+    override fun selectOption(selector: String, value: SelectOption?, options: SelectOptionOptions?): List<String> {
+        val values = if (value == null) null else arrayOf(value)
+        return selectOption(selector, values, options)
     }
 
     override fun selectOption(
@@ -302,7 +339,12 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         values: Array<IElementHandle>?,
         options: SelectOptionOptions?
     ): List<String> {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: SelectOptionOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        if (values != null) {
+            params.add("elements", toProtocol(values))
+        }
+        return selectOption(params)
     }
 
     override fun selectOption(
@@ -310,82 +352,156 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         values: Array<SelectOption>?,
         options: SelectOptionOptions?
     ): List<String> {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: SelectOptionOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        if (values != null) {
+            params.add("options", Gson().toJsonTree(values))
+        }
+        return selectOption(params)
+    }
+
+    private fun selectOption(params: JsonObject): List<String> {
+        val json = sendMessage("selectOption", params).asJsonObject
+        return parseStringList(json["values"].asJsonArray)
     }
 
     override fun setContent(html: String, options: SetContentOptions?) {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: SetContentOptions {}).asJsonObject
+        params.addProperty("html", html)
+        sendMessage("setContent", params)
     }
 
     override fun setInputFiles(selector: String, files: Path, options: SetInputFilesOptions?) {
-        TODO("Not yet implemented")
+        setInputFiles(selector, arrayOf(files), options)
     }
 
     override fun setInputFiles(selector: String, files: Array<Path>, options: SetInputFilesOptions?) {
-        TODO("Not yet implemented")
+        setInputFiles(selector, toFilePayloads(files), options)
     }
 
     override fun setInputFiles(selector: String, files: FilePayload, options: SetInputFilesOptions?) {
-        TODO("Not yet implemented")
+        setInputFiles(selector, arrayOf(files), options)
     }
 
     override fun setInputFiles(selector: String, files: Array<FilePayload>, options: SetInputFilesOptions?) {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: SetInputFilesOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        params.add("files", toJsonArray(files))
+        sendMessage("setInputFiles", params)
     }
 
     override fun tap(selector: String, options: TapOptions?) {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: TapOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        sendMessage("tap", params)
     }
 
     override fun textContent(selector: String, options: TextContentOptions?): String {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: TextContentOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        return sendMessage("textContent", params).asJsonObject["value"].asString
     }
 
     override fun title(): String {
-        TODO("Not yet implemented")
+        return sendMessage("title").asJsonObject["value"].asString
     }
 
     override fun type(selector: String, text: String, options: TypeOptions?) {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: TypeOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        params.addProperty("text", text)
+        sendMessage("type", params)
     }
 
     override fun uncheck(selector: String, options: UncheckOptions?) {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: UncheckOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        sendMessage("uncheck", params)
     }
 
     override fun waitForFunction(expression: String, arg: Any?, options: WaitForFunctionOptions?): IJSHandle {
-        TODO("Not yet implemented")
+        val params = Gson().toJsonTree(options ?: WaitForFunctionOptions {}).asJsonObject
+        params.addProperty("expression", expression)
+        params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
+        val json = sendMessage("waitForFunction", params)
+        val element = json.asJsonObject["handle"].asJsonObject
+        return messageProcessor.getExistingObject(element["guid"].asString)
     }
 
     override fun waitForLoadState(state: LoadState?, options: WaitForLoadStateOptions?) {
-        TODO("Not yet implemented")
+        val waits = arrayListOf<IWait<Void?>>()
+        waits.add(WaitLoadState(state, internalListeners, loadStates))
+        waits.add((page as Page).createWaitForCloseHelper())
+        waits.add((page as Page).createWaitTimeout((options ?: WaitForLoadStateOptions {}).timeout))
+        runUtil(WaitRace(waits)) {}
     }
 
-    override fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse {
-        TODO("Not yet implemented")
+    override fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse? {
+        return waitForNavigation(options, null, callback)
     }
 
-    override fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle {
-        TODO("Not yet implemented")
+    private fun waitForNavigation(
+        options: WaitForNavigationOptions?,
+        matcher: UrlMatcher?,
+        callback: () -> Unit
+    ): IResponse? {
+        val opt = options ?: WaitForNavigationOptions {}
+        if (opt.waitUntil == null) {
+            opt.waitUntil = LOAD
+        }
+        val waits = arrayListOf<IWait<IResponse?>>()
+        waits.add(
+            WaitNavigation(
+                matcher ?: UrlMatcher.forOneOf(opt.url),
+                convert(opt.waitUntil, LoadState::class.java),
+                internalListeners,
+                messageProcessor,
+                loadStates
+            )
+        )
+        waits.add((page as Page).createWaitForCloseHelper())
+        waits.add((page as Page).createWaitFrameDetach(this))
+        waits.add((page as Page).createWaitNavigationTimeout(opt.timeout))
+        return runUtil(WaitRace(waits), callback)
+    }
+
+    override fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle? {
+        val params = Gson().toJsonTree(options ?: WaitForSelectorOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("waitForSelector", params)
+        val element = json.asJsonObject["element"].asJsonObject ?: return null
+        return messageProcessor.getExistingObject(element["guid"].asString)
     }
 
     override fun waitForTimeout(timeout: Double) {
-        TODO("Not yet implemented")
+        runUtil(object : WaitTimeout<Void?>(timeout) {
+            override fun get(): Void? {
+                return null
+            }
+        }) {}
     }
 
     override fun waitForURL(url: String, options: WaitForURLOptions?) {
-        TODO("Not yet implemented")
+        waitForURL(UrlMatcher(url), options)
     }
 
     override fun waitForURL(url: Pattern, options: WaitForURLOptions?) {
-        TODO("Not yet implemented")
+        waitForURL(UrlMatcher(url), options)
     }
 
     override fun waitForURL(url: (String) -> Boolean, options: WaitForURLOptions?) {
-        TODO("Not yet implemented")
+        waitForURL(UrlMatcher(url), options)
     }
 
     fun waitForURL(matcher: UrlMatcher, options: WaitForURLOptions?) {
-        TODO("Not yet implemented")
+        val opt = options ?: WaitForURLOptions {}
+        if (matcher.test(url())) {
+            waitForLoadState(
+                convert(opt.waitUntil, LoadState::class.java),
+                convert(opt, WaitForLoadStateOptions::class.java)
+            )
+            return
+        }
+        waitForNavigation(convert(opt, WaitForNavigationOptions::class.java), matcher) {}
     }
 }
