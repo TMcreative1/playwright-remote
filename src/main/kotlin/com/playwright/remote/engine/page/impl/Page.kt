@@ -256,6 +256,10 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         listeners.remove(POPUP, handler as UniversalConsumer)
     }
 
+    fun notifyPopup(popup: IPage) {
+        listeners.notify(POPUP, popup)
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun onRequest(handler: (IRequest) -> Unit) {
         listeners.add(REQUEST, handler as UniversalConsumer)
@@ -315,7 +319,6 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     override fun offWorker(handler: (IWorker) -> Unit) {
         listeners.remove(WORKER, handler as UniversalConsumer)
     }
-
 
     override fun addInitScript(script: String) {
         val params = JsonObject()
