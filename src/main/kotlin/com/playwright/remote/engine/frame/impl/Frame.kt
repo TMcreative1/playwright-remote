@@ -38,8 +38,8 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
 ), IFrame {
     private val name: String = initializer["name"].asString
     private val url: String = initializer["url"].asString
-    private var parentFrame: IFrame? = null
-    private val childFrames = linkedSetOf<IFrame>()
+    var parentFrame: IFrame? = null
+    val childFrames = linkedSetOf<IFrame>()
     private val loadStates = hashSetOf<LoadState>()
     var page: IPage? = null
     var isDetachedValue = false

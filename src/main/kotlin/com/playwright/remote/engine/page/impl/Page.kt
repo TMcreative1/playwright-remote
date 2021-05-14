@@ -10,15 +10,21 @@ import com.playwright.remote.core.enums.ScreenshotType.JPEG
 import com.playwright.remote.core.enums.ScreenshotType.PNG
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.domain.file.FilePayload
+import com.playwright.remote.domain.serialize.SerializedError
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.browser.impl.BrowserContext
+import com.playwright.remote.engine.callback.api.IBindingCall
 import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.callback.api.IBindingCallback.ISource
 import com.playwright.remote.engine.callback.api.IFunctionCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.dialog.api.IDialog
+import com.playwright.remote.engine.download.api.IArtifact
 import com.playwright.remote.engine.download.api.IDownload
+import com.playwright.remote.engine.download.impl.Artifact
+import com.playwright.remote.engine.download.impl.Download
 import com.playwright.remote.engine.filechooser.api.IFileChooser
+import com.playwright.remote.engine.filechooser.impl.FileChooser
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.frame.impl.Frame
 import com.playwright.remote.engine.handle.element.api.IElementHandle
@@ -37,11 +43,13 @@ import com.playwright.remote.engine.options.element.TypeOptions
 import com.playwright.remote.engine.options.wait.*
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser
+import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.route.request.api.IRequest
+import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.touchscreen.api.ITouchScreen
 import com.playwright.remote.engine.touchscreen.impl.TouchScreen
@@ -55,6 +63,7 @@ import com.playwright.remote.engine.waits.impl.WaitPageCrash
 import com.playwright.remote.engine.waits.impl.WaitRace
 import com.playwright.remote.engine.websocket.api.IWebSocket
 import com.playwright.remote.engine.worker.api.IWorker
+import com.playwright.remote.engine.worker.impl.Worker
 import com.playwright.remote.utils.Utils.Companion.isSafeCloseError
 import com.playwright.remote.utils.Utils.Companion.writeToFile
 import okio.IOException
@@ -109,7 +118,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         (mainFrame as Frame).page = this
         isClosed = initializer["isClosed"].asBoolean
         if (initializer.has("viewportSize")) {
-            viewPort = IParser.fromJson(initializer["viewportSize"], ViewportSize::class.java)
+            viewPort = fromJson(initializer["viewportSize"], ViewportSize::class.java)
         }
         keyboard = Keyboard(this)
         mouse = Mouse(this)
@@ -913,13 +922,153 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
 
     override fun onceDialog(handler: (IDialog) -> Unit) {
         val consumer: (IDialog) -> Unit = {
-            try {
-                handler(it)
-            } finally {
-                offDialog(handler)
+            handler(it)
+        }
+        try {
+            onDialog(consumer)
+        } finally {
+            offDialog(consumer)
+        }
+    }
+
+    override fun handleEvent(event: String, params: JsonObject) {
+        when (event) {
+            "dialog" -> {
+                val guid = params["dialog"].asJsonObject["guid"].asString
+                val dialog = messageProcessor.getExistingObject<IDialog>(guid)
+                if (listeners.hasListeners(DIALOG)) {
+                    listeners.notify(DIALOG, dialog)
+                } else {
+                    dialog.dismiss()
+                }
+            }
+            "worker" -> {
+                val guid = params["worker"].asJsonObject["guid"].asString
+                val worker = messageProcessor.getExistingObject<IWorker>(guid)
+                (worker as Worker).page = this
+                workers.add(worker)
+                listeners.notify(WORKER, worker)
+            }
+            "webSocket" -> {
+                val guid = params["webSocket"].asJsonObject["guid"].asString
+                val webSocket = messageProcessor.getExistingObject<IWebSocket>(guid)
+                listeners.notify(WEBSOCKET, webSocket)
+            }
+            "console" -> {
+                val guid = params["message"].asJsonObject["guid"].asString
+                val message = messageProcessor.getExistingObject<IConsoleMessage>(guid)
+                listeners.notify(CONSOLE, message)
+            }
+            "download" -> {
+                val artifactGuid = params["artifact"].asJsonObject["guid"].asString
+                val artifact = messageProcessor.getExistingObject<IArtifact>(artifactGuid)
+                val download = Download(artifact, params)
+                listeners.notify(DOWNLOAD, download)
+            }
+            "fileChooser" -> {
+                val guid = params["element"].asJsonObject["guid"].asString
+                val elementHandle = messageProcessor.getExistingObject<IElementHandle>(guid)
+                val fileChooser = FileChooser(this, elementHandle, params["isMultiple"].asBoolean)
+                listeners.notify(FILECHOOSER, fileChooser)
+            }
+            "bindingCall" -> {
+                val guid = params["binding"].asJsonObject["guid"].asString
+                val bindingCall = messageProcessor.getExistingObject<IBindingCall>(guid)
+                var binding = bindings[bindingCall.name()]
+                if (binding == null) {
+                    binding = (browserContext as BrowserContext).bindings[bindingCall.name()]
+                }
+                if (binding != null) {
+                    try {
+                        bindingCall.call(binding)
+                    } catch (e: RuntimeException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+            "load" -> {
+                listeners.notify(LOAD, this)
+            }
+            "domcontentloaded" -> {
+                listeners.notify(DOMCONTENTLOADED, this)
+            }
+            "request" -> {
+                val guid = params["request"].asJsonObject["guid"].asString
+                val request = messageProcessor.getExistingObject<IRequest>(guid)
+                listeners.notify(REQUEST, request)
+            }
+            "requestFailed" -> {
+                val guid = params["request"].asJsonObject["guid"].asString
+                val request = messageProcessor.getExistingObject<IRequest>(guid)
+                if (params.has("failureText")) {
+                    (request as Request).failure = params["failureText"].asString
+                }
+                listeners.notify(REQUESTFAILED, request)
+            }
+            "requestFinished" -> {
+                val guid = params["request"].asJsonObject["guid"].asString
+                val request = messageProcessor.getExistingObject<IRequest>(guid)
+                listeners.notify(REQUESTFINISHED, request)
+            }
+            "response" -> {
+                val guid = params["response"].asJsonObject["guid"].asString
+                val response = messageProcessor.getExistingObject<IResponse>(guid)
+                listeners.notify(RESPONSE, response)
+            }
+            "frameAttached" -> {
+                val guid = params["frame"].asJsonObject["guid"].asString
+                val frame = messageProcessor.getExistingObject<IFrame>(guid)
+                frames.add(frame)
+                (frame as Frame).page = this
+                if (frame.parentFrame != null) {
+                    (frame.parentFrame as Frame).childFrames.add(frame)
+                }
+                listeners.notify(FRAMEATTACHED, frame)
+            }
+            "frameDetached" -> {
+                val guid = params["frame"].asJsonObject["guid"].asString
+                val frame = messageProcessor.getExistingObject<IFrame>(guid)
+                frames.remove(frame)
+                (frame as Frame).isDetachedValue = true
+                if (frame.parentFrame != null) {
+                    (frame.parentFrame as Frame).childFrames.remove(frame)
+                }
+                listeners.notify(FRAMEDETACHED, frame)
+            }
+            "route" -> {
+                val guid = params["route"].asJsonObject["guid"].asString
+                val route = messageProcessor.getExistingObject<IRoute>(guid)
+                var isHandle = routes.handle(route)
+                if (!isHandle) {
+                    isHandle = (browserContext as BrowserContext).routes.handle(route)
+                }
+                if (!isHandle) {
+                    route.resume()
+                }
+            }
+            "video" -> {
+                val artifactGuid = params["artifact"].asJsonObject["guid"].asString
+                val artifact = messageProcessor.getExistingObject<Artifact>(artifactGuid)
+                forceVideo()?.setArtifact(artifact)
+            }
+            "pageError" -> {
+                val error = fromJson(params["error"].asJsonObject, SerializedError::class.java)
+                var errorStr = ""
+                if (error.error != null) {
+                    errorStr = "${error.error!!.name}: ${error.error!!.message}"
+                    if (error.error!!.stack != null && error.error!!.stack!!.isNotEmpty()) {
+                        errorStr += "\n ${error.error!!.stack}"
+                    }
+                }
+                listeners.notify(PAGEERROR, errorStr)
+            }
+            "crash" -> {
+                listeners.notify(CRASH, this)
+            }
+            "close" -> {
+                didClose()
             }
         }
-        onDialog(consumer)
     }
 
     fun <T> createWaitForCloseHelper(): IWait<T> {
