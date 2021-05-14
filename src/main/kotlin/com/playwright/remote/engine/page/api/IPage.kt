@@ -1792,7 +1792,7 @@ interface IPage {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun querySelector(selector: String): IElementHandle
+    fun querySelector(selector: String): IElementHandle?
 
     /**
      * The method finds all elements matching the specified selector within the page. If no elements match the selector, the
@@ -1803,7 +1803,7 @@ interface IPage {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun querySelectorAll(selector: String): List<IElementHandle>
+    fun querySelectorAll(selector: String): List<IElementHandle>?
 
     /**
      * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
@@ -2958,7 +2958,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForNavigation(callback: () -> Unit): IResponse {
+    fun waitForNavigation(callback: () -> Unit): IResponse? {
         return waitForNavigation(null, callback)
     }
 
@@ -2984,7 +2984,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse
+    fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse?
 
     /**
      * Performs action and waits for a popup {@code Page}. If predicate is provided, it passes [Popup] value into the {@code predicate}
@@ -3322,7 +3322,7 @@ interface IPage {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      *                 details.
      */
-    fun waitForSelector(selector: String): IElementHandle {
+    fun waitForSelector(selector: String): IElementHandle? {
         return waitForSelector(selector, null)
     }
 
@@ -3358,7 +3358,7 @@ interface IPage {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      *                 details.
      */
-    fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle
+    fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle?
 
     /**
      * Waits for the given {@code timeout} in milliseconds.

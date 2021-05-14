@@ -11,21 +11,20 @@ import com.playwright.remote.engine.route.response.api.IResponse
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class Response : ChannelOwner, IResponse {
+class Response(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
+    parent,
+    type,
+    guid,
+    initializer
+), IResponse {
     private val headers = hashMapOf<String, String>()
     private val request: IRequest
 
-    constructor(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : super(
-        parent,
-        type,
-        guid,
-        initializer
-    ) {
+    init {
         for (element in initializer["headers"].asJsonArray) {
             val item = element.asJsonObject
             headers[item["name"].asString.toLowerCase()] = item["value"].asString
         }
-
         request = messageProcessor.getExistingObject(initializer["request"].asJsonObject["guid"].asString)
         (request as Request).headers.clear()
         for (element in initializer["requestHeaders"].asJsonArray) {

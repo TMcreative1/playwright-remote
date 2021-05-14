@@ -3,7 +3,7 @@ package com.playwright.remote.engine.waits.impl
 import com.playwright.remote.core.exceptions.TimeoutException
 import com.playwright.remote.engine.waits.api.IWait
 
-class WaitTimeout<T>(millis: Double) : IWait<T> {
+open class WaitTimeout<T>(millis: Double) : IWait<T> {
     private val deadline: Long = millis.toLong()
     private val timeout: Double = (System.nanoTime() + millis.toLong() * 1_000_000).toDouble()
 

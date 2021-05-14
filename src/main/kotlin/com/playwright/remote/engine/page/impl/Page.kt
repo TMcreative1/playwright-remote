@@ -57,10 +57,7 @@ import com.playwright.remote.engine.video.api.IVideo
 import com.playwright.remote.engine.video.impl.Video
 import com.playwright.remote.engine.waits.TimeoutSettings
 import com.playwright.remote.engine.waits.api.IWait
-import com.playwright.remote.engine.waits.impl.WaitEvent
-import com.playwright.remote.engine.waits.impl.WaitPageClose
-import com.playwright.remote.engine.waits.impl.WaitPageCrash
-import com.playwright.remote.engine.waits.impl.WaitRace
+import com.playwright.remote.engine.waits.impl.*
 import com.playwright.remote.engine.websocket.api.IWebSocket
 import com.playwright.remote.engine.worker.api.IWorker
 import com.playwright.remote.engine.worker.impl.Worker
@@ -570,11 +567,11 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         mainFrame.press(selector, key, options)
     }
 
-    override fun querySelector(selector: String): IElementHandle {
+    override fun querySelector(selector: String): IElementHandle? {
         return mainFrame.querySelector(selector)
     }
 
-    override fun querySelectorAll(selector: String): List<IElementHandle> {
+    override fun querySelectorAll(selector: String): List<IElementHandle>? {
         return mainFrame.querySelectorAll(selector)
     }
 
@@ -823,7 +820,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return mainFrame.waitForLoadState(state, options)
     }
 
-    override fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse {
+    override fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse? {
         return mainFrame.waitForNavigation(options, callback)
     }
 
@@ -887,7 +884,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return runUtil(WaitRace(waits), callback)
     }
 
-    override fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle {
+    override fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle? {
         return mainFrame.waitForSelector(selector, options)
     }
 
@@ -1080,6 +1077,15 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
 
     fun <T> createWaitTimeout(timeout: Double?): IWait<T> {
         return timeoutSettings.createWait(timeout)
+    }
+
+    fun <T> createWaitNavigationTimeout(timeout: Double?): IWait<T> {
+        return WaitTimeout(timeoutSettings.navigationTimout(timeout))
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> createWaitFrameDetach(frame: IFrame): IWait<T> {
+        return WaitFrameDetach(listeners, frame) as IWait<T>
     }
 
     private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T {

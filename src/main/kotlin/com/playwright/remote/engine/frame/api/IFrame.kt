@@ -388,7 +388,7 @@ interface IFrame {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun querySelector(selector: String): IElementHandle
+    fun querySelector(selector: String): IElementHandle?
 
     /**
      * Returns the ElementHandles pointing to the frame elements.
@@ -400,7 +400,7 @@ interface IFrame {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun querySelectorAll(selector: String): List<IElementHandle>
+    fun querySelectorAll(selector: String): List<IElementHandle>?
 
     /**
      * This method waits for an element matching {@code selector}, waits for <a
@@ -430,7 +430,131 @@ interface IFrame {
      * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
      * is considered matching if all specified properties match.
      */
-    fun selectOption(selector: String, values: String): List<String> {
+    fun selectOption(selector: String, value: String?): List<String> {
+        return selectOption(selector, value, null)
+    }
+
+    /**
+     * This method waits for an element matching {@code selector}, waits for <a
+     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, waits until all specified options are
+     * present in the {@code <select>} element and selects these options.
+     *
+     * <p> If the target element is not a {@code <select>} element, this method throws an error. However, if the element is inside the
+     * {@code <label>} element that has an associated <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be used
+     * instead.
+     *
+     * <p> Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected.
+     * <pre>{@code
+     * // single selection matching the value
+     * frame.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * frame.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * frame.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, value: String?, options: SelectOptionOptions?): List<String>
+
+    /**
+     * This method waits for an element matching {@code selector}, waits for <a
+     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, waits until all specified options are
+     * present in the {@code <select>} element and selects these options.
+     *
+     * <p> If the target element is not a {@code <select>} element, this method throws an error. However, if the element is inside the
+     * {@code <label>} element that has an associated <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be used
+     * instead.
+     *
+     * <p> Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected.
+     * <pre>{@code
+     * // single selection matching the value
+     * frame.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * frame.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * frame.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, value: IElementHandle?): List<String> {
+        return selectOption(selector, value, null)
+    }
+
+    /**
+     * This method waits for an element matching {@code selector}, waits for <a
+     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, waits until all specified options are
+     * present in the {@code <select>} element and selects these options.
+     *
+     * <p> If the target element is not a {@code <select>} element, this method throws an error. However, if the element is inside the
+     * {@code <label>} element that has an associated <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be used
+     * instead.
+     *
+     * <p> Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected.
+     * <pre>{@code
+     * // single selection matching the value
+     * frame.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * frame.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * frame.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, value: IElementHandle?, options: SelectOptionOptions?): List<String>
+
+    /**
+     * This method waits for an element matching {@code selector}, waits for <a
+     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, waits until all specified options are
+     * present in the {@code <select>} element and selects these options.
+     *
+     * <p> If the target element is not a {@code <select>} element, this method throws an error. However, if the element is inside the
+     * {@code <label>} element that has an associated <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be used
+     * instead.
+     *
+     * <p> Returns the array of option values that have been successfully selected.
+     *
+     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected.
+     * <pre>{@code
+     * // single selection matching the value
+     * frame.selectOption("select#colors", "blue");
+     * // single selection matching both the value and the label
+     * frame.selectOption("select#colors", new SelectOption().setLabel("Blue"));
+     * // multiple selection
+     * frame.selectOption("select#colors", new String[] {"red", "green", "blue"});
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
+     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
+     * is considered matching if all specified properties match.
+     */
+    fun selectOption(selector: String, values: Array<String>?): List<String> {
         return selectOption(selector, values, null)
     }
 
@@ -462,7 +586,7 @@ interface IFrame {
      * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
      * is considered matching if all specified properties match.
      */
-    fun selectOption(selector: String, values: String, options: SelectOptionOptions?): List<String>
+    fun selectOption(selector: String, values: Array<String>?, options: SelectOptionOptions?): List<String>
 
     /**
      * This method waits for an element matching {@code selector}, waits for <a
@@ -492,8 +616,8 @@ interface IFrame {
      * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
      * is considered matching if all specified properties match.
      */
-    fun selectOption(selector: String, values: IElementHandle): List<String> {
-        return selectOption(selector, values, null)
+    fun selectOption(selector: String, value: SelectOption?): List<String> {
+        return selectOption(selector, value, null)
     }
 
     /**
@@ -524,131 +648,7 @@ interface IFrame {
      * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
      * is considered matching if all specified properties match.
      */
-    fun selectOption(selector: String, values: IElementHandle, options: SelectOptionOptions?): List<String>
-
-    /**
-     * This method waits for an element matching {@code selector}, waits for <a
-     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, waits until all specified options are
-     * present in the {@code <select>} element and selects these options.
-     *
-     * <p> If the target element is not a {@code <select>} element, this method throws an error. However, if the element is inside the
-     * {@code <label>} element that has an associated <a
-     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be used
-     * instead.
-     *
-     * <p> Returns the array of option values that have been successfully selected.
-     *
-     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected.
-     * <pre>{@code
-     * // single selection matching the value
-     * frame.selectOption("select#colors", "blue");
-     * // single selection matching both the value and the label
-     * frame.selectOption("select#colors", new SelectOption().setLabel("Blue"));
-     * // multiple selection
-     * frame.selectOption("select#colors", new String[] {"red", "green", "blue"});
-     * }</pre>
-     *
-     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
-     * details.
-     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
-     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
-     * is considered matching if all specified properties match.
-     */
-    fun selectOption(selector: String, values: Array<String>): List<String> {
-        return selectOption(selector, values, null)
-    }
-
-    /**
-     * This method waits for an element matching {@code selector}, waits for <a
-     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, waits until all specified options are
-     * present in the {@code <select>} element and selects these options.
-     *
-     * <p> If the target element is not a {@code <select>} element, this method throws an error. However, if the element is inside the
-     * {@code <label>} element that has an associated <a
-     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be used
-     * instead.
-     *
-     * <p> Returns the array of option values that have been successfully selected.
-     *
-     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected.
-     * <pre>{@code
-     * // single selection matching the value
-     * frame.selectOption("select#colors", "blue");
-     * // single selection matching both the value and the label
-     * frame.selectOption("select#colors", new SelectOption().setLabel("Blue"));
-     * // multiple selection
-     * frame.selectOption("select#colors", new String[] {"red", "green", "blue"});
-     * }</pre>
-     *
-     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
-     * details.
-     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
-     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
-     * is considered matching if all specified properties match.
-     */
-    fun selectOption(selector: String, values: Array<String>, options: SelectOptionOptions?): List<String>
-
-    /**
-     * This method waits for an element matching {@code selector}, waits for <a
-     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, waits until all specified options are
-     * present in the {@code <select>} element and selects these options.
-     *
-     * <p> If the target element is not a {@code <select>} element, this method throws an error. However, if the element is inside the
-     * {@code <label>} element that has an associated <a
-     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be used
-     * instead.
-     *
-     * <p> Returns the array of option values that have been successfully selected.
-     *
-     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected.
-     * <pre>{@code
-     * // single selection matching the value
-     * frame.selectOption("select#colors", "blue");
-     * // single selection matching both the value and the label
-     * frame.selectOption("select#colors", new SelectOption().setLabel("Blue"));
-     * // multiple selection
-     * frame.selectOption("select#colors", new String[] {"red", "green", "blue"});
-     * }</pre>
-     *
-     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
-     * details.
-     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
-     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
-     * is considered matching if all specified properties match.
-     */
-    fun selectOption(selector: String, values: SelectOption): List<String> {
-        return selectOption(selector, values, null)
-    }
-
-    /**
-     * This method waits for an element matching {@code selector}, waits for <a
-     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, waits until all specified options are
-     * present in the {@code <select>} element and selects these options.
-     *
-     * <p> If the target element is not a {@code <select>} element, this method throws an error. However, if the element is inside the
-     * {@code <label>} element that has an associated <a
-     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be used
-     * instead.
-     *
-     * <p> Returns the array of option values that have been successfully selected.
-     *
-     * <p> Triggers a {@code change} and {@code input} event once all the provided options have been selected.
-     * <pre>{@code
-     * // single selection matching the value
-     * frame.selectOption("select#colors", "blue");
-     * // single selection matching both the value and the label
-     * frame.selectOption("select#colors", new SelectOption().setLabel("Blue"));
-     * // multiple selection
-     * frame.selectOption("select#colors", new String[] {"red", "green", "blue"});
-     * }</pre>
-     *
-     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
-     * details.
-     * @param values Options to select. If the {@code <select>} has the {@code multiple} attribute, all matching options are selected, otherwise only the
-     * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
-     * is considered matching if all specified properties match.
-     */
-    fun selectOption(selector: String, values: SelectOption, options: SelectOptionOptions?): List<String>
+    fun selectOption(selector: String, value: SelectOption?, options: SelectOptionOptions?): List<String>
 
     /**
      * This method waits for an element matching {@code selector}, waits for <a
@@ -1223,7 +1223,7 @@ interface IFrame {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForNavigation(callback: () -> Unit): IResponse {
+    fun waitForNavigation(callback: () -> Unit): IResponse? {
         return waitForNavigation(null, callback)
     }
 
@@ -1247,7 +1247,7 @@ interface IFrame {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse
+    fun waitForNavigation(options: WaitForNavigationOptions?, callback: () -> Unit): IResponse?
 
     /**
      * Returns when element specified by selector satisfies {@code state} option. Returns {@code null} if waiting for {@code hidden} or
@@ -1281,7 +1281,7 @@ interface IFrame {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun waitForSelector(selector: String): IElementHandle {
+    fun waitForSelector(selector: String): IElementHandle? {
         return waitForSelector(selector, null)
     }
 
@@ -1317,7 +1317,7 @@ interface IFrame {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle
+    fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle?
 
     /**
      * Waits for the given {@code timeout} in milliseconds.
