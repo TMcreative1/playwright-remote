@@ -2,6 +2,7 @@ package com.playwright.remote.engine.browser.impl
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.playwright.remote.core.enums.DeviceDescriptors
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.DISCONNECTED
 import com.playwright.remote.core.exceptions.PlaywrightException
@@ -34,6 +35,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
     override fun offDisconnected(handler: (IBrowser) -> Unit) =
         listeners.remove(DISCONNECTED, handler as UniversalConsumer)
 
+
     override fun newContext(options: NewContextOptions?): IBrowserContext {
         val storageState: JsonObject? = getStorageState(options)
         val params = Gson().toJsonTree(options).asJsonObject
@@ -58,9 +60,20 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         return context
     }
 
-    override fun newPage(options: NewPageOptions?): IPage {
+    override fun newPage(options: NewPageOptions?, device: DeviceDescriptors?): IPage {
+        val contextOptions = convert(options ?: NewContextOptions {}, NewContextOptions::class.java)
+
+        if (device != null) {
+            contextOptions.userAgent = device.userAgent
+            contextOptions.viewportSize = device.viewport
+            contextOptions.deviceScaleFactor = device.deviceScaleFactor
+            contextOptions.screenSize = device.screen
+            contextOptions.isMobile = device.isMobile
+            contextOptions.hasTouch = device.hasTouch
+        }
+
         val context =
-            newContext(convert(options ?: NewContextOptions {}, NewContextOptions::class.java)) as BrowserContext
+            newContext(contextOptions) as BrowserContext
         val page = context.newPage() as Page
         page.ownedContext = context
         context.ownerPage = page

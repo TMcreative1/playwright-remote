@@ -87,6 +87,11 @@ data class NewContextOptions @JvmOverloads constructor(
      */
     var recordVideoSize: RecordVideoSize? = null,
     /**
+     * Emulates consistent window screen size available inside web page via {@code window.screen}. Is only used when the {@code viewport}
+     * is set.
+     */
+    var screenSize: ScreenSize? = null,
+    /**
      * Populates context with given storage state. This option can be used to initialize context with logged-in information
      * obtained via {@link BrowserContext#storageState BrowserContext.storageState()}.
      */
