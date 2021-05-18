@@ -2,7 +2,7 @@ package com.playwright.remote.engine.options
 
 import com.playwright.remote.engine.options.api.IBuilder
 
-data class ViewportSize @JvmOverloads constructor(
+data class ScreenSize @JvmOverloads constructor(
     /**
      * page width in pixels.
      */
@@ -11,7 +11,7 @@ data class ViewportSize @JvmOverloads constructor(
      * page height in pixels.
      */
     var height: Int? = null,
-    @Transient private val builder: IBuilder<ViewportSize>,
+    @Transient private val builder: IBuilder<ScreenSize>
 ) {
     init {
         builder.build(this)
