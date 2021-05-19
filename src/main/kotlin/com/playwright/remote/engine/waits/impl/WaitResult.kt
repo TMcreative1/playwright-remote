@@ -4,7 +4,7 @@ import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.core.exceptions.TimeoutException
 import com.playwright.remote.engine.waits.api.IWait
 
-class WaitResult<T> : IWait<T> {
+class WaitResult<T> : IWait<T?> {
 
     private var result: T? = null
     private var exception: RuntimeException? = null
@@ -30,10 +30,10 @@ class WaitResult<T> : IWait<T> {
         return isFinished
     }
 
-    override fun get(): T = when (exception) {
+    override fun get(): T? = when (exception) {
         is TimeoutException -> throw TimeoutException(exception?.message, exception)
         is PlaywrightException -> throw PlaywrightException(exception?.message, exception)
-        else -> result!!
+        else -> result
     }
 
     override fun dispose() {

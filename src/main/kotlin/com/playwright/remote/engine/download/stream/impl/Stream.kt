@@ -30,7 +30,7 @@ class Stream(parent: ChannelOwner, type: String, guid: String, initializer: Json
         override fun read(b: ByteArray, off: Int, len: Int): Int {
             val params = JsonObject()
             params.addProperty("size", len)
-            val json = stream.sendMessage("read", params).asJsonObject
+            val json = stream.sendMessage("read", params)!!.asJsonObject
             val encoded = json["binary"].asString
             if (encoded.isEmpty()) {
                 return -1

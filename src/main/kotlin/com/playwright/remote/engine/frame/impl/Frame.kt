@@ -98,7 +98,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
             jsonOptions.addProperty("content", content)
         }
         val json = sendMessage("addScriptTag", jsonOptions)
-        return messageProcessor.getExistingObject(json.asJsonObject["element"].asJsonObject["guid"].asString)
+        return messageProcessor.getExistingObject(json!!.asJsonObject["element"].asJsonObject["guid"].asString)
     }
 
     fun addStyleTag(options: AddStyleTagOptions?): IElementHandle {
@@ -117,7 +117,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
             jsonOptions.addProperty("content", content)
         }
         val json = sendMessage("addStyleTag", jsonOptions)
-        return messageProcessor.getExistingObject(json.asJsonObject["element"].asJsonObject["guid"].asString)
+        return messageProcessor.getExistingObject(json!!.asJsonObject["element"].asJsonObject["guid"].asString)
     }
 
     fun check(selector: String, options: CheckOptions?) {
@@ -135,7 +135,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     }
 
     fun content(): String {
-        return sendMessage("content").asJsonObject["value"].asString
+        return sendMessage("content")!!.asJsonObject["value"].asString
     }
 
     fun doubleClick(selector: String, options: DoubleClickOptions?) {
@@ -164,7 +164,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         params.addProperty("expression", expression)
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage(method, params)
-        val value = fromJson(json.asJsonObject["value"], SerializedValue::class.java)
+        val value = fromJson(json!!.asJsonObject["value"], SerializedValue::class.java)
         return deserialize(value)
     }
 
@@ -174,7 +174,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         params.addProperty("world", "main")
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("evaluateExpression", params)
-        val value = fromJson(json.asJsonObject["value"], SerializedValue::class.java)
+        val value = fromJson(json!!.asJsonObject["value"], SerializedValue::class.java)
         return deserialize(value)
     }
 
@@ -184,7 +184,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         params.addProperty("world", "main")
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("evaluateExpressionHandle", params)
-        return messageProcessor.getExistingObject(json.asJsonObject["handle"].asJsonObject["guid"].asString)
+        return messageProcessor.getExistingObject(json!!.asJsonObject["handle"].asJsonObject["guid"].asString)
     }
 
     fun fill(selector: String, value: String, options: FillOptions?) {
@@ -204,7 +204,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         val params = Gson().toJsonTree(options ?: GetAttributeOptions {}).asJsonObject
         params.addProperty("selector", selector)
         params.addProperty("name", name)
-        val json = sendMessage("getAttribute", params).asJsonObject
+        val json = sendMessage("getAttribute", params)!!.asJsonObject
         if (json.has("value")) {
             return json["value"].asString
         }
@@ -215,7 +215,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         val params = Gson().toJsonTree(options).asJsonObject
         params.addProperty("url", url)
         val result = sendMessage("goto", params)
-        val jsonResponse = result.asJsonObject["response"].asJsonObject ?: return null
+        val jsonResponse = result!!.asJsonObject["response"].asJsonObject ?: return null
         return messageProcessor.getExistingObject(jsonResponse["guid"].asString)
     }
 
@@ -228,21 +228,21 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     override fun innerHTML(selector: String, options: InnerHTMLOptions?): String {
         val params = Gson().toJsonTree(options ?: InnerHTMLOptions {}).asJsonObject
         params.addProperty("selector", selector)
-        val json = sendMessage("innerHTML", params).asJsonObject
+        val json = sendMessage("innerHTML", params)!!.asJsonObject
         return json["value"].asString
     }
 
     override fun innerText(selector: String, options: InnerTextOptions?): String {
         val params = Gson().toJsonTree(options ?: InnerTextOptions {}).asJsonObject
         params.addProperty("selector", selector)
-        val json = sendMessage("innerText", params).asJsonObject
+        val json = sendMessage("innerText", params)!!.asJsonObject
         return json["value"].asString
     }
 
     override fun isChecked(selector: String, options: IsCheckedOptions?): Boolean {
         val params = Gson().toJsonTree(options ?: IsCheckedOptions {}).asJsonObject
         params.addProperty("selector", selector)
-        val json = sendMessage("isChecked", params).asJsonObject
+        val json = sendMessage("isChecked", params)!!.asJsonObject
         return json["value"].asBoolean
     }
 
@@ -253,35 +253,35 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     override fun isDisabled(selector: String, options: IsDisabledOptions?): Boolean {
         val params = Gson().toJsonTree(options ?: IsDisabledOptions {}).asJsonObject
         params.addProperty("selector", selector)
-        val json = sendMessage("isDisabled", params).asJsonObject
+        val json = sendMessage("isDisabled", params)!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun isEditable(selector: String, options: IsEditableOptions?): Boolean {
         val params = Gson().toJsonTree(options ?: IsEditableOptions {}).asJsonObject
         params.addProperty("selector", selector)
-        val json = sendMessage("isEditable", params).asJsonObject
+        val json = sendMessage("isEditable", params)!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun isEnabled(selector: String, options: IsEnabledOptions?): Boolean {
         val params = Gson().toJsonTree(options ?: IsEnabledOptions {}).asJsonObject
         params.addProperty("selector", selector)
-        val json = sendMessage("isEnabled", params).asJsonObject
+        val json = sendMessage("isEnabled", params)!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun isHidden(selector: String, options: IsHiddenOptions?): Boolean {
         val params = Gson().toJsonTree(options ?: IsHiddenOptions {}).asJsonObject
         params.addProperty("selector", selector)
-        val json = sendMessage("isHidden", params).asJsonObject
+        val json = sendMessage("isHidden", params)!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun isVisible(selector: String, options: IsVisibleOptions?): Boolean {
         val params = Gson().toJsonTree(options ?: IsVisibleOptions {}).asJsonObject
         params.addProperty("selector", selector)
-        val json = sendMessage("isVisible", params).asJsonObject
+        val json = sendMessage("isVisible", params)!!.asJsonObject
         return json["value"].asBoolean
     }
 
@@ -296,7 +296,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         val params = JsonObject()
         params.addProperty("selector", selector)
         val json = sendMessage("querySelector", params)
-        val element = json.asJsonObject["element"].asJsonObject ?: return null
+        val element = json!!.asJsonObject["element"].asJsonObject ?: return null
         return messageProcessor.getExistingObject(element["guid"].asString)
     }
 
@@ -304,7 +304,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         val params = JsonObject()
         params.addProperty("selector", selector)
         val json = sendMessage("querySelectorAll", params)
-        val elements = json.asJsonObject["elements"].asJsonArray ?: return null
+        val elements = json!!.asJsonObject["elements"].asJsonArray ?: return null
         val handles = arrayListOf<IElementHandle>()
         for (element in elements) {
             handles.add(messageProcessor.getExistingObject(element.asJsonObject["guid"].asString))
@@ -361,7 +361,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     }
 
     private fun selectOption(params: JsonObject): List<String> {
-        val json = sendMessage("selectOption", params).asJsonObject
+        val json = sendMessage("selectOption", params)!!.asJsonObject
         return parseStringList(json["values"].asJsonArray)
     }
 
@@ -399,11 +399,11 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     override fun textContent(selector: String, options: TextContentOptions?): String {
         val params = Gson().toJsonTree(options ?: TextContentOptions {}).asJsonObject
         params.addProperty("selector", selector)
-        return sendMessage("textContent", params).asJsonObject["value"].asString
+        return sendMessage("textContent", params)!!.asJsonObject["value"].asString
     }
 
     override fun title(): String {
-        return sendMessage("title").asJsonObject["value"].asString
+        return sendMessage("title")!!.asJsonObject["value"].asString
     }
 
     override fun type(selector: String, text: String, options: TypeOptions?) {
@@ -424,7 +424,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         params.addProperty("expression", expression)
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("waitForFunction", params)
-        val element = json.asJsonObject["handle"].asJsonObject
+        val element = json!!.asJsonObject["handle"].asJsonObject
         return messageProcessor.getExistingObject(element["guid"].asString)
     }
 
@@ -469,7 +469,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         val params = Gson().toJsonTree(options ?: WaitForSelectorOptions {}).asJsonObject
         params.addProperty("selector", selector)
         val json = sendMessage("waitForSelector", params)
-        val element = json.asJsonObject["element"].asJsonObject ?: return null
+        val element = json!!.asJsonObject["element"].asJsonObject ?: return null
         return messageProcessor.getExistingObject(element["guid"].asString)
     }
 

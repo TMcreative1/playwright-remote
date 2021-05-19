@@ -42,7 +42,6 @@ import com.playwright.remote.engine.options.element.PressOptions
 import com.playwright.remote.engine.options.element.TypeOptions
 import com.playwright.remote.engine.options.wait.*
 import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.route.Router
@@ -89,7 +88,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     private var opener: IPage? = null
     private val routes = Router()
     private var video: IVideo? = null
-    val waitClosedOrCrasched: IWait<Unit>
+    val waitClosedOrCrashed: IWait<Any>
     val bindings = hashMapOf<String, IBindingCallback>()
     val workers = hashSetOf<IWorker>()
 
@@ -122,7 +121,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         touchScreen = TouchScreen(this)
         frames.add(mainFrame)
         timeoutSettings = TimeoutSettings(browserContext.timeoutSettings)
-        waitClosedOrCrasched = createWaitForCloseHelper()
+        waitClosedOrCrashed = createWaitForCloseHelper()
         opener =
             if (initializer.has("opener")) messageProcessor.getExistingObject(initializer["opener"].asJsonObject["guid"].asString) else null
     }
@@ -466,7 +465,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
 
     override fun goBack(options: GoBackOptions?): IResponse? {
         val params = Gson().toJsonTree(options ?: GoForwardOptions {}).asJsonObject
-        val json = sendMessage("goBack", params).asJsonObject
+        val json = sendMessage("goBack", params)!!.asJsonObject
         if (json.has("response")) {
             return messageProcessor.getExistingObject(json["response"].asJsonObject["guid"].asString)
         }
@@ -475,7 +474,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
 
     override fun goForward(options: GoForwardOptions?): IResponse? {
         val params = Gson().toJsonTree(options ?: GoForwardOptions {}).asJsonObject
-        val json = sendMessage("goForward", params).asJsonObject
+        val json = sendMessage("goForward", params)!!.asJsonObject
         if (json.has("response")) {
             return messageProcessor.getExistingObject(json["response"].asJsonObject["guid"].asString)
         }
@@ -555,7 +554,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         val opt = options ?: PdfOptions {}
         val params = Gson().toJsonTree(opt).asJsonObject
         params.remove("path")
-        val json = sendMessage("pdf", params).asJsonObject
+        val json = sendMessage("pdf", params)!!.asJsonObject
         val buffer = Base64.getDecoder().decode(json["pdf"].asString)
         if (opt.path != null) {
             writeToFile(buffer, opt.path!!)
@@ -577,7 +576,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
 
     override fun reload(options: ReloadOptions?): IResponse? {
         val params = Gson().toJsonTree(options ?: ReloadOptions {}).asJsonObject
-        val json = sendMessage("reload", params).asJsonObject
+        val json = sendMessage("reload", params)!!.asJsonObject
         if (json.has("response")) {
             return messageProcessor.getExistingObject(json["response"].asJsonObject["guid"].asString)
         }
@@ -622,7 +621,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         }
         val params = Gson().toJsonTree(opt).asJsonObject
         params.remove("path")
-        val json = sendMessage("screenshot", params).asJsonObject
+        val json = sendMessage("screenshot", params)!!.asJsonObject
 
         val buffer = Base64.getDecoder().decode(json["binary"].asString)
         if (opt.path != null) {
@@ -796,19 +795,19 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return viewPort
     }
 
-    override fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IPage {
+    override fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IPage? {
         return waitForEventWithTimeout(CLOSE, (options ?: WaitForCloseOptions {}).timeout, callback)
     }
 
-    override fun waitForConsoleMessage(options: WaitForConsoleMessageOptions?, callback: () -> Unit): IConsoleMessage {
+    override fun waitForConsoleMessage(options: WaitForConsoleMessageOptions?, callback: () -> Unit): IConsoleMessage? {
         return waitForEventWithTimeout(CONSOLE, (options ?: WaitForConsoleMessageOptions {}).timeout, callback)
     }
 
-    override fun waitForDownload(options: WaitForDownloadOptions?, callback: () -> Unit): IDownload {
+    override fun waitForDownload(options: WaitForDownloadOptions?, callback: () -> Unit): IDownload? {
         return waitForEventWithTimeout(DOWNLOAD, (options ?: WaitForDownloadOptions {}).timeout, callback)
     }
 
-    override fun waitForFileChooser(options: WaitForFileChooserOptions?, callback: () -> Unit): IFileChooser {
+    override fun waitForFileChooser(options: WaitForFileChooserOptions?, callback: () -> Unit): IFileChooser? {
         return waitForEventWithTimeout(FILECHOOSER, (options ?: WaitForFileChooserOptions {}).timeout, callback)
     }
 
@@ -824,7 +823,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return mainFrame.waitForNavigation(options, callback)
     }
 
-    override fun waitForPopup(options: WaitForPopupOptions?, callback: () -> Unit): IPage {
+    override fun waitForPopup(options: WaitForPopupOptions?, callback: () -> Unit): IPage? {
         return waitForEventWithTimeout(POPUP, (options ?: WaitForPopupOptions {}).timeout, callback)
     }
 
@@ -832,7 +831,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         urlOrPredicate: String?,
         options: WaitForRequestOptions?,
         callback: () -> Unit
-    ): IRequest {
+    ): IRequest? {
         return waitForRequest(toRequestPredicate(UrlMatcher(urlOrPredicate ?: "")), options, callback)
     }
 
@@ -840,7 +839,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         urlOrPredicate: Pattern,
         options: WaitForRequestOptions?,
         callback: () -> Unit
-    ): IRequest {
+    ): IRequest? {
         return waitForRequest(toRequestPredicate(UrlMatcher(urlOrPredicate)), options, callback)
     }
 
@@ -848,7 +847,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         urlOrPredicate: ((IRequest) -> Boolean)?,
         options: WaitForRequestOptions?,
         callback: () -> Unit
-    ): IRequest {
+    ): IRequest? {
         val waits = arrayListOf<IWait<IRequest>>()
         waits.add(WaitEvent(listeners, REQUEST, { request -> urlOrPredicate == null || urlOrPredicate(request) }))
         waits.add(createWaitForCloseHelper())
@@ -860,7 +859,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         urlOrPredicate: String?,
         options: WaitForResponseOptions?,
         callback: () -> Unit
-    ): IResponse {
+    ): IResponse? {
         return waitForResponse(toResponsePredicate(UrlMatcher(urlOrPredicate ?: "")), options, callback)
     }
 
@@ -868,7 +867,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         urlOrPredicate: Pattern?,
         options: WaitForResponseOptions?,
         callback: () -> Unit
-    ): IResponse {
+    ): IResponse? {
         return waitForResponse(toResponsePredicate(UrlMatcher(urlOrPredicate ?: "")), options, callback)
     }
 
@@ -876,7 +875,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         urlOrPredicate: ((IResponse) -> Boolean)?,
         options: WaitForResponseOptions?,
         callback: () -> Unit
-    ): IResponse {
+    ): IResponse? {
         val waits = arrayListOf<IWait<IResponse>>()
         waits.add(WaitEvent(listeners, RESPONSE, { response -> urlOrPredicate == null || urlOrPredicate(response) }))
         waits.add(createWaitForCloseHelper())
@@ -908,11 +907,11 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         (mainFrame as Frame).waitForURL(matcher, options)
     }
 
-    override fun waitForWebSocket(options: WaitForWebSocketOptions?, callback: () -> Unit): IWebSocket {
+    override fun waitForWebSocket(options: WaitForWebSocketOptions?, callback: () -> Unit): IWebSocket? {
         return waitForEventWithTimeout(WEBSOCKET, (options ?: WaitForWebSocketOptions {}).timeout, callback)
     }
 
-    override fun waitForWorker(options: WaitForWorkerOptions?, callback: () -> Unit): IWorker {
+    override fun waitForWorker(options: WaitForWorkerOptions?, callback: () -> Unit): IWorker? {
         return waitForEventWithTimeout(WORKER, (options ?: WaitForWorkerOptions {}).timeout, callback)
     }
 
@@ -1088,7 +1087,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return WaitFrameDetach(listeners, frame) as IWait<T>
     }
 
-    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T {
+    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T? {
         val waits = arrayListOf<IWait<T>>()
         waits.add(WaitEvent(listeners, eventType))
         waits.add(createWaitForCloseHelper())

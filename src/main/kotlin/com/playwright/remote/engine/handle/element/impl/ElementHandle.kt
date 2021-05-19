@@ -33,7 +33,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     initializer
 ), IElementHandle {
     override fun boundingBox(): BoundingBox? {
-        val json = sendMessage("boundingBox").asJsonObject
+        val json = sendMessage("boundingBox")!!.asJsonObject
         if (!json.has("value")) {
             return null
         }
@@ -51,7 +51,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun contentFrame(): IFrame? {
-        val json = sendMessage("contentFrame").asJsonObject
+        val json = sendMessage("contentFrame")!!.asJsonObject
         if (!json.has("frame")) {
             return null
         }
@@ -84,7 +84,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
         params.addProperty("expression", expression)
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage(method, params)
-        val value = fromJson(json.asJsonObject["value"], SerializedError.SerializedValue::class.java)
+        val value = fromJson(json!!.asJsonObject["value"], SerializedError.SerializedValue::class.java)
         return deserialize(value)
     }
 
@@ -101,7 +101,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     override fun getAttribute(name: String): String? {
         val params = JsonObject()
         params.addProperty("name", name)
-        val json = sendMessage("getAttribute", params).asJsonObject
+        val json = sendMessage("getAttribute", params)!!.asJsonObject
         return if (json.has("value")) json["value"].asString else null
     }
 
@@ -111,47 +111,47 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun innerHTML(): String {
-        val json = sendMessage("innerHTML").asJsonObject
+        val json = sendMessage("innerHTML")!!.asJsonObject
         return json["value"].asString
     }
 
     override fun innerText(): String {
-        val json = sendMessage("innerText").asJsonObject
+        val json = sendMessage("innerText")!!.asJsonObject
         return json["value"].asString
     }
 
     override fun isChecked(): Boolean {
-        val json = sendMessage("isChecked").asJsonObject
+        val json = sendMessage("isChecked")!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun isDisabled(): Boolean {
-        val json = sendMessage("isDisabled").asJsonObject
+        val json = sendMessage("isDisabled")!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun isEditable(): Boolean {
-        val json = sendMessage("isEditable").asJsonObject
+        val json = sendMessage("isEditable")!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun isEnabled(): Boolean {
-        val json = sendMessage("isEnabled").asJsonObject
+        val json = sendMessage("isEnabled")!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun isHidden(): Boolean {
-        val json = sendMessage("isHidden").asJsonObject
+        val json = sendMessage("isHidden")!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun isVisible(): Boolean {
-        val json = sendMessage("isVisible").asJsonObject
+        val json = sendMessage("isVisible")!!.asJsonObject
         return json["value"].asBoolean
     }
 
     override fun ownerFrame(): IFrame? {
-        val json = sendMessage("ownerFrame").asJsonObject
+        val json = sendMessage("ownerFrame")!!.asJsonObject
         if (!json.has("frame")) {
             return null
         }
@@ -168,7 +168,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
         val params = JsonObject()
         params.addProperty("selector", selector)
         val json = sendMessage("querySelector", params)
-        val element = json.asJsonObject.getAsJsonObject("element") ?: return null
+        val element = json!!.asJsonObject.getAsJsonObject("element") ?: return null
         return messageProcessor.getExistingObject(element["guid"].asString)
     }
 
@@ -176,7 +176,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
         val params = JsonObject()
         params.addProperty("selector", selector)
         val json = sendMessage("querySelectorAll", params)
-        val elements = json.asJsonObject["elements"].asJsonArray ?: return null
+        val elements = json!!.asJsonObject["elements"].asJsonArray ?: return null
         val handles = arrayListOf<IElementHandle>()
         for (item in elements) {
             handles.add(messageProcessor.getExistingObject(item.asJsonObject["guid"].asString))
@@ -201,7 +201,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
         }
         val params = Gson().toJsonTree(opt).asJsonObject
         params.remove("path")
-        val json = sendMessage("screenshot", params).asJsonObject
+        val json = sendMessage("screenshot", params)!!.asJsonObject
 
         val buffer = Base64.getDecoder().decode(json["binary"].asString)
         if (opt.path != null) {
@@ -255,7 +255,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     private fun selectOption(params: JsonObject): List<String> {
-        val json = sendMessage("selectOption", params).asJsonObject
+        val json = sendMessage("selectOption", params)!!.asJsonObject
         return parseStringList(json["values"].asJsonArray)
     }
 
@@ -288,7 +288,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun textContent(): String? {
-        val json = sendMessage("textContent").asJsonObject
+        val json = sendMessage("textContent")!!.asJsonObject
         return if (json.has("value")) json["value"].asString else null
     }
 
@@ -316,7 +316,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
         val params = Gson().toJsonTree(options ?: WaitForElementStateOptions {}).asJsonObject
         params.addProperty("selector", selector)
         val json = sendMessage("waitForSelector", params)
-        val element = json.asJsonObject["element"].asJsonObject ?: return null
+        val element = json!!.asJsonObject["element"].asJsonObject ?: return null
         return messageProcessor.getExistingObject(element["guid"].asString)
     }
 

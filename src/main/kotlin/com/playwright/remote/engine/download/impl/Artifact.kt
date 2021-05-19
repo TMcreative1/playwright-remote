@@ -15,7 +15,7 @@ class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: Js
     initializer
 ), IArtifact {
     override fun createReadStream(): InputStream? {
-        val result = sendMessage("stream").asJsonObject
+        val result = sendMessage("stream")!!.asJsonObject
         if (!result.has("stream")) {
             return null
         }
@@ -28,7 +28,7 @@ class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: Js
     }
 
     override fun failure(): String? {
-        val result = sendMessage("failure").asJsonObject
+        val result = sendMessage("failure")!!.asJsonObject
         if (result.has("error")) {
             return result["error"].asString
         }
@@ -36,7 +36,7 @@ class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: Js
     }
 
     override fun saveAs(path: Path) {
-        val jsonObject = sendMessage("saveAsStream").asJsonObject
+        val jsonObject = sendMessage("saveAsStream")!!.asJsonObject
         val stream = messageProcessor.getExistingObject<IStream>(jsonObject["stream"].asJsonObject["guid"].asString)
         writeToFile(stream.stream(), path)
     }

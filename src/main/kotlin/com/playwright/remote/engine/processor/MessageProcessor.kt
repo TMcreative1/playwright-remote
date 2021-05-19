@@ -130,8 +130,8 @@ class MessageProcessor(private val transport: ITransport) {
 
     fun close() = transport.closeConnection()
 
-    fun sendMessage(guid: String, method: String, params: JsonObject): JsonElement {
-        return root.runUtil(sendMessageAsync(guid, method, params)) {}
+    fun sendMessage(guid: String, method: String, params: JsonObject): JsonElement? {
+        return (root.runUtil(sendMessageAsync(guid, method, params)) {})
     }
 
     private fun sendMessageAsync(guid: String, method: String, params: JsonObject): WaitResult<JsonElement> {

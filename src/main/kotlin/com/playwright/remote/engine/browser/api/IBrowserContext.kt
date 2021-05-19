@@ -68,7 +68,7 @@ interface IBrowserContext : AutoCloseable {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForPage(callback: () -> Unit): IPage = waitForPage(null, callback)
+    fun waitForPage(callback: () -> Unit): IPage? = waitForPage(null, callback)
 
     /**
      * Performs action and waits for a new {@code Page} to be created in the context. If predicate is provided, it passes {@code Page}
@@ -77,7 +77,7 @@ interface IBrowserContext : AutoCloseable {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage
+    fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage?
 
     /**
      * Adds cookies into this browser context. All pages within this context will have these cookies installed. Cookies can be

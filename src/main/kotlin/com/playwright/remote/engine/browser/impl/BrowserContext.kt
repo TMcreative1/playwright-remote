@@ -72,7 +72,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         if (ownerPage != null) {
             throw PlaywrightException("Please use browser.newContext()")
         }
-        val jsonObject = sendMessage("newPage").asJsonObject
+        val jsonObject = sendMessage("newPage")!!.asJsonObject
         return messageProcessor.getExistingObject(jsonObject.getAsJsonObject("page").get("guid").asString)
     }
 
@@ -80,7 +80,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         return pages
     }
 
-    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T {
+    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T? {
         val waitList = arrayListOf<IWait<T>>()
         waitList.add(WaitEvent(listeners, eventType))
         waitList.add(WaitContextClose(listeners))
@@ -88,7 +88,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         return runUtil(WaitRace(waitList), code)
     }
 
-    override fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage =
+    override fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage? =
         waitForEventWithTimeout(PAGE, (options ?: WaitForPageOptions {}).timeout, callback)
 
     override fun close() {
@@ -137,7 +137,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     override fun cookies(urls: List<String>?): List<Cookie> {
         val params = JsonObject()
         params.add("urls", Gson().toJsonTree(urls ?: emptyList<String>()))
-        val json = sendMessage("cookies", params).asJsonObject
+        val json = sendMessage("cookies", params)!!.asJsonObject
         val cookies = IParser.fromJson(json["cookies"].asJsonArray, Array<Cookie>::class.java)
         return cookies.toList()
     }
@@ -232,7 +232,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
 
     override fun storageState(options: StorageStateOptions?): String {
         val json = sendMessage("storageState")
-        val storageState = json.asString
+        val storageState = json!!.asString
         if (options?.path != null) {
             writeToFile(storageState.toByteArray(UTF_8), options.path!!)
         }

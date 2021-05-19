@@ -2674,7 +2674,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForClose(callback: () -> Unit): IPage {
+    fun waitForClose(callback: () -> Unit): IPage? {
         return waitForClose(null, callback)
     }
 
@@ -2683,7 +2683,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IPage
+    fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IPage?
 
     /**
      * Performs action and waits for a {@code ConsoleMessage} to be logged by in the page. If predicate is provided, it passes
@@ -2692,7 +2692,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForConsoleMessage(callback: () -> Unit): IConsoleMessage {
+    fun waitForConsoleMessage(callback: () -> Unit): IConsoleMessage? {
         return waitForConsoleMessage(null, callback)
     }
 
@@ -2703,7 +2703,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForConsoleMessage(options: WaitForConsoleMessageOptions?, callback: () -> Unit): IConsoleMessage
+    fun waitForConsoleMessage(options: WaitForConsoleMessageOptions?, callback: () -> Unit): IConsoleMessage?
 
     /**
      * Performs action and waits for a new {@code Download}. If predicate is provided, it passes {@code Download} value into the
@@ -2712,7 +2712,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForDownload(callback: () -> Unit): IDownload {
+    fun waitForDownload(callback: () -> Unit): IDownload? {
         return waitForDownload(null, callback)
     }
 
@@ -2723,7 +2723,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForDownload(options: WaitForDownloadOptions?, callback: () -> Unit): IDownload
+    fun waitForDownload(options: WaitForDownloadOptions?, callback: () -> Unit): IDownload?
 
     /**
      * Performs action and waits for a new {@code FileChooser} to be created. If predicate is provided, it passes {@code FileChooser} value
@@ -2732,7 +2732,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForFileChooser(callback: () -> Unit): IFileChooser {
+    fun waitForFileChooser(callback: () -> Unit): IFileChooser? {
         return waitForFileChooser(null, callback)
     }
 
@@ -2743,7 +2743,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForFileChooser(options: WaitForFileChooserOptions?, callback: () -> Unit): IFileChooser
+    fun waitForFileChooser(options: WaitForFileChooserOptions?, callback: () -> Unit): IFileChooser?
 
     /**
      * Returns when the {@code expression} returns a truthy value. It resolves to a JSHandle of the truthy value.
@@ -2993,7 +2993,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForPopup(callback: () -> Unit): IPage {
+    fun waitForPopup(callback: () -> Unit): IPage? {
         return waitForPopup(null, callback)
     }
 
@@ -3004,7 +3004,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForPopup(options: WaitForPopupOptions?, callback: () -> Unit): IPage
+    fun waitForPopup(options: WaitForPopupOptions?, callback: () -> Unit): IPage?
 
     /**
      * Waits for the matching request and returns it.  See <a
@@ -3026,7 +3026,7 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForRequest(urlOrPredicate: String, callback: () -> Unit): IRequest {
+    fun waitForRequest(urlOrPredicate: String, callback: () -> Unit): IRequest? {
         return waitForRequest(urlOrPredicate, null, callback)
     }
 
@@ -3050,7 +3050,7 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForRequest(urlOrPredicate: String?, options: WaitForRequestOptions?, callback: () -> Unit): IRequest
+    fun waitForRequest(urlOrPredicate: String?, options: WaitForRequestOptions?, callback: () -> Unit): IRequest?
 
     /**
      * Waits for the matching request and returns it.  See <a
@@ -3096,7 +3096,7 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
      * @param callback       Callback that performs the action triggering the event.
      */
-    fun waitForRequest(urlOrPredicate: Pattern, options: WaitForRequestOptions?, callback: () -> Unit): IRequest
+    fun waitForRequest(urlOrPredicate: Pattern, options: WaitForRequestOptions?, callback: () -> Unit): IRequest?
 
     /**
      * Waits for the matching request and returns it.  See <a
@@ -3146,7 +3146,7 @@ interface IPage {
         urlOrPredicate: ((IRequest) -> Boolean)?,
         options: WaitForRequestOptions?,
         callback: () -> Unit
-    ): IRequest
+    ): IRequest?
 
     /**
      * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
@@ -3168,7 +3168,7 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
      * @param callback       Callback that performs the action triggering the event.
      */
-    fun waitForResponse(urlOrPredicate: String, callback: () -> Unit): IResponse {
+    fun waitForResponse(urlOrPredicate: String, callback: () -> Unit): IResponse? {
         return waitForResponse(urlOrPredicate, null, callback)
     }
 
@@ -3192,7 +3192,7 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
      * @param callback       Callback that performs the action triggering the event.
      */
-    fun waitForResponse(urlOrPredicate: String?, options: WaitForResponseOptions?, callback: () -> Unit): IResponse
+    fun waitForResponse(urlOrPredicate: String?, options: WaitForResponseOptions?, callback: () -> Unit): IResponse?
 
     /**
      * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
@@ -3214,7 +3214,7 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
      * @param callback       Callback that performs the action triggering the event.
      */
-    fun waitForResponse(urlOrPredicate: Pattern, callback: () -> Unit): IResponse {
+    fun waitForResponse(urlOrPredicate: Pattern, callback: () -> Unit): IResponse? {
         return waitForResponse(urlOrPredicate, null, callback)
     }
 
@@ -3238,7 +3238,7 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
      * @param callback       Callback that performs the action triggering the event.
      */
-    fun waitForResponse(urlOrPredicate: Pattern?, options: WaitForResponseOptions?, callback: () -> Unit): IResponse
+    fun waitForResponse(urlOrPredicate: Pattern?, options: WaitForResponseOptions?, callback: () -> Unit): IResponse?
 
     /**
      * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
@@ -3260,7 +3260,7 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Response} object.
      * @param callback       Callback that performs the action triggering the event.
      */
-    fun waitForResponse(urlOrPredicate: ((IResponse) -> Boolean), callback: () -> Unit): IResponse {
+    fun waitForResponse(urlOrPredicate: ((IResponse) -> Boolean), callback: () -> Unit): IResponse? {
         return waitForResponse(urlOrPredicate, null, callback)
     }
 
@@ -3288,7 +3288,7 @@ interface IPage {
         urlOrPredicate: ((IResponse) -> Boolean)?,
         options: WaitForResponseOptions?,
         callback: () -> Unit
-    ): IResponse
+    ): IResponse?
 
     /**
      * Returns when element specified by selector satisfies {@code state} option. Returns {@code null} if waiting for {@code hidden} or
@@ -3467,7 +3467,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForWebSocket(callback: () -> Unit): IWebSocket {
+    fun waitForWebSocket(callback: () -> Unit): IWebSocket? {
         return waitForWebSocket(null, callback)
     }
 
@@ -3478,7 +3478,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForWebSocket(options: WaitForWebSocketOptions?, callback: () -> Unit): IWebSocket
+    fun waitForWebSocket(options: WaitForWebSocketOptions?, callback: () -> Unit): IWebSocket?
 
     /**
      * Performs action and waits for a new {@code Worker}. If predicate is provided, it passes {@code Worker} value into the {@code predicate}
@@ -3487,7 +3487,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForWorker(callback: () -> Unit): IWorker {
+    fun waitForWorker(callback: () -> Unit): IWorker? {
         return waitForWorker(null, callback)
     }
 
@@ -3498,7 +3498,7 @@ interface IPage {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForWorker(options: WaitForWorkerOptions?, callback: () -> Unit): IWorker
+    fun waitForWorker(options: WaitForWorkerOptions?, callback: () -> Unit): IWorker?
 
     /**
      * This method returns all of the dedicated <a

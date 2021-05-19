@@ -114,7 +114,7 @@ class Serialization {
                     result.h = handles.size
                     handles.add(value)
                 }
-                value == null -> result.v = "undefined"
+                null -> result.v = "undefined"
                 is Double -> {
                     when (value) {
                         value == Double.POSITIVE_INFINITY -> result.v = "Infinity"
