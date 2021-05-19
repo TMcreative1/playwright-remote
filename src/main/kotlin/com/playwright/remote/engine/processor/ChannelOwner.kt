@@ -37,7 +37,7 @@ open class ChannelOwner(
     }
 
     @JvmOverloads
-    fun sendMessage(method: String, params: JsonObject = JsonObject()): JsonElement {
+    fun sendMessage(method: String, params: JsonObject = JsonObject()): JsonElement? {
         return messageProcessor.sendMessage(guid, method, params)
     }
 
@@ -50,7 +50,7 @@ open class ChannelOwner(
         objects.clear()
     }
 
-    fun <T> runUtil(wait: IWait<T>, code: () -> Unit): T {
+    fun <T> runUtil(wait: IWait<T>, code: () -> Unit): T? {
         try {
             code()
             while (!wait.isFinished()) {

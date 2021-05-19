@@ -35,12 +35,12 @@ class Response(parent: ChannelOwner, type: String, guid: String, initializer: Js
     }
 
     override fun body(): ByteArray {
-        val json = sendMessage("body").asJsonObject
+        val json = sendMessage("body")!!.asJsonObject
         return Base64.getDecoder().decode(json["binary"].asString)
     }
 
     override fun finished(): String? {
-        val json = sendMessage("finished").asJsonObject
+        val json = sendMessage("finished")!!.asJsonObject
         if (json.has("error")) {
             return json["error"].asString
         }

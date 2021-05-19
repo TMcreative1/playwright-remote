@@ -44,7 +44,7 @@ class Worker(parent: ChannelOwner, type: String, guid: String, initializer: Json
         params.addProperty("expression", expression)
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("evaluateExpression", params)
-        val value = IParser.fromJson(json.asJsonObject["value"], SerializedValue::class.java)
+        val value = IParser.fromJson(json!!.asJsonObject["value"], SerializedValue::class.java)
         return deserialize(value)
     }
 
@@ -53,14 +53,14 @@ class Worker(parent: ChannelOwner, type: String, guid: String, initializer: Json
         params.addProperty("expression", expression)
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("evaluateExpressionHandle", params)
-        return messageProcessor.getExistingObject(json.asJsonObject["handle"].asJsonObject["guid"].asString)
+        return messageProcessor.getExistingObject(json!!.asJsonObject["handle"].asJsonObject["guid"].asString)
     }
 
     override fun url(): String {
         return initializer["url"].asString
     }
 
-    override fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IWorker {
+    override fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IWorker? {
         return waitForEventWithTimeout(
             CLOSE,
             if (options == null) WaitForCloseOptions {}.timeout else options.timeout,
@@ -68,7 +68,7 @@ class Worker(parent: ChannelOwner, type: String, guid: String, initializer: Json
         )
     }
 
-    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T {
+    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T? {
         val waitList = arrayListOf<IWait<T>>()
         waitList.add(WaitEvent(listeners, eventType))
         waitList.add((page as Page).createWaitForCloseHelper())

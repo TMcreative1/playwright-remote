@@ -61,7 +61,7 @@ interface IWebSocket {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForFrameReceived(callback: () -> Unit): IWebSocketFrame {
+    fun waitForFrameReceived(callback: () -> Unit): IWebSocketFrame? {
         return waitForFrameReceived(null, callback)
     }
 
@@ -72,7 +72,7 @@ interface IWebSocket {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForFrameReceived(options: WaitForFrameReceivedOptions?, callback: () -> Unit): IWebSocketFrame
+    fun waitForFrameReceived(options: WaitForFrameReceivedOptions?, callback: () -> Unit): IWebSocketFrame?
 
     /**
      * Performs action and waits for a frame to be sent. If predicate is provided, it passes {@code WebSocketFrame} value into the
@@ -81,7 +81,7 @@ interface IWebSocket {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForFrameSent(callback: () -> Unit): IWebSocketFrame {
+    fun waitForFrameSent(callback: () -> Unit): IWebSocketFrame? {
         return waitForFrameSent(null, callback)
     }
 
@@ -92,5 +92,5 @@ interface IWebSocket {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForFrameSent(options: WaitForFrameSentOptions?, callback: () -> Unit): IWebSocketFrame
+    fun waitForFrameSent(options: WaitForFrameSentOptions?, callback: () -> Unit): IWebSocketFrame?
 }

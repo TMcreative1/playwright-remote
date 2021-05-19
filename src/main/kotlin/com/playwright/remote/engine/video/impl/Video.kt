@@ -15,14 +15,14 @@ class Video(private val page: IPage) : IVideo {
 
     override fun delete() {
         try {
-            waitForArtifact().delete()
+            waitForArtifact()!!.delete()
         } catch (e: PlaywrightException) {
         }
     }
 
     override fun saveAs(path: Path) {
         try {
-            waitForArtifact().saveAs(path)
+            waitForArtifact()!!.saveAs(path)
         } catch (e: PlaywrightException) {
             throw PlaywrightException("Page did not produce any video frames", e)
         }
@@ -33,8 +33,8 @@ class Video(private val page: IPage) : IVideo {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun waitForArtifact(): Artifact {
-        val wait = WaitRace(listOf(waitArtifact, ((page as Page).waitClosedOrCrasched) as IWait<Artifact>))
+    private fun waitForArtifact(): Artifact? {
+        val wait = WaitRace(listOf(waitArtifact, ((page as Page).waitClosedOrCrashed) as IWait<Artifact?>))
         return page.runUtil(wait) {}
     }
 }

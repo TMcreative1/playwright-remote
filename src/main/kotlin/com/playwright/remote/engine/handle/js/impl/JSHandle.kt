@@ -26,7 +26,7 @@ open class JSHandle(parent: ChannelOwner, type: String, guid: String, initialize
         params.addProperty("world", "main")
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("evaluateExpression", params)
-        val value = fromJson(json.asJsonObject["value"], SerializedError.SerializedValue::class.java)
+        val value = fromJson(json!!.asJsonObject["value"], SerializedError.SerializedValue::class.java)
         return deserialize(value)
     }
 
@@ -36,11 +36,11 @@ open class JSHandle(parent: ChannelOwner, type: String, guid: String, initialize
         params.addProperty("world", "main")
         params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("evaluateExpressionHandle", params)
-        return messageProcessor.getExistingObject(json.asJsonObject["handle"].asJsonObject["guid"].asString)
+        return messageProcessor.getExistingObject(json!!.asJsonObject["handle"].asJsonObject["guid"].asString)
     }
 
     override fun getProperties(): Map<String, IJSHandle> {
-        val json = sendMessage("getPropertyList").asJsonObject["properties"]
+        val json = sendMessage("getPropertyList")!!.asJsonObject["properties"]
         val result = hashMapOf<String, IJSHandle>()
         for (element in json.asJsonArray) {
             val item = element.asJsonObject
@@ -53,12 +53,12 @@ open class JSHandle(parent: ChannelOwner, type: String, guid: String, initialize
     override fun getProperty(propertyName: String): IJSHandle {
         val params = JsonObject()
         params.addProperty("name", propertyName)
-        val json = sendMessage("getProperty", params).asJsonObject["handle"]
+        val json = sendMessage("getProperty", params)!!.asJsonObject["handle"]
         return messageProcessor.getExistingObject(json.asJsonObject["guid"].asString)
     }
 
     override fun jsonValue(): Any {
-        val json = sendMessage("jsonValue").asJsonObject
+        val json = sendMessage("jsonValue")!!.asJsonObject
         val value = fromJson(json["value"].asString, SerializedError.SerializedValue::class.java)
         return deserialize(value)
     }

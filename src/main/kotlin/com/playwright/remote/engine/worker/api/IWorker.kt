@@ -90,7 +90,7 @@ interface IWorker {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForClose(callback: () -> Unit): IWorker {
+    fun waitForClose(callback: () -> Unit): IWorker? {
         return waitForClose(null, callback)
     }
 
@@ -99,5 +99,5 @@ interface IWorker {
      *
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IWorker
+    fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IWorker?
 }

@@ -37,24 +37,25 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
 
 
     override fun newContext(options: NewContextOptions?): IBrowserContext {
-        val storageState: JsonObject? = getStorageState(options)
-        val params = Gson().toJsonTree(options).asJsonObject
+        val opt = options ?: NewContextOptions {}
+        val storageState: JsonObject? = getStorageState(opt)
+        val params = Gson().toJsonTree(opt).asJsonObject
 
         if (storageState != null) {
             params.add("storageState", storageState)
         }
 
-        addRecordHarPath(params, options)
-        addRecordVideoDir(params, options)
-        addViewPortSize(params, options)
+        addRecordHarPath(params, opt)
+        addRecordVideoDir(params, opt)
+        addViewPortSize(params, opt)
 
         params.addProperty("sdkLanguage", "java")
         val result = sendMessage("newContext", params)
         val context = messageProcessor.getExistingObject<IBrowserContext>(
-            result.asJsonObject["context"].asJsonObject["guid"].asString
+            result!!.asJsonObject["context"].asJsonObject["guid"].asString
         ) as BrowserContext
-        if (options?.recordVideoDir != null) {
-            context.videosDir = options.recordVideoDir
+        if (opt.recordVideoDir != null) {
+            context.videosDir = opt.recordVideoDir
         }
         contexts.add(context)
         return context

@@ -77,7 +77,7 @@ class WebSocket(parent: ChannelOwner, type: String, guid: String, initializer: J
         return initializer["url"].asString
     }
 
-    override fun waitForFrameReceived(options: WaitForFrameReceivedOptions?, callback: () -> Unit): IWebSocketFrame {
+    override fun waitForFrameReceived(options: WaitForFrameReceivedOptions?, callback: () -> Unit): IWebSocketFrame? {
         return waitForEventWithTimeout(
             FRAMERECEIVED,
             if (options == null) WaitForFrameReceivedOptions {}.timeout else options.timeout,
@@ -85,7 +85,7 @@ class WebSocket(parent: ChannelOwner, type: String, guid: String, initializer: J
         )
     }
 
-    override fun waitForFrameSent(options: WaitForFrameSentOptions?, callback: () -> Unit): IWebSocketFrame {
+    override fun waitForFrameSent(options: WaitForFrameSentOptions?, callback: () -> Unit): IWebSocketFrame? {
         return waitForEventWithTimeout(
             FRAMESENT,
             if (options == null) WaitForFrameSentOptions {}.timeout else options.timeout,
@@ -93,7 +93,7 @@ class WebSocket(parent: ChannelOwner, type: String, guid: String, initializer: J
         )
     }
 
-    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T {
+    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T? {
         val waitList = arrayListOf<IWait<T>>()
         waitList.add(WaitEvent(listeners, eventType))
         waitList.add(WaitWebSocketClose(listeners))

@@ -65,7 +65,7 @@ class Request : ChannelOwner, IRequest {
     override fun resourceType(): String = initializer["resourceType"].asString
 
     override fun response(): IResponse? {
-        val result = sendMessage("response").asJsonObject
+        val result = sendMessage("response")!!.asJsonObject
         if (!result.has("response")) {
             return null
         }
