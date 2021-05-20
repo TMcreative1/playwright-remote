@@ -8,6 +8,7 @@ open class ListenerCollection<EventType> {
     fun notify(eventType: EventType, param: Any) {
         val list: MutableList<UniversalConsumer> = listeners[eventType] ?: return
         list
+            .toTypedArray()
             .asSequence()
             .forEach { consumer ->
                 consumer(param)

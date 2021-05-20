@@ -3,6 +3,8 @@ package com.playwright.remote.engine.frame.impl
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.InternalEventType
+import com.playwright.remote.core.enums.InternalEventType.LOADSTATE
+import com.playwright.remote.core.enums.InternalEventType.NAVIGATED
 import com.playwright.remote.core.enums.LoadState
 import com.playwright.remote.core.enums.WaitUntilState
 import com.playwright.remote.core.enums.WaitUntilState.LOAD
@@ -51,8 +53,8 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     guid,
     initializer
 ), IFrame {
-    private val name: String = initializer["name"].asString
-    private val url: String = initializer["url"].asString
+    private var name: String = initializer["name"].asString
+    private var url: String = initializer["url"].asString
     var parentFrame: IFrame? = null
     val childFrames = linkedSetOf<IFrame>()
     private val loadStates = hashSetOf<LoadState>()
@@ -503,5 +505,30 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
             return
         }
         waitForNavigation(convert(opt, WaitForNavigationOptions::class.java), matcher) {}
+    }
+
+    override fun handleEvent(event: String, params: JsonObject) {
+        when (event) {
+            "loadstate" -> {
+                val add = params["add"]
+                if (add != null) {
+                    val state = LoadState.valueOf(add.asString.toUpperCase())
+                    loadStates.add(state)
+                    internalListeners.notify(LOADSTATE, state)
+                }
+                val remove = params["remove"]
+                if (remove != null) {
+                    loadStates.remove(LoadState.valueOf(remove.asString.toUpperCase()))
+                }
+            }
+            "navigated" -> {
+                url = params["url"].asString
+                name = params["name"].asString
+                if (!params.has("error") && page != null) {
+                    (page as Page).frameNavigated(this)
+                }
+                internalListeners.notify(NAVIGATED, params)
+            }
+        }
     }
 }

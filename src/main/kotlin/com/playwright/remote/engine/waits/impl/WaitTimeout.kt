@@ -4,9 +4,8 @@ import com.playwright.remote.core.exceptions.TimeoutException
 import com.playwright.remote.engine.waits.api.IWait
 
 open class WaitTimeout<T>(millis: Double) : IWait<T> {
-    private val deadline: Long = millis.toLong()
-    private val timeout: Double = (System.nanoTime() + millis.toLong() * 1_000_000).toDouble()
-
+    private val deadline: Long = System.nanoTime() + millis.toLong() * 1_000_000
+    private val timeout: Double = millis
     override fun isFinished(): Boolean = System.nanoTime() > deadline
 
     override fun get(): T {
@@ -14,7 +13,7 @@ open class WaitTimeout<T>(millis: Double) : IWait<T> {
         if (timeoutStr.endsWith(".0")) {
             timeoutStr = timeoutStr.substring(0, timeoutStr.length - 2)
         }
-        throw TimeoutException("Timeout ${timeoutStr} ms exceeded")
+        throw TimeoutException("Timeout $timeoutStr ms exceeded")
     }
 
     override fun dispose() {

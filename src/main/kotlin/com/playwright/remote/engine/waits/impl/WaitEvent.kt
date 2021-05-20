@@ -19,7 +19,7 @@ open class WaitEvent<EventType, T>(
     }
 
     override fun invoke(p1: T) {
-        if (!predicate(p1)) {
+        if (predicate(p1)) {
             return
         }
         eventArg = p1
@@ -31,6 +31,7 @@ open class WaitEvent<EventType, T>(
     override fun get(): T = eventArg!!
 
     @Suppress("UNCHECKED_CAST")
-    override fun dispose() = listeners.remove(type, this as UniversalConsumer)
+    override fun dispose() =
+        listeners.remove(type, this as UniversalConsumer)
 
 }

@@ -44,7 +44,7 @@ open class ChannelOwner(
     fun disconnect() {
         parent?.objects?.remove(guid)
         messageProcessor.unregisterObject(guid)
-        for (child in objects.values) {
+        for (child in objects.values.toList()) {
             child.disconnect()
         }
         objects.clear()

@@ -29,8 +29,9 @@ class Utils {
             val tokens = StringBuilder()
             tokens.append('^')
             var inGroup = false
-            var index = 0
-            while (index < glob.length) {
+            var index = -1
+            while (index + 1 < glob.length) {
+                index++
                 val char = glob[index]
                 if (escapeGlobChars.contains(char)) {
                     tokens.append("\\${char}")
@@ -71,6 +72,7 @@ class Utils {
                         }
                         tokens.append("\\${char}")
                     }
+                    else -> tokens.append(char)
                 }
             }
             tokens.append('$')
