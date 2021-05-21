@@ -222,6 +222,10 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         listeners.remove(FRAMENAVIGATED, handler as UniversalConsumer)
     }
 
+    fun frameNavigated(frame: IFrame) {
+        listeners.notify(FRAMENAVIGATED, frame)
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun onLoad(handler: (IPage) -> Unit) {
         listeners.add(LOAD, handler as UniversalConsumer)
