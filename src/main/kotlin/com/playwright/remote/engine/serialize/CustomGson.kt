@@ -21,6 +21,7 @@ class CustomGson {
         fun gson(): Gson {
             if (gson == null) {
                 gson = GsonBuilder()
+                    .setPrettyPrinting()
                     .registerTypeAdapter(SameSiteAttribute::class.java, SameSiteAttributeAdapter().nullSafe())
                     .registerTypeAdapter(ColorScheme::class.java, ColorSchemeAdapter().nullSafe())
                     .registerTypeAdapter(Media::class.java, MediaSerializer())
