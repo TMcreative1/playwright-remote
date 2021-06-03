@@ -23,13 +23,13 @@ class Response(parent: ChannelOwner, type: String, guid: String, initializer: Js
     init {
         for (element in initializer["headers"].asJsonArray) {
             val item = element.asJsonObject
-            headers[item["name"].asString.toLowerCase()] = item["value"].asString
+            headers[item["name"].asString.lowercase()] = item["value"].asString
         }
         request = messageProcessor.getExistingObject(initializer["request"].asJsonObject["guid"].asString)
         (request as Request).headers.clear()
         for (element in initializer["requestHeaders"].asJsonArray) {
             val item = element.asJsonObject
-            request.headers[item["name"].asString.toLowerCase()] = item["value"].asString
+            request.headers[item["name"].asString.lowercase()] = item["value"].asString
         }
         request.timing = fromJson(initializer["timing"], Timing::class.java)
     }

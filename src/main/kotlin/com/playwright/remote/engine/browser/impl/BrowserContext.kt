@@ -1,6 +1,5 @@
 package com.playwright.remote.engine.browser.impl
 
-import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
@@ -24,6 +23,7 @@ import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
+import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import com.playwright.remote.engine.waits.TimeoutSettings
 import com.playwright.remote.engine.waits.api.IWait
 import com.playwright.remote.engine.waits.impl.WaitContextClose
@@ -101,7 +101,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
 
     override fun addCookies(cookies: List<Cookie>) {
         val params = JsonObject()
-        params.add("cookies", Gson().toJsonTree(cookies))
+        params.add("cookies", gson().toJsonTree(cookies))
         sendMessage("addCookies", params)
     }
 
@@ -136,7 +136,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
 
     override fun cookies(urls: List<String>?): List<Cookie> {
         val params = JsonObject()
-        params.add("urls", Gson().toJsonTree(urls ?: emptyList<String>()))
+        params.add("urls", gson().toJsonTree(urls ?: emptyList<String>()))
         val json = sendMessage("cookies", params)!!.asJsonObject
         val cookies = IParser.fromJson(json["cookies"].asJsonArray, Array<Cookie>::class.java)
         return cookies.toList()
@@ -166,8 +166,8 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     }
 
     override fun grantPermissions(permissions: List<String>?, options: GrantPermissionsOptions) {
-        val params = Gson().toJsonTree(options).asJsonObject
-        params.add("permissions", Gson().toJsonTree(permissions ?: emptyList<String>()))
+        val params = gson().toJsonTree(options).asJsonObject
+        params.add("permissions", gson().toJsonTree(permissions ?: emptyList<String>()))
         sendMessage("grantPermissions", params)
     }
 
@@ -219,7 +219,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     override fun setGeolocation(geolocation: Geolocation?) {
         val params = JsonObject()
         if (geolocation != null) {
-            params.add("geolocation", Gson().toJsonTree(geolocation))
+            params.add("geolocation", gson().toJsonTree(geolocation))
         }
         sendMessage("setGeolocation", params)
     }

@@ -30,7 +30,7 @@ class Request : ChannelOwner, IRequest {
         }
         for (element in initializer["headers"].asJsonArray) {
             val item = element.asJsonObject
-            headers[item["name"].asString.toLowerCase()] = item["value"].asString
+            headers[item["name"].asString.lowercase()] = item["value"].asString
         }
 
         if (initializer.has("postData")) {

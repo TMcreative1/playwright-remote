@@ -8,7 +8,7 @@ class PlatformUtils {
     companion object {
         @JvmStatic
         fun getCurrentPlatform(): Platform {
-            val osName = System.getProperty("os.name").toLowerCase()
+            val osName = System.getProperty("os.name").lowercase()
             val archType = System.getProperty("sun.arch.data.model")
             return when {
                 osName.contains("win") && archType.equals("32") -> {

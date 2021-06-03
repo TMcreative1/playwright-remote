@@ -1,6 +1,5 @@
 package com.playwright.remote.engine.handle.element.impl
 
-import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.ElementState
 import com.playwright.remote.core.enums.ScreenshotType.JPEG
@@ -16,11 +15,12 @@ import com.playwright.remote.engine.options.SelectOption
 import com.playwright.remote.engine.options.element.*
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.serializer.Serialization.Companion.deserialize
-import com.playwright.remote.engine.serializer.Serialization.Companion.parseStringList
-import com.playwright.remote.engine.serializer.Serialization.Companion.serializeArgument
-import com.playwright.remote.engine.serializer.Serialization.Companion.toJsonArray
-import com.playwright.remote.engine.serializer.Serialization.Companion.toProtocol
+import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import com.playwright.remote.engine.serialize.Serialization.Companion.deserialize
+import com.playwright.remote.engine.serialize.Serialization.Companion.parseStringList
+import com.playwright.remote.engine.serialize.Serialization.Companion.serializeArgument
+import com.playwright.remote.engine.serialize.Serialization.Companion.toJsonArray
+import com.playwright.remote.engine.serialize.Serialization.Companion.toProtocol
 import com.playwright.remote.utils.Utils.Companion.toFilePayloads
 import com.playwright.remote.utils.Utils.Companion.writeToFile
 import java.nio.file.Path
@@ -41,12 +41,12 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun check(options: CheckOptions?) {
-        val params = Gson().toJsonTree(options ?: CheckOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: CheckOptions {}).asJsonObject
         sendMessage("check", params)
     }
 
     override fun click(options: ClickOptions?) {
-        val params = Gson().toJsonTree(options ?: ClickOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: ClickOptions {}).asJsonObject
         sendMessage("click", params)
     }
 
@@ -59,14 +59,14 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun doubleClick(options: DoubleClickOptions?) {
-        val params = Gson().toJsonTree(options ?: DoubleClickOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: DoubleClickOptions {}).asJsonObject
         sendMessage("dblclick", params)
     }
 
     override fun dispatchEvent(type: String, eventInit: Any?) {
         val params = JsonObject()
         params.addProperty("type", type)
-        params.add("eventInit", Gson().toJsonTree(serializeArgument(eventInit)))
+        params.add("eventInit", gson().toJsonTree(serializeArgument(eventInit)))
         sendMessage("dispatchEvent", params)
     }
 
@@ -82,14 +82,14 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
         val params = JsonObject()
         params.addProperty("selector", selector)
         params.addProperty("expression", expression)
-        params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
+        params.add("arg", gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage(method, params)
         val value = fromJson(json!!.asJsonObject["value"], SerializedError.SerializedValue::class.java)
         return deserialize(value)
     }
 
     override fun fill(value: String, options: FillOptions?) {
-        val params = Gson().toJsonTree(options ?: FillOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: FillOptions {}).asJsonObject
         params.addProperty("value", value)
         sendMessage("fill", params)
     }
@@ -106,7 +106,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun hover(options: HoverOptions?) {
-        val params = Gson().toJsonTree(options).asJsonObject
+        val params = gson().toJsonTree(options).asJsonObject
         sendMessage("hover", params)
     }
 
@@ -159,7 +159,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun press(key: String, options: PressOptions?) {
-        val params = Gson().toJsonTree(options ?: PressOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: PressOptions {}).asJsonObject
         params.addProperty("key", key)
         sendMessage("press", params)
     }
@@ -192,14 +192,14 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
                 val fileName = opt.path!!.fileName.toString()
                 val extStart = fileName.lastIndexOf('.')
                 if (extStart != -1) {
-                    val extension = fileName.substring(extStart).toLowerCase()
+                    val extension = fileName.substring(extStart).lowercase()
                     if (".jpeg" == extension || ".jpg" == extension) {
                         opt.type = JPEG
                     }
                 }
             }
         }
-        val params = Gson().toJsonTree(opt).asJsonObject
+        val params = gson().toJsonTree(opt).asJsonObject
         params.remove("path")
         val json = sendMessage("screenshot", params)!!.asJsonObject
 
@@ -212,7 +212,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun scrollIntoViewIfNeeded(options: ScrollIntoViewIfNeededOptions?) {
-        val params = Gson().toJsonTree(options ?: ScrollIntoViewIfNeededOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: ScrollIntoViewIfNeededOptions {}).asJsonObject
         sendMessage("scrollIntoViewIfNeeded", params)
     }
 
@@ -239,7 +239,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun selectOption(values: Array<IElementHandle>?, options: SelectOptionOptions?): List<String> {
-        val params = Gson().toJsonTree(options ?: SelectOptionOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: SelectOptionOptions {}).asJsonObject
         if (values != null) {
             params.add("elements", toProtocol(values))
         }
@@ -247,9 +247,9 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun selectOption(values: Array<SelectOption>?, options: SelectOptionOptions?): List<String> {
-        val params = Gson().toJsonTree(options ?: SelectOptionOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: SelectOptionOptions {}).asJsonObject
         if (values != null) {
-            params.add("options", Gson().toJsonTree(values))
+            params.add("options", gson().toJsonTree(values))
         }
         return selectOption(params)
     }
@@ -260,7 +260,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun selectText(options: SelectTextOptions?) {
-        val params = Gson().toJsonTree(options ?: SelectTextOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: SelectTextOptions {}).asJsonObject
         sendMessage("selectText", params)
     }
 
@@ -277,13 +277,13 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun setInputFiles(files: Array<FilePayload>, options: SetInputFilesOptions?) {
-        val params = Gson().toJsonTree(options ?: SetInputFilesOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: SetInputFilesOptions {}).asJsonObject
         params.add("files", toJsonArray(files))
         sendMessage("setInputFiles", params)
     }
 
     override fun tap(options: TapOptions?) {
-        val params = Gson().toJsonTree(options ?: TapOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: TapOptions {}).asJsonObject
         sendMessage("tap", params)
     }
 
@@ -293,13 +293,13 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun type(text: String, options: TypeOptions?) {
-        val params = Gson().toJsonTree(options ?: TypeOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: TypeOptions {}).asJsonObject
         params.addProperty("text", text)
         sendMessage("type", params)
     }
 
     override fun uncheck(options: UncheckOptions?) {
-        val params = Gson().toJsonTree(options ?: UncheckOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: UncheckOptions {}).asJsonObject
         sendMessage("uncheck", params)
     }
 
@@ -307,13 +307,13 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
         if (state == null) {
             throw IllegalArgumentException("State cannot be null")
         }
-        val params = Gson().toJsonTree(options ?: WaitForElementStateOptions {}).asJsonObject
-        params.addProperty("state", state.toString().toLowerCase())
+        val params = gson().toJsonTree(options ?: WaitForElementStateOptions {}).asJsonObject
+        params.addProperty("state", state.toString().lowercase())
         sendMessage("waitForElementState", params)
     }
 
     override fun waitForSelector(selector: String, options: WaitForElementStateOptions?): IElementHandle? {
-        val params = Gson().toJsonTree(options ?: WaitForElementStateOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: WaitForElementStateOptions {}).asJsonObject
         params.addProperty("selector", selector)
         val json = sendMessage("waitForSelector", params)
         val element = json!!.asJsonObject["element"].asJsonObject ?: return null

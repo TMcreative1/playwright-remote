@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.serializer
+package com.playwright.remote.engine.serialize
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject

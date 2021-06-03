@@ -5,6 +5,7 @@ import com.playwright.remote.core.enums.EventType.CLOSE
 import com.playwright.remote.core.exceptions.WebSocketException
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
+import com.playwright.remote.engine.logger.CustomLogger
 import com.playwright.remote.engine.transport.ITransport
 import okhttp3.*
 import java.util.concurrent.BlockingQueue
@@ -13,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
 class WebSocketTransport(url: String) : ITransport {
+    private val logger = CustomLogger()
     private val incomingMessages = LinkedBlockingQueue<String>()
     private val incomingErrors = ConcurrentHashMap<String, Exception>()
     private val lastException = Exception()
@@ -30,19 +32,21 @@ class WebSocketTransport(url: String) : ITransport {
         val incomingErrors: ConcurrentHashMap<String, Exception>
     ) :
         WebSocketListener() {
+        private val logger = CustomLogger()
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             lastException = t as Exception
             incomingErrors["error"] = lastException
+            logger.logInfo("RECEIVE error: $lastException")
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             incomingMessages.add(text)
+            logger.logReceiveMessage(text)
         }
     }
 
     init {
         val request: Request
-
         try {
             request = Request.Builder()
                 .url(url)
@@ -55,6 +59,7 @@ class WebSocketTransport(url: String) : ITransport {
     }
 
     override fun sendMessage(message: String) {
+        logger.logSendMessage(message)
         webSocket.send(message)
     }
 
@@ -67,7 +72,9 @@ class WebSocketTransport(url: String) : ITransport {
     }
 
     override fun closeConnection() {
+        webSocket.close(1000, "Normal Closure")
         client.dispatcher.executorService.shutdown()
+        logger.logInfo("Active connection count: ${client.connectionPool.connectionCount()}")
     }
 
     @Suppress("UNCHECKED_CAST")
