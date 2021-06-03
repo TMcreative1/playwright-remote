@@ -1,19 +1,19 @@
 package com.playwright.remote.engine.callback.impl
 
-import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.callback.api.IBindingCall
-import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.domain.serialize.SerializedError
 import com.playwright.remote.engine.browser.api.IBrowserContext
+import com.playwright.remote.engine.callback.api.IBindingCall
+import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.serializer.Serialization.Companion.deserialize
-import com.playwright.remote.engine.serializer.Serialization.Companion.serializeArgument
-import com.playwright.remote.engine.serializer.Serialization.Companion.serializeError
+import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import com.playwright.remote.engine.serialize.Serialization.Companion.deserialize
+import com.playwright.remote.engine.serialize.Serialization.Companion.serializeArgument
+import com.playwright.remote.engine.serialize.Serialization.Companion.serializeError
 
 class BindingCall(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBindingCall {
@@ -59,11 +59,11 @@ class BindingCall(parent: ChannelOwner, type: String, guid: String, initializer:
             val result = binding.call(source, args.toArray())
 
             val params = JsonObject()
-            params.add("result", Gson().toJsonTree(serializeArgument(result)))
+            params.add("result", gson().toJsonTree(serializeArgument(result)))
             sendMessage("resolve", params)
         } catch (e: RuntimeException) {
             val params = JsonObject()
-            params.add("error", Gson().toJsonTree(serializeError(e)))
+            params.add("error", gson().toJsonTree(serializeError(e)))
             sendMessage("reject", params)
         }
     }

@@ -1,6 +1,5 @@
 package com.playwright.remote.engine.browser.impl
 
-import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.DeviceDescriptors
 import com.playwright.remote.core.enums.EventType
@@ -17,6 +16,7 @@ import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser.Companion.convert
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.processor.ChannelOwner
+import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import okio.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -39,7 +39,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
     override fun newContext(options: NewContextOptions?): IBrowserContext {
         val opt = options ?: NewContextOptions {}
         val storageState: JsonObject? = getStorageState(opt)
-        val params = Gson().toJsonTree(opt).asJsonObject
+        val params = gson().toJsonTree(opt).asJsonObject
 
         if (storageState != null) {
             params.add("storageState", storageState)
@@ -129,7 +129,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
             val recordVideo = JsonObject()
             recordVideo.addProperty("dir", options.recordVideoDir.toString())
             if (options.recordVideoSize != null) {
-                recordVideo.add("size", Gson().toJsonTree(options.recordVideoSize))
+                recordVideo.add("size", gson().toJsonTree(options.recordVideoSize))
             }
             params.remove("recordVideoDir")
             params.remove("recordVideoSize")
@@ -151,8 +151,8 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
     }
 
     fun notifyRemoteClosed() {
-        contexts.forEach { context ->
-            (context as BrowserContext).pages.forEach { page ->
+        contexts.toTypedArray().forEach { context ->
+            (context as BrowserContext).pages.toTypedArray().forEach { page ->
                 (page as Page).didClose()
             }
             context.didClose()

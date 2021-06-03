@@ -1,6 +1,5 @@
 package com.playwright.remote.engine.page.impl
 
-import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
@@ -50,6 +49,7 @@ import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.api.IResponse
+import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import com.playwright.remote.engine.touchscreen.api.ITouchScreen
 import com.playwright.remote.engine.touchscreen.impl.TouchScreen
 import com.playwright.remote.engine.video.api.IVideo
@@ -359,7 +359,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         if (isClosed) {
             return
         }
-        val params = if (options == null) JsonObject() else Gson().toJsonTree(options).asJsonObject
+        val params = if (options == null) JsonObject() else gson().toJsonTree(options).asJsonObject
         try {
             sendMessage("close", params)
         } catch (e: PlaywrightException) {
@@ -389,7 +389,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun emulateMedia(options: EmulateMediaOptions?) {
-        val params = Gson().toJsonTree(options ?: EmulateMediaOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: EmulateMediaOptions {}).asJsonObject
         sendMessage("emulateMedia", params)
     }
 
@@ -468,7 +468,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun goBack(options: GoBackOptions?): IResponse? {
-        val params = Gson().toJsonTree(options ?: GoForwardOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: GoForwardOptions {}).asJsonObject
         val json = sendMessage("goBack", params)!!.asJsonObject
         if (json.has("response")) {
             return messageProcessor.getExistingObject(json["response"].asJsonObject["guid"].asString)
@@ -477,7 +477,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun goForward(options: GoForwardOptions?): IResponse? {
-        val params = Gson().toJsonTree(options ?: GoForwardOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: GoForwardOptions {}).asJsonObject
         val json = sendMessage("goForward", params)!!.asJsonObject
         if (json.has("response")) {
             return messageProcessor.getExistingObject(json["response"].asJsonObject["guid"].asString)
@@ -556,7 +556,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
             throw PlaywrightException("Page.pdf only supported in headless Chromium")
         }
         val opt = options ?: PdfOptions {}
-        val params = Gson().toJsonTree(opt).asJsonObject
+        val params = gson().toJsonTree(opt).asJsonObject
         params.remove("path")
         val json = sendMessage("pdf", params)!!.asJsonObject
         val buffer = Base64.getDecoder().decode(json["pdf"].asString)
@@ -579,7 +579,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun reload(options: ReloadOptions?): IResponse? {
-        val params = Gson().toJsonTree(options ?: ReloadOptions {}).asJsonObject
+        val params = gson().toJsonTree(options ?: ReloadOptions {}).asJsonObject
         val json = sendMessage("reload", params)!!.asJsonObject
         if (json.has("response")) {
             return messageProcessor.getExistingObject(json["response"].asJsonObject["guid"].asString)
@@ -616,14 +616,14 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
                 val fileName = opt.path!!.fileName.toString()
                 val extStart = fileName.lastIndexOf('.')
                 if (extStart != -1) {
-                    val extension = fileName.substring(extStart).toLowerCase()
+                    val extension = fileName.substring(extStart).lowercase()
                     if (".jpeg" == extension || ".jpg" == (extension)) {
                         opt.type = JPEG
                     }
                 }
             }
         }
-        val params = Gson().toJsonTree(opt).asJsonObject
+        val params = gson().toJsonTree(opt).asJsonObject
         params.remove("path")
         val json = sendMessage("screenshot", params)!!.asJsonObject
 
@@ -725,7 +725,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
             it.width = width
         }
         val params = JsonObject()
-        params.add("viewportSize", Gson().toJsonTree(viewPort))
+        params.add("viewportSize", gson().toJsonTree(viewPort))
         sendMessage("setViewportSize", params)
     }
 

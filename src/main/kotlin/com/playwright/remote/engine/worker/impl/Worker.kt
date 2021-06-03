@@ -1,6 +1,5 @@
 package com.playwright.remote.engine.worker.impl
 
-import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
 import com.playwright.remote.core.enums.EventType.CLOSE
@@ -13,8 +12,9 @@ import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.serializer.Serialization.Companion.deserialize
-import com.playwright.remote.engine.serializer.Serialization.Companion.serializeArgument
+import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import com.playwright.remote.engine.serialize.Serialization.Companion.deserialize
+import com.playwright.remote.engine.serialize.Serialization.Companion.serializeArgument
 import com.playwright.remote.engine.waits.api.IWait
 import com.playwright.remote.engine.waits.impl.WaitEvent
 import com.playwright.remote.engine.waits.impl.WaitRace
@@ -42,7 +42,7 @@ class Worker(parent: ChannelOwner, type: String, guid: String, initializer: Json
     override fun evaluate(expression: String, arg: Any?): Any {
         val params = JsonObject()
         params.addProperty("expression", expression)
-        params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
+        params.add("arg", gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("evaluateExpression", params)
         val value = IParser.fromJson(json!!.asJsonObject["value"], SerializedValue::class.java)
         return deserialize(value)
@@ -51,7 +51,7 @@ class Worker(parent: ChannelOwner, type: String, guid: String, initializer: Json
     override fun evaluateHandle(expression: String, arg: Any?): IJSHandle {
         val params = JsonObject()
         params.addProperty("expression", expression)
-        params.add("arg", Gson().toJsonTree(serializeArgument(arg)))
+        params.add("arg", gson().toJsonTree(serializeArgument(arg)))
         val json = sendMessage("evaluateExpressionHandle", params)
         return messageProcessor.getExistingObject(json!!.asJsonObject["handle"].asJsonObject["guid"].asString)
     }

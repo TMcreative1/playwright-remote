@@ -2,13 +2,12 @@ package com.playwright.remote
 
 import com.playwright.remote.base.BaseTest
 import com.playwright.remote.core.exceptions.PlaywrightException
+import com.playwright.remote.engine.frame.impl.Frame
 import com.playwright.remote.engine.options.CloseOptions
 import com.playwright.remote.engine.options.NewPageOptions
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
-import kotlin.test.fail
+import java.util.regex.Pattern
+import kotlin.test.*
 
 class TestPage : BaseTest() {
 
@@ -157,8 +156,44 @@ class TestPage : BaseTest() {
     fun `check navigate method in browser`() {
         val navigatedUrl = "$HTTPS_PREFIX/empty.html"
         val page = createPage()
+        assertEquals("about:blank", page.url())
         val response = page.navigate(navigatedUrl)
         assert(response != null)
         assertEquals(navigatedUrl, response?.url())
+    }
+
+    @Test
+    fun `check title method should return title of page`() {
+        val navigatedUrl = "$HTTP_PREFIX/empty.html"
+        val page = browserContext.newPage()
+        page.navigate(navigatedUrl)
+        assertEquals("Empty Page", page.title())
+    }
+
+    @Test
+    fun `check page close should work with page close`() {
+        val page = browserContext.newPage()
+        page.waitForClose { page.close() }
+    }
+
+    @Test
+    fun `check page frame should respect name`() {
+        val page = browserContext.newPage()
+        page.setContent("<iframe name=target></iframe>")
+        assertNull(page.frame("bogus"))
+        val frame = page.frame("target")
+        assertNotNull(frame)
+        assertEquals((page.mainFrame() as Frame).childFrames.toList()[0], frame)
+    }
+
+    @Test
+    fun `check page frame should respect url`() {
+        val page = browserContext.newPage()
+        val emptyPage = "$HTTP_PREFIX/empty.html"
+        page.setContent("<iframe src='$emptyPage'></iframe>")
+        assertNull(page.frameByUrl(Pattern.compile("bogus")))
+        val frame = page.frameByUrl(Pattern.compile(".*empty.*"))
+        assertNotNull(frame)
+        assertEquals(emptyPage, frame.url())
     }
 }

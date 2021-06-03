@@ -8,7 +8,7 @@ val archs = listOf("mac", "linux", "win32", "win32_x64")
 val playwrightVersion = "1.11.0-next-1617087307000"
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.5.20-M1"
     application
 }
 
@@ -18,7 +18,6 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     mavenLocal()
-    jcenter()
 }
 
 dependencies {
@@ -65,8 +64,4 @@ task<DefaultTask>("downloadAndUnzip") {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-}
-
-application {
-    mainClassName = "MainKt"
 }

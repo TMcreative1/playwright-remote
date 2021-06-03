@@ -9,6 +9,7 @@ import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.server.api.IServerProvider
 import com.playwright.remote.engine.server.impl.ServerProvider
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
+
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -44,20 +45,28 @@ open class BaseTest {
 
         @JvmStatic
         @BeforeAll
-        fun startHttpServers() {
-            httpServer = Server.createHttp(8080)
-            httpsServer = Server.createHttps(8443)
+        fun beforeAll() {
+            createHttpServers()
+            launchBrowserServer()
         }
 
         @JvmStatic
         @AfterAll
-        fun stopHttpServers() {
+        fun afterAll() {
+            stopHttpServers()
+            stopServerBrowserServer()
+        }
+
+        private fun createHttpServers() {
+            httpServer = Server.createHttp(8080)
+            httpsServer = Server.createHttps(8443)
+        }
+
+        private fun stopHttpServers() {
             httpServer.stop()
             httpsServer.stop()
         }
 
-        @JvmStatic
-        @BeforeAll
         private fun launchBrowserServer() {
             server = ServerProvider()
             wsUrl = server.launchServer(
@@ -66,15 +75,12 @@ open class BaseTest {
             )!!
         }
 
-        @JvmStatic
-        @AfterAll
-        private fun stopServer() {
+        private fun stopServerBrowserServer() {
             server.stopServer()
         }
 
-        @JvmStatic
         private fun getBrowserType(): BrowserType =
-            valueOf(System.getProperty("browser").ifEmpty { "webkit" }.toUpperCase())
+            valueOf(System.getProperty("browser").ifEmpty { "webkit" }.uppercase())
 
         @JvmStatic
         fun isChromium() = getBrowserType().browserName == "chromium"
