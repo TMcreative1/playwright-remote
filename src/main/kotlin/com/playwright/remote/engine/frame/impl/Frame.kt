@@ -83,7 +83,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         return page
     }
 
-    fun addScriptTag(options: AddScriptTagOptions?): IElementHandle {
+    override fun addScriptTag(options: AddScriptTagOptions?): IElementHandle {
         val opt = options ?: AddScriptTagOptions {}
         val jsonOptions = gson().toJsonTree(opt).asJsonObject
         if (opt.path != null) {
@@ -102,14 +102,14 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         return messageProcessor.getExistingObject(json!!.asJsonObject["element"].asJsonObject["guid"].asString)
     }
 
-    fun addStyleTag(options: AddStyleTagOptions?): IElementHandle {
+    override fun addStyleTag(options: AddStyleTagOptions?): IElementHandle {
         val opt = options ?: AddStyleTagOptions {}
         val jsonOptions = gson().toJsonTree(opt).asJsonObject
         if (opt.path != null) {
             jsonOptions.remove("path")
             val encoded: ByteArray
             try {
-                encoded = readAllBytes(opt.path)
+                encoded = readAllBytes(opt.path!!)
             } catch (e: IOException) {
                 throw PlaywrightException("Failed to read from", e)
             }
@@ -121,31 +121,31 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         return messageProcessor.getExistingObject(json!!.asJsonObject["element"].asJsonObject["guid"].asString)
     }
 
-    fun check(selector: String, options: CheckOptions?) {
+    override fun check(selector: String, options: CheckOptions?) {
         val opt = options ?: CheckOptions {}
         val params = gson().toJsonTree(opt).asJsonObject
         params.addProperty("selector", selector)
         sendMessage("check", params)
     }
 
-    fun click(selector: String, options: ClickOptions?) {
+    override fun click(selector: String, options: ClickOptions?) {
         val opt = options ?: ClickOptions {}
         val params = gson().toJsonTree(opt).asJsonObject
         params.addProperty("selector", selector)
         sendMessage("click", params)
     }
 
-    fun content(): String {
+    override fun content(): String {
         return sendMessage("content")!!.asJsonObject["value"].asString
     }
 
-    fun doubleClick(selector: String, options: DoubleClickOptions?) {
+    override fun doubleClick(selector: String, options: DoubleClickOptions?) {
         val params = gson().toJsonTree(options ?: DoubleClickOptions {}).asJsonObject
         params.addProperty("selector", selector)
         sendMessage("dblclick", params)
     }
 
-    fun dispatchEvent(selector: String, type: String, eventInit: Any?, options: DispatchEventOptions?) {
+    override fun dispatchEvent(selector: String, type: String, eventInit: Any?, options: DispatchEventOptions?) {
         val params = gson().toJsonTree(options ?: DispatchEventOptions {}).asJsonObject
         params.addProperty("selector", selector)
         params.addProperty("type", type)
@@ -153,10 +153,10 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         sendMessage("dispatchEvent", params)
     }
 
-    fun evalOnSelector(selector: String, expression: String, arg: Any?): Any =
+    override fun evalOnSelector(selector: String, expression: String, arg: Any?): Any =
         evalOnSelector(selector, expression, arg, "evalOnSelector")
 
-    fun evalOnSelectorAll(selector: String, expression: String, arg: Any?): Any =
+    override fun evalOnSelectorAll(selector: String, expression: String, arg: Any?): Any =
         evalOnSelector(selector, expression, arg, "evalOnSelectorAll")
 
     private fun evalOnSelector(selector: String, expression: String, arg: Any?, method: String): Any {
@@ -169,7 +169,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         return deserialize(value)
     }
 
-    fun evaluate(expression: String, arg: Any?): Any {
+    override fun evaluate(expression: String, arg: Any?): Any {
         val params = JsonObject()
         params.addProperty("expression", expression)
         params.addProperty("world", "main")
@@ -179,7 +179,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         return deserialize(value)
     }
 
-    fun evaluateHandle(expression: String, arg: Any?): IJSHandle {
+    override fun evaluateHandle(expression: String, arg: Any?): IJSHandle {
         val params = JsonObject()
         params.addProperty("expression", expression)
         params.addProperty("world", "main")
@@ -188,20 +188,20 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         return messageProcessor.getExistingObject(json!!.asJsonObject["handle"].asJsonObject["guid"].asString)
     }
 
-    fun fill(selector: String, value: String, options: FillOptions?) {
+    override fun fill(selector: String, value: String, options: FillOptions?) {
         val params = gson().toJsonTree(options ?: FillOptions {}).asJsonObject
         params.addProperty("selector", selector)
         params.addProperty("value", value)
         sendMessage("fill", params)
     }
 
-    fun focus(selector: String, options: FocusOptions?) {
+    override fun focus(selector: String, options: FocusOptions?) {
         val params = gson().toJsonTree(options ?: FocusOptions {}).asJsonObject
         params.addProperty("selector", selector)
         sendMessage("focus", params)
     }
 
-    fun getAttribute(selector: String, name: String, options: GetAttributeOptions?): String? {
+    override fun getAttribute(selector: String, name: String, options: GetAttributeOptions?): String? {
         val params = gson().toJsonTree(options ?: GetAttributeOptions {}).asJsonObject
         params.addProperty("selector", selector)
         params.addProperty("name", name)
@@ -482,19 +482,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         }) {}
     }
 
-    override fun waitForURL(url: String, options: WaitForURLOptions?) {
-        waitForURL(UrlMatcher(url), options)
-    }
-
-    override fun waitForURL(url: Pattern, options: WaitForURLOptions?) {
-        waitForURL(UrlMatcher(url), options)
-    }
-
-    override fun waitForURL(url: (String) -> Boolean, options: WaitForURLOptions?) {
-        waitForURL(UrlMatcher(url), options)
-    }
-
-    fun waitForURL(matcher: UrlMatcher, options: WaitForURLOptions?) {
+    override fun waitForURL(matcher: UrlMatcher, options: WaitForURLOptions?) {
         val opt = options ?: WaitForURLOptions {}
         if (matcher.test(url())) {
             waitForLoadState(

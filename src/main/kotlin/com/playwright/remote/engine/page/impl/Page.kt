@@ -336,11 +336,11 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun addScriptTag(options: AddScriptTagOptions?): IElementHandle {
-        return (mainFrame as Frame).addScriptTag(options)
+        return mainFrame.addScriptTag(options)
     }
 
     override fun addStyleTag(options: AddStyleTagOptions?): IElementHandle {
-        return (mainFrame as Frame).addStyleTag(options)
+        return mainFrame.addStyleTag(options)
     }
 
     override fun bringToFront() {
@@ -348,11 +348,11 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun check(selector: String, options: CheckOptions?) {
-        (mainFrame as Frame).check(selector, options)
+        mainFrame.check(selector, options)
     }
 
     override fun click(selector: String, options: ClickOptions?) {
-        (mainFrame as Frame).click(selector, options)
+        mainFrame.click(selector, options)
     }
 
     override fun close(options: CloseOptions?) {
@@ -381,11 +381,11 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun doubleClick(selector: String, options: DoubleClickOptions?) {
-        (mainFrame as Frame).doubleClick(selector, options)
+        mainFrame.doubleClick(selector, options)
     }
 
     override fun dispatchEvent(selector: String, type: String, eventInit: Any?, options: DispatchEventOptions?) {
-        (mainFrame as Frame).dispatchEvent(selector, type, eventInit, options)
+        mainFrame.dispatchEvent(selector, type, eventInit, options)
     }
 
     override fun emulateMedia(options: EmulateMediaOptions?) {
@@ -394,19 +394,19 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun evalOnSelector(selector: String, expression: String, arg: Any?): Any {
-        return (mainFrame as Frame).evalOnSelector(selector, expression, arg)
+        return mainFrame.evalOnSelector(selector, expression, arg)
     }
 
     override fun evalOnSelectorAll(selector: String, expression: String, arg: Any?): Any {
-        return (mainFrame as Frame).evalOnSelectorAll(selector, expression, arg)
+        return mainFrame.evalOnSelectorAll(selector, expression, arg)
     }
 
     override fun evaluate(expression: String, arg: Any?): Any {
-        return (mainFrame as Frame).evaluate(expression, arg)
+        return mainFrame.evaluate(expression, arg)
     }
 
     override fun evaluateHandle(expression: String, arg: Any?): IJSHandle {
-        return (mainFrame as Frame).evaluateHandle(expression, arg)
+        return mainFrame.evaluateHandle(expression, arg)
     }
 
     override fun exposeBinding(name: String, callback: IBindingCallback, options: ExposeBindingOptions?) {
@@ -431,11 +431,11 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun fill(selector: String, value: String, options: FillOptions?) {
-        (mainFrame as Frame).fill(selector, value, options)
+        mainFrame.fill(selector, value, options)
     }
 
     override fun focus(selector: String, options: FocusOptions?) {
-        (mainFrame as Frame).focus(selector, options)
+        mainFrame.focus(selector, options)
     }
 
     override fun frame(name: String): IFrame? {
@@ -464,7 +464,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun getAttribute(selector: String, name: String, options: GetAttributeOptions?): String? {
-        return (mainFrame as Frame).getAttribute(selector, name, options)
+        return mainFrame.getAttribute(selector, name, options)
     }
 
     override fun goBack(options: GoBackOptions?): IResponse? {
@@ -908,7 +908,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     private fun waitForUrl(matcher: UrlMatcher, options: WaitForURLOptions?) {
-        (mainFrame as Frame).waitForURL(matcher, options)
+        mainFrame.waitForURL(matcher, options)
     }
 
     override fun waitForWebSocket(options: WaitForWebSocketOptions?, callback: () -> Unit): IWebSocket? {
