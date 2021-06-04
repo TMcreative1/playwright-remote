@@ -21,7 +21,7 @@ class ConsoleMessage(parent: ChannelOwner, type: String, guid: String, initializ
         return "${location["url"].asString}:${location["lineNumber"].asNumber}:${location["columnNumber"].asNumber}"
     }
 
-    override fun text(): String = initializer["type"].asString
+    override fun text(): String = initializer["text"].asString
 
-    override fun type(): String = initializer["text"].asString
+    override fun type(): String = initializer["type"].asString
 }
