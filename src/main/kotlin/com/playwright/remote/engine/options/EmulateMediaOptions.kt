@@ -1,22 +1,39 @@
 package com.playwright.remote.engine.options
 
+import com.google.gson.annotations.SerializedName
 import com.playwright.remote.core.enums.Media
 import com.playwright.remote.engine.options.api.IBuilder
 import com.playwright.remote.engine.options.enum.ColorScheme
+import java.util.*
 
 data class EmulateMediaOptions @JvmOverloads constructor(
     /**
      * Emulates {@code "prefers-colors-scheme"} media feature, supported values are {@code "light"}, {@code "dark"}, {@code "no-preference"}. Passing
      * {@code null} disables color scheme emulation.
      */
-    var colorScheme: ColorScheme? = null,
+    @SerializedName("colorScheme")
+    private var _colorScheme: Optional<ColorScheme>? = null,
+
     /**
      * Changes the CSS media type of the page. The only allowed values are {@code "screen"}, {@code "print"} and {@code null}. Passing {@code null}
      * disables CSS media emulation.
      */
-    var media: Media? = null,
+    @SerializedName("media")
+    private var _media: Optional<Media>? = null,
     @Transient private val builder: IBuilder<EmulateMediaOptions>
 ) {
+    @Transient
+    var colorScheme: ColorScheme? = null
+        set(value) {
+            _colorScheme = Optional.ofNullable(value)
+        }
+
+    @Transient
+    var media: Media? = null
+        set(value) {
+            _media = Optional.ofNullable(value)
+        }
+
     init {
         builder.build(this)
     }

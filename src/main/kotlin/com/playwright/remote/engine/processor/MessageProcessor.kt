@@ -19,6 +19,7 @@ import com.playwright.remote.engine.dialog.impl.Dialog
 import com.playwright.remote.engine.download.impl.Artifact
 import com.playwright.remote.engine.download.stream.impl.Stream
 import com.playwright.remote.engine.frame.impl.Frame
+import com.playwright.remote.engine.handle.element.impl.ElementHandle
 import com.playwright.remote.engine.handle.js.impl.JSHandle
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
@@ -113,6 +114,7 @@ class MessageProcessor(private val transport: ITransport) {
             BROWSER_CONTEXT.type -> BrowserContext(parent, type, guid, initializer)
             CONSOLE_MESSAGE.type -> ConsoleMessage(parent, type, guid, initializer)
             DIALOG.type -> Dialog(parent, type, guid, initializer)
+            ELEMENT_HANDLE.type -> ElementHandle(parent, type, guid, initializer)
             FRAME.type -> Frame(parent, type, guid, initializer)
             JS_HANDLE.type -> JSHandle(parent, type, guid, initializer)
             PAGE.type -> Page(parent, type, guid, initializer)

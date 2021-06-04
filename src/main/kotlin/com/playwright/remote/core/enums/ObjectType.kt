@@ -7,6 +7,7 @@ enum class ObjectType(val type: String) {
     BROWSER_CONTEXT("BrowserContext"),
     CONSOLE_MESSAGE("ConsoleMessage"),
     DIALOG("Dialog"),
+    ELEMENT_HANDLE("ElementHandle"),
     FRAME("Frame"),
     JS_HANDLE("JSHandle"),
     PAGE("Page"),

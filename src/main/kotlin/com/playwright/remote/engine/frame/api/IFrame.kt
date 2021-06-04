@@ -13,6 +13,7 @@ import com.playwright.remote.engine.options.wait.WaitForLoadStateOptions
 import com.playwright.remote.engine.options.wait.WaitForNavigationOptions
 import com.playwright.remote.engine.options.wait.WaitForURLOptions
 import com.playwright.remote.engine.page.api.IPage
+import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.response.api.IResponse
 import java.nio.file.Path
 import java.util.regex.Pattern
@@ -74,6 +75,592 @@ interface IFrame {
      * Returns the page containing this frame.
      */
     fun page(): IPage?
+
+    /**
+     * Returns the added tag when the script's onload fires or when the script content was injected into frame.
+     *
+     * <p> Adds a {@code <script>} tag into the page with the desired url or content.
+     */
+    fun addScriptTag(): IElementHandle = addScriptTag(null)
+
+    /**
+     * Returns the added tag when the script's onload fires or when the script content was injected into frame.
+     *
+     * <p> Adds a {@code <script>} tag into the page with the desired url or content.
+     */
+    fun addScriptTag(options: AddScriptTagOptions?): IElementHandle
+
+    /**
+     * Returns the added tag when the stylesheet's onload fires or when the CSS content was injected into frame.
+     *
+     * <p> Adds a {@code <link rel="stylesheet">} tag into the page with the desired url or a {@code <style type="text/css">} tag with the
+     * content.
+     */
+    fun addStyleTag(): IElementHandle = addStyleTag(null)
+
+    /**
+     * Returns the added tag when the stylesheet's onload fires or when the CSS content was injected into frame.
+     *
+     * <p> Adds a {@code <link rel="stylesheet">} tag into the page with the desired url or a {@code <style type="text/css">} tag with the
+     * content.
+     */
+    fun addStyleTag(options: AddStyleTagOptions?): IElementHandle
+
+    /**
+     * This method checks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Ensure that matched element is a checkbox or a radio input. If not, this method throws. If the element is already
+     * checked, this method returns immediately.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * <li> Ensure that the element is now checked. If not, this method throws.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun check(selector: String) = check(selector, null)
+
+    /**
+     * This method checks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Ensure that matched element is a checkbox or a radio input. If not, this method throws. If the element is already
+     * checked, this method returns immediately.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * <li> Ensure that the element is now checked. If not, this method throws.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun check(selector: String, options: CheckOptions?)
+
+    /**
+     * This method clicks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun click(selector: String) = click(selector, null)
+
+    /**
+     * This method clicks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun click(selector: String, options: ClickOptions?)
+
+    /**
+     * Gets the full HTML contents of the frame, including the doctype.
+     */
+    fun content(): String
+
+    /**
+     * This method double clicks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to double click in the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set. Note that if the first
+     * click of the {@code dblclick()} triggers a navigation event, this method will throw.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * <p> <strong>NOTE:</strong> {@code frame.dblclick()} dispatches two {@code click} events and a single {@code dblclick} event.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun doubleClick(selector: String) = doubleClick(selector, null)
+
+    /**
+     * This method double clicks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to double click in the center of the element, or the specified {@code position}.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set. Note that if the first
+     * click of the {@code dblclick()} triggers a navigation event, this method will throw.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * <p> <strong>NOTE:</strong> {@code frame.dblclick()} dispatches two {@code click} events and a single {@code dblclick} event.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun doubleClick(selector: String, options: DoubleClickOptions?)
+
+    /**
+     * The snippet below dispatches the {@code click} event on the element. Regardless of the visibility state of the element,
+     * {@code click} is dispatched. This is equivalent to calling <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/click">element.click()</a>.
+     * <pre>{@code
+     * frame.dispatchEvent("button#submit", "click");
+     * }</pre>
+     *
+     * <p> Under the hood, it creates an instance of an event based on the given {@code type}, initializes it with {@code eventInit} properties
+     * and dispatches it on the element. Events are {@code composed}, {@code cancelable} and bubble by default.
+     *
+     * <p> Since {@code eventInit} is event-specific, please refer to the events documentation for the lists of initial properties:
+     * <ul>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/DragEvent/DragEvent">DragEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/FocusEvent/FocusEvent">FocusEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/KeyboardEvent">KeyboardEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/MouseEvent">MouseEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/PointerEvent">PointerEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/TouchEvent">TouchEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/Event">Event</a></li>
+     * </ul>
+     *
+     * <p> You can also specify {@code JSHandle} as the property value if you want live objects to be passed into the event:
+     * <pre>{@code
+     * // Note you can only create DataTransfer in Chromium and Firefox
+     * JSHandle dataTransfer = frame.evaluateHandle("() => new DataTransfer()");
+     * Map<String, Object> arg = new HashMap<>();
+     * arg.put("dataTransfer", dataTransfer);
+     * frame.dispatchEvent("#source", "dragstart", arg);
+     * }</pre>
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param type DOM event type: {@code "click"}, {@code "dragstart"}, etc.
+     * @param eventInit Optional event-specific initialization properties.
+     */
+    fun dispatchEvent(selector: String, type: String) =
+        dispatchEvent(selector, type, null)
+
+    /**
+     * The snippet below dispatches the {@code click} event on the element. Regardless of the visibility state of the element,
+     * {@code click} is dispatched. This is equivalent to calling <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/click">element.click()</a>.
+     * <pre>{@code
+     * frame.dispatchEvent("button#submit", "click");
+     * }</pre>
+     *
+     * <p> Under the hood, it creates an instance of an event based on the given {@code type}, initializes it with {@code eventInit} properties
+     * and dispatches it on the element. Events are {@code composed}, {@code cancelable} and bubble by default.
+     *
+     * <p> Since {@code eventInit} is event-specific, please refer to the events documentation for the lists of initial properties:
+     * <ul>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/DragEvent/DragEvent">DragEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/FocusEvent/FocusEvent">FocusEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/KeyboardEvent">KeyboardEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/MouseEvent">MouseEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/PointerEvent">PointerEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/TouchEvent">TouchEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/Event">Event</a></li>
+     * </ul>
+     *
+     * <p> You can also specify {@code JSHandle} as the property value if you want live objects to be passed into the event:
+     * <pre>{@code
+     * // Note you can only create DataTransfer in Chromium and Firefox
+     * JSHandle dataTransfer = frame.evaluateHandle("() => new DataTransfer()");
+     * Map<String, Object> arg = new HashMap<>();
+     * arg.put("dataTransfer", dataTransfer);
+     * frame.dispatchEvent("#source", "dragstart", arg);
+     * }</pre>
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param type DOM event type: {@code "click"}, {@code "dragstart"}, etc.
+     * @param eventInit Optional event-specific initialization properties.
+     */
+    fun dispatchEvent(selector: String, type: String, eventInit: Any?) =
+        dispatchEvent(selector, type, eventInit, null)
+
+    /**
+     * The snippet below dispatches the {@code click} event on the element. Regardless of the visibility state of the element,
+     * {@code click} is dispatched. This is equivalent to calling <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/click">element.click()</a>.
+     * <pre>{@code
+     * frame.dispatchEvent("button#submit", "click");
+     * }</pre>
+     *
+     * <p> Under the hood, it creates an instance of an event based on the given {@code type}, initializes it with {@code eventInit} properties
+     * and dispatches it on the element. Events are {@code composed}, {@code cancelable} and bubble by default.
+     *
+     * <p> Since {@code eventInit} is event-specific, please refer to the events documentation for the lists of initial properties:
+     * <ul>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/DragEvent/DragEvent">DragEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/FocusEvent/FocusEvent">FocusEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/KeyboardEvent">KeyboardEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/MouseEvent">MouseEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/PointerEvent">PointerEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent/TouchEvent">TouchEvent</a></li>
+     * <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/Event">Event</a></li>
+     * </ul>
+     *
+     * <p> You can also specify {@code JSHandle} as the property value if you want live objects to be passed into the event:
+     * <pre>{@code
+     * // Note you can only create DataTransfer in Chromium and Firefox
+     * JSHandle dataTransfer = frame.evaluateHandle("() => new DataTransfer()");
+     * Map<String, Object> arg = new HashMap<>();
+     * arg.put("dataTransfer", dataTransfer);
+     * frame.dispatchEvent("#source", "dragstart", arg);
+     * }</pre>
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param type DOM event type: {@code "click"}, {@code "dragstart"}, etc.
+     * @param eventInit Optional event-specific initialization properties.
+     */
+    fun dispatchEvent(selector: String, type: String, eventInit: Any?, options: DispatchEventOptions?)
+
+    /**
+     * Returns the return value of {@code expression}.
+     *
+     * <p> The method finds an element matching the specified selector within the frame and passes it as a first argument to
+     * {@code expression}. See <a href="https://playwright.dev/java/docs/selectors/">Working with selectors</a> for more details. If
+     * no elements match the selector, the method throws an error.
+     *
+     * <p> If {@code expression} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Frame#evalOnSelector Frame.evalOnSelector()} would wait for the promise to resolve and return its value.
+     *
+     * <p> Examples:
+     * <pre>{@code
+     * String searchValue = (String) frame.evalOnSelector("#search", "el => el.value");
+     * String preloadHref = (String) frame.evalOnSelector("link[rel=preload]", "el => el.href");
+     * String html = (String) frame.evalOnSelector(".main-container", "(e, suffix) => e.outerHTML + suffix", "hello");
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     */
+    fun evalOnSelector(selector: String, expression: String): Any =
+        evalOnSelector(selector, expression, null)
+
+    /**
+     * Returns the return value of {@code expression}.
+     *
+     * <p> The method finds an element matching the specified selector within the frame and passes it as a first argument to
+     * {@code expression}. See <a href="https://playwright.dev/java/docs/selectors/">Working with selectors</a> for more details. If
+     * no elements match the selector, the method throws an error.
+     *
+     * <p> If {@code expression} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Frame#evalOnSelector Frame.evalOnSelector()} would wait for the promise to resolve and return its value.
+     *
+     * <p> Examples:
+     * <pre>{@code
+     * String searchValue = (String) frame.evalOnSelector("#search", "el => el.value");
+     * String preloadHref = (String) frame.evalOnSelector("link[rel=preload]", "el => el.href");
+     * String html = (String) frame.evalOnSelector(".main-container", "(e, suffix) => e.outerHTML + suffix", "hello");
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     */
+    fun evalOnSelector(selector: String, expression: String, arg: Any?): Any
+
+    /**
+     * Returns the return value of {@code expression}.
+     *
+     * <p> The method finds all elements matching the specified selector within the frame and passes an array of matched elements
+     * as a first argument to {@code expression}. See <a href="https://playwright.dev/java/docs/selectors/">Working with
+     * selectors</a> for more details.
+     *
+     * <p> If {@code expression} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Frame#evalOnSelectorAll Frame.evalOnSelectorAll()} would wait for the promise to resolve and return its value.
+     *
+     * <p> Examples:
+     * <pre>{@code
+     * boolean divsCounts = (boolean) page.evalOnSelectorAll("div", "(divs, min) => divs.length >= min", 10);
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     * @param arg Optional argument to pass to {@code expression}.
+     */
+    fun evalOnSelectorAll(selector: String, expression: String): Any =
+        evalOnSelectorAll(selector, expression, null)
+
+    /**
+     * Returns the return value of {@code expression}.
+     *
+     * <p> The method finds all elements matching the specified selector within the frame and passes an array of matched elements
+     * as a first argument to {@code expression}. See <a href="https://playwright.dev/java/docs/selectors/">Working with
+     * selectors</a> for more details.
+     *
+     * <p> If {@code expression} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Frame#evalOnSelectorAll Frame.evalOnSelectorAll()} would wait for the promise to resolve and return its value.
+     *
+     * <p> Examples:
+     * <pre>{@code
+     * boolean divsCounts = (boolean) page.evalOnSelectorAll("div", "(divs, min) => divs.length >= min", 10);
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     * @param arg Optional argument to pass to {@code expression}.
+     */
+    fun evalOnSelectorAll(selector: String, expression: String, arg: Any?): Any
+
+    /**
+     * Returns the return value of {@code expression}.
+     *
+     * <p> If the function passed to the {@link Frame#evaluate Frame.evaluate()} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Frame#evaluate Frame.evaluate()} would wait for the promise to resolve and return its value.
+     *
+     * <p> If the function passed to the {@link Frame#evaluate Frame.evaluate()} returns a non-[Serializable] value, then {@link
+     * Frame#evaluate Frame.evaluate()} returns {@code undefined}. Playwright also supports transferring some additional values that
+     * are not serializable by {@code JSON}: {@code -0}, {@code NaN}, {@code Infinity}, {@code -Infinity}.
+     * <pre>{@code
+     * Object result = frame.evaluate("([x, y]) => {\n" +
+     *   "  return Promise.resolve(x * y);\n" +
+     *   "}", Arrays.asList(7, 8));
+     * System.out.println(result); // prints "56"
+     * }</pre>
+     *
+     * <p> A string can also be passed in instead of a function.
+     * <pre>{@code
+     * System.out.println(frame.evaluate("1 + 2")); // prints "3"
+     * }</pre>
+     *
+     * <p> {@code ElementHandle} instances can be passed as an argument to the {@link Frame#evaluate Frame.evaluate()}:
+     * <pre>{@code
+     * ElementHandle bodyHandle = frame.querySelector("body");
+     * String html = (String) frame.evaluate("([body, suffix]) => body.innerHTML + suffix", Arrays.asList(bodyHandle, "hello"));
+     * bodyHandle.dispose();
+     * }</pre>
+     *
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     */
+    fun evaluate(expression: String): Any =
+        evaluate(expression, null)
+
+    /**
+     * Returns the return value of {@code expression}.
+     *
+     * <p> If the function passed to the {@link Frame#evaluate Frame.evaluate()} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Frame#evaluate Frame.evaluate()} would wait for the promise to resolve and return its value.
+     *
+     * <p> If the function passed to the {@link Frame#evaluate Frame.evaluate()} returns a non-[Serializable] value, then {@link
+     * Frame#evaluate Frame.evaluate()} returns {@code undefined}. Playwright also supports transferring some additional values that
+     * are not serializable by {@code JSON}: {@code -0}, {@code NaN}, {@code Infinity}, {@code -Infinity}.
+     * <pre>{@code
+     * Object result = frame.evaluate("([x, y]) => {\n" +
+     *   "  return Promise.resolve(x * y);\n" +
+     *   "}", Arrays.asList(7, 8));
+     * System.out.println(result); // prints "56"
+     * }</pre>
+     *
+     * <p> A string can also be passed in instead of a function.
+     * <pre>{@code
+     * System.out.println(frame.evaluate("1 + 2")); // prints "3"
+     * }</pre>
+     *
+     * <p> {@code ElementHandle} instances can be passed as an argument to the {@link Frame#evaluate Frame.evaluate()}:
+     * <pre>{@code
+     * ElementHandle bodyHandle = frame.querySelector("body");
+     * String html = (String) frame.evaluate("([body, suffix]) => body.innerHTML + suffix", Arrays.asList(bodyHandle, "hello"));
+     * bodyHandle.dispose();
+     * }</pre>
+     *
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     */
+    fun evaluate(expression: String, arg: Any?): Any
+
+    /**
+     * Returns the return value of {@code expression} as a {@code JSHandle}.
+     *
+     * <p> The only difference between {@link Frame#evaluate Frame.evaluate()} and {@link Frame#evaluateHandle
+     * Frame.evaluateHandle()} is that {@link Frame#evaluateHandle Frame.evaluateHandle()} returns {@code JSHandle}.
+     *
+     * <p> If the function, passed to the {@link Frame#evaluateHandle Frame.evaluateHandle()}, returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Frame#evaluateHandle Frame.evaluateHandle()} would wait for the promise to resolve and return its value.
+     * <pre>{@code
+     * // Handle for the window object.
+     * JSHandle aWindowHandle = frame.evaluateHandle("() => Promise.resolve(window)");
+     * }</pre>
+     *
+     * <p> A string can also be passed in instead of a function.
+     * <pre>{@code
+     * JSHandle aHandle = frame.evaluateHandle("document"); // Handle for the "document".
+     * }</pre>
+     *
+     * <p> {@code JSHandle} instances can be passed as an argument to the {@link Frame#evaluateHandle Frame.evaluateHandle()}:
+     * <pre>{@code
+     * JSHandle aHandle = frame.evaluateHandle("() => document.body");
+     * JSHandle resultHandle = frame.evaluateHandle("([body, suffix]) => body.innerHTML + suffix", Arrays.asList(aHandle, "hello"));
+     * System.out.println(resultHandle.jsonValue());
+     * resultHandle.dispose();
+     * }</pre>
+     *
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     */
+    fun evaluateHandle(expression: String): IJSHandle =
+        evaluateHandle(expression, null)
+
+    /**
+     * Returns the return value of {@code expression} as a {@code JSHandle}.
+     *
+     * <p> The only difference between {@link Frame#evaluate Frame.evaluate()} and {@link Frame#evaluateHandle
+     * Frame.evaluateHandle()} is that {@link Frame#evaluateHandle Frame.evaluateHandle()} returns {@code JSHandle}.
+     *
+     * <p> If the function, passed to the {@link Frame#evaluateHandle Frame.evaluateHandle()}, returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Frame#evaluateHandle Frame.evaluateHandle()} would wait for the promise to resolve and return its value.
+     * <pre>{@code
+     * // Handle for the window object.
+     * JSHandle aWindowHandle = frame.evaluateHandle("() => Promise.resolve(window)");
+     * }</pre>
+     *
+     * <p> A string can also be passed in instead of a function.
+     * <pre>{@code
+     * JSHandle aHandle = frame.evaluateHandle("document"); // Handle for the "document".
+     * }</pre>
+     *
+     * <p> {@code JSHandle} instances can be passed as an argument to the {@link Frame#evaluateHandle Frame.evaluateHandle()}:
+     * <pre>{@code
+     * JSHandle aHandle = frame.evaluateHandle("() => document.body");
+     * JSHandle resultHandle = frame.evaluateHandle("([body, suffix]) => body.innerHTML + suffix", Arrays.asList(aHandle, "hello"));
+     * System.out.println(resultHandle.jsonValue());
+     * resultHandle.dispose();
+     * }</pre>
+     *
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     */
+    fun evaluateHandle(expression: String, arg: Any?): IJSHandle
+
+    /**
+     * This method waits for an element matching {@code selector}, waits for <a
+     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, focuses the element, fills it and
+     * triggers an {@code input} event after filling. Note that you can pass an empty string to clear the input field.
+     *
+     * <p> If the target element is not an {@code <input>}, {@code <textarea>} or {@code [contenteditable]} element, this method throws an error.
+     * However, if the element is inside the {@code <label>} element that has an associated <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be filled
+     * instead.
+     *
+     * <p> To send fine-grained keyboard events, use {@link Frame#type Frame.type()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param value Value to fill for the {@code <input>}, {@code <textarea>} or {@code [contenteditable]} element.
+     */
+    fun fill(selector: String, value: String) =
+        fill(selector, value, null)
+
+    /**
+     * This method waits for an element matching {@code selector}, waits for <a
+     * href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, focuses the element, fills it and
+     * triggers an {@code input} event after filling. Note that you can pass an empty string to clear the input field.
+     *
+     * <p> If the target element is not an {@code <input>}, {@code <textarea>} or {@code [contenteditable]} element, this method throws an error.
+     * However, if the element is inside the {@code <label>} element that has an associated <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLLabelElement/control">control</a>, the control will be filled
+     * instead.
+     *
+     * <p> To send fine-grained keyboard events, use {@link Frame#type Frame.type()}.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param value Value to fill for the {@code <input>}, {@code <textarea>} or {@code [contenteditable]} element.
+     */
+    fun fill(selector: String, value: String, options: FillOptions?)
+
+    /**
+     * This method fetches an element with {@code selector} and focuses it. If there's no element matching {@code selector}, the method
+     * waits until a matching element appears in the DOM.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun focus(selector: String) =
+        focus(selector, null)
+
+    /**
+     * This method fetches an element with {@code selector} and focuses it. If there's no element matching {@code selector}, the method
+     * waits until a matching element appears in the DOM.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun focus(selector: String, options: FocusOptions?)
+
+    /**
+     * Returns element attribute value.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param name Attribute name to get the value for.
+     */
+    fun getAttribute(selector: String, name: String): String? =
+        getAttribute(selector, name, null)
+
+    /**
+     * Returns element attribute value.
+     *
+     * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
+     * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param name Attribute name to get the value for.
+     */
+    fun getAttribute(selector: String, name: String, options: GetAttributeOptions?): String?
 
     /**
      * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
@@ -1351,7 +1938,8 @@ interface IFrame {
      *
      * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
      */
-    fun waitForURL(url: String, options: WaitForURLOptions?)
+    fun waitForURL(url: String, options: WaitForURLOptions?) =
+        waitForURL(UrlMatcher(url), options)
 
     /**
      * Waits for the frame to navigate to the given URL.
@@ -1375,7 +1963,8 @@ interface IFrame {
      *
      * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
      */
-    fun waitForURL(url: Pattern, options: WaitForURLOptions?)
+    fun waitForURL(url: Pattern, options: WaitForURLOptions?) =
+        waitForURL(UrlMatcher(url), options)
 
     /**
      * Waits for the frame to navigate to the given URL.
@@ -1399,5 +1988,17 @@ interface IFrame {
      *
      * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
      */
-    fun waitForURL(url: (String) -> Boolean, options: WaitForURLOptions?)
+    fun waitForURL(url: (String) -> Boolean, options: WaitForURLOptions?) =
+        waitForURL(UrlMatcher(url), options)
+
+    /**
+     * Waits for the frame to navigate to the given URL.
+     * <pre>{@code
+     * frame.click("a.delayed-navigation"); // Clicking the link will indirectly cause a navigation
+     * frame.waitForURL("**\/target.html");
+     * }</pre>
+     *
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
+     */
+    fun waitForURL(matcher: UrlMatcher, options: WaitForURLOptions?)
 }

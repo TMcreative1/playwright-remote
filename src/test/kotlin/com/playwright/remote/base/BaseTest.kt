@@ -6,10 +6,11 @@ import com.playwright.remote.core.enums.BrowserType.valueOf
 import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
+import com.playwright.remote.engine.frame.api.IFrame
+import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.server.api.IServerProvider
 import com.playwright.remote.engine.server.impl.ServerProvider
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
-
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -39,6 +40,9 @@ open class BaseTest {
 
         @JvmStatic
         lateinit var browser: IBrowser
+
+        @JvmStatic
+        lateinit var page: IPage
 
         @JvmStatic
         private lateinit var server: IServerProvider
@@ -96,6 +100,23 @@ open class BaseTest {
     private fun createBrowser() {
         browser = RemoteBrowser.connectWs(wsUrl)
         browserContext = browser.newContext()
+        page = browserContext.newPage()
+    }
+
+    protected fun attachFrame(page: IPage, name: String, url: String): IFrame? {
+        val handle = page.evaluateHandle(
+            """
+            async ({frameId, url}) => {
+                const frame = document.createElement('iframe');
+                frame.src = url;
+                frame.id = frameId;
+                document.body.appendChild(frame)
+                await new Promise(x => frame.onload = x);
+                return frame;
+            }
+            """.trimIndent(), mapOf(Pair("frameId", name), Pair("url", url))
+        )
+        return handle.asElement()?.contentFrame()
     }
 
 }

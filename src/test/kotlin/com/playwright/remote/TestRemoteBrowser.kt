@@ -39,7 +39,7 @@ class TestRemoteBrowser : BaseTest() {
             RemoteBrowser.connectWs("ws://127.0.0.1:4444/7dc9385fedfed927e424380d15016c3f")
             fail("no one exception thrown")
         } catch (e: WebSocketException) {
-            assertEquals("Expected HTTP 101 response but was '400 Bad Request'", e.message)
+            assertEquals("Failed to connect to /127.0.0.1:4444", e.message)
         }
     }
 
