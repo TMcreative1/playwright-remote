@@ -427,7 +427,8 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun exposeFunction(name: String, callback: IFunctionCallback) {
-        exposeBinding(name, { _: ISource, arg: Any -> callback.call(arg) }, null)
+        exposeBinding(name, { _: ISource, args: Array<Any> ->
+            callback.call(args) }, null)
     }
 
     override fun fill(selector: String, value: String, options: FillOptions?) {

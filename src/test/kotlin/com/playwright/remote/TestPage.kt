@@ -5,7 +5,10 @@ import com.playwright.remote.core.enums.Media
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.frame.impl.Frame
-import com.playwright.remote.engine.options.*
+import com.playwright.remote.engine.options.CloseOptions
+import com.playwright.remote.engine.options.EmulateMediaOptions
+import com.playwright.remote.engine.options.NewPageOptions
+import com.playwright.remote.engine.options.ScreenshotOptions
 import com.playwright.remote.engine.options.enum.ColorScheme.DARK
 import com.playwright.remote.engine.options.enum.ColorScheme.LIGHT
 import org.junit.jupiter.api.Test
@@ -53,7 +56,7 @@ class TestPage : BaseTest() {
 
     @Test
     fun `check run beforeunload if asked for`() {
-        page.navigate("$HTTP_PREFIX/beforeunload.html")
+        page.navigate("${httpServer.prefixWithDomain}/beforeunload.html")
 
         page.click("body")
         val didShowDialog = arrayOf(false)
@@ -95,7 +98,7 @@ class TestPage : BaseTest() {
 
     @Test
     fun `should not run beforeunload by default`() {
-        page.navigate("$HTTP_PREFIX/beforeunload.html")
+        page.navigate("${httpServer.prefixWithDomain}/beforeunload.html")
         page.click("body")
         val didShowDialog = arrayOf(false)
         page.onDialog { didShowDialog[0] = true }
@@ -115,7 +118,7 @@ class TestPage : BaseTest() {
         try {
             page.waitForResponse("**") {
                 try {
-                    page.waitForRequest("$HTTP_PREFIX/empty.html") { page.close() }
+                    page.waitForRequest(httpServer.emptyPage) { page.close() }
                     fail("waitForRequest() should throw")
                 } catch (e: PlaywrightException) {
                     assertTrue(e.message!!.contains("Page closed"))
@@ -142,17 +145,17 @@ class TestPage : BaseTest() {
 
     @Test
     fun `check that page url should include hashes`() {
-        var expectedUrl = "$HTTP_PREFIX/empty.html#hash"
+        var expectedUrl = "${httpServer.emptyPage}#hash"
         page.navigate(expectedUrl)
         assertEquals(expectedUrl, page.url())
         page.evaluate("() => { window.location.hash = 'dynamic'; }")
-        expectedUrl = "$HTTP_PREFIX/empty.html#dynamic"
+        expectedUrl = "${httpServer.emptyPage}#dynamic"
         assertEquals(expectedUrl, page.url())
     }
 
     @Test
     fun `check navigate method in browser`() {
-        val navigatedUrl = "$HTTPS_PREFIX/empty.html"
+        val navigatedUrl = httpServer.emptyPage
         val page = createPageForHttps()
         assertEquals("about:blank", page.url())
         val response = page.navigate(navigatedUrl)
@@ -162,7 +165,7 @@ class TestPage : BaseTest() {
 
     @Test
     fun `check title method should return title of page`() {
-        val navigatedUrl = "$HTTP_PREFIX/empty.html"
+        val navigatedUrl = httpServer.emptyPage
         page.navigate(navigatedUrl)
         assertEquals("Empty Page", page.title())
     }
@@ -187,7 +190,7 @@ class TestPage : BaseTest() {
 
     @Test
     fun `check page frame should respect url`() {
-        val emptyPage = "$HTTP_PREFIX/empty.html"
+        val emptyPage = httpServer.emptyPage
         page.setContent("<iframe src='$emptyPage'></iframe>")
         assertNull(page.frameByUrl(Pattern.compile("bogus")))
         val frame = page.frameByUrl(Pattern.compile(".*empty.*"))
@@ -199,7 +202,7 @@ class TestPage : BaseTest() {
     fun `check screenshot should be saved`() {
         val screenShotFile = Path("screenshot.png")
         try {
-            page.navigate("$HTTP_PREFIX/empty.html")
+            page.navigate(httpServer.emptyPage)
             val byte = page.screenshot(ScreenshotOptions { it.path = screenShotFile })
             assertTrue(Files.exists(screenShotFile))
             assertTrue(screenShotFile.toFile().readBytes().contentEquals(byte))
@@ -211,7 +214,7 @@ class TestPage : BaseTest() {
     @Test
     fun `check page press should work`() {
         val pressedButton = "q"
-        page.navigate("$HTTP_PREFIX/input/textarea.html")
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
         page.press("textarea", pressedButton)
         assertEquals(pressedButton, page.evaluate("() => document.querySelector('textarea').value"))
     }
@@ -387,8 +390,8 @@ class TestPage : BaseTest() {
     @Test
     fun `check work in cross provess iframe`() {
         val page = browser.newPage(NewPageOptions { it.colorScheme = DARK })
-        page.navigate("$HTTP_PREFIX/empty.html")
-        attachFrame(page, "frame1", "$HTTP_PREFIX/empty.html")
+        page.navigate(httpServer.emptyPage)
+        attachFrame(page, "frame1", httpServer.emptyPage)
         val frame = page.frames()[1]
         assertEquals(true, frame.evaluate("() => matchMedia('(prefers-color-scheme: dark)').matches"))
         page.close()
@@ -425,6 +428,179 @@ class TestPage : BaseTest() {
 
         page.emulateMedia(EmulateMediaOptions { it.colorScheme = LIGHT })
         assertEquals("rgb(255, 255, 255)", backgroundColor())
+    }
+    //endregion
+
+    //region Evaluate
+    @Test
+    fun `check the returning result of evaluate`() {
+        val result = page.evaluate("() => 5 * 2")
+        assertEquals(10, result)
+    }
+
+    @Test
+    fun `check transferring of nan`() {
+        val result = page.evaluate("a => a", Double.NaN)
+        assertTrue((result as Double).isNaN())
+    }
+
+    @Test
+    fun `check transferring of 0`() {
+        val result = page.evaluate("a => a", -0.0)
+        assertEquals(Double.NEGATIVE_INFINITY, 1 / (result as Double))
+    }
+
+    @Test
+    fun `check transferring of infinity`() {
+        val result = page.evaluate("a => a", Double.POSITIVE_INFINITY)
+        assertEquals(Double.POSITIVE_INFINITY, result)
+    }
+
+    @Test
+    fun `check transferring of negative infinity`() {
+        val result = page.evaluate("a => a", Double.NEGATIVE_INFINITY)
+        assertEquals(Double.NEGATIVE_INFINITY, result)
+    }
+
+    @Test
+    fun `check transferring of unserializable values`() {
+        val value = mapOf<String, Any>(
+            "infinity" to Double.POSITIVE_INFINITY,
+            "nInfinity" to Double.NEGATIVE_INFINITY,
+            "nZero" to -0.0,
+            "nan" to Double.NaN
+        )
+        val result = page.evaluate("value => value", value)
+        assertEquals(value, result)
+    }
+
+    @Test
+    fun `check transferring of promise`() {
+        val jsScript = "value => Promise.resolve(value)"
+        var result = page.evaluate(jsScript, null)
+        assertNull(result)
+
+        result = page.evaluate(jsScript, Double.POSITIVE_INFINITY)
+        assertEquals(Double.POSITIVE_INFINITY, result)
+
+        result = page.evaluate(jsScript, -0.0)
+        assertEquals(Double.NEGATIVE_INFINITY, 1 / (result as Double))
+    }
+
+    @Test
+    fun `check transferring of promise with unserializable values`() {
+        val value = mapOf<String, Any>(
+            "infinity" to Double.POSITIVE_INFINITY,
+            "nInfinity" to Double.NEGATIVE_INFINITY,
+            "nZero" to -0.0,
+            "nan" to Double.NaN
+        )
+        val result = page.evaluate("value => Promise.resolve(value)", value)
+        assertEquals(value, result)
+    }
+
+    @Test
+    fun `check transferring of array`() {
+        val expectedList = listOf(1, 2, 3)
+        val result = page.evaluate("a => a", expectedList)
+        assertEquals(expectedList, result)
+    }
+
+    @Test
+    fun `check transferring of array with boolean result`() {
+        val result = page.evaluate("a => Array.isArray(a)", listOf(1, 2, 3))
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun `check to modify the global environment`() {
+        page.evaluate("() => window['globalVar'] = 123")
+        assertEquals(123, page.evaluate("globalVar"))
+    }
+
+    @Test
+    fun `check to evaluate the global environment on the page context`() {
+        page.navigate("${httpServer.prefixWithDomain}/global-var.html")
+        assertEquals(321, page.evaluate("globalVar"))
+    }
+
+    @Test
+    fun `check to return undefined for objects with symbols`() {
+        var jsScript = "() => [Symbol('foo4')]"
+        assertEquals(listOf(null), page.evaluate(jsScript))
+        jsScript = """() => {
+            |   const a = {};
+            |   a[Symbol('foo4')] = 42;
+            |   return a;
+            |}
+        """.trimMargin()
+        assertEquals(emptyMap<Any, Any>(), page.evaluate(jsScript))
+        jsScript = """() => {
+            |   return { foo: [{ a: Symbol('foo4') }] };
+            |}
+        """.trimMargin()
+        assertEquals(mapOf("foo" to listOf(mapOf("a" to null))), page.evaluate(jsScript))
+    }
+
+    @Test
+    fun `check to return value with unicode chars`() {
+        val result = page.evaluate("a => a['中文字符']", mapOf("中文字符" to 10))
+        assertEquals(10, result)
+    }
+
+    @Test
+    fun `check throw error when evaluation triggers reload`() {
+        try {
+            val jsScript = """() => {
+                |   location.reload();
+                |   return new Promise(() => { });
+                |}
+            """.trimMargin()
+            page.evaluate(jsScript)
+            fail("evaluate should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("navigation"))
+        }
+    }
+
+    @Test
+    fun `check to await promise`() {
+        val result = page.evaluate("() => Promise.resolve(5 * 5)")
+        assertEquals(25, result)
+    }
+
+    @Test
+    fun `check correct work after frame navigated`() {
+        val frameEvaluation = arrayListOf<Any>(0)
+        page.onFrameNavigated {
+            frameEvaluation[0] = it.evaluate("() => 2 * 3")
+        }
+        page.navigate(httpServer.emptyPage)
+        assertEquals(6, frameEvaluation[0])
+    }
+
+    @Test
+    fun `check correct work after a cross origin navigation`() {
+        page.navigate(httpServer.emptyPage)
+        val frameEvaluation = arrayListOf<Any>(0)
+        page.onFrameNavigated {
+            frameEvaluation[0] = it.evaluate("() => 4 * 3")
+        }
+        page.navigate("${httpServer.prefixWithIP}/empty.page")
+        assertEquals(12, frameEvaluation[0])
+    }
+
+    @Test
+    fun `check correct work from inside an exposed function`() {
+        page.exposeFunction("callController") {
+            page.evaluate("({ a, b}) => a * b", mapOf("a" to it[0], "b" to it[1]))
+        }
+        val jsScript = """async function() {
+            |   return await window['callController'](3, 6);
+            |}
+        """.trimMargin()
+        val result = page.evaluate(jsScript)
+        assertEquals(18, result)
     }
     //endregion
 }

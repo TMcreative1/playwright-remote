@@ -21,6 +21,7 @@ import com.playwright.remote.engine.download.stream.impl.Stream
 import com.playwright.remote.engine.frame.impl.Frame
 import com.playwright.remote.engine.handle.element.impl.ElementHandle
 import com.playwright.remote.engine.handle.js.impl.JSHandle
+import com.playwright.remote.engine.logger.CustomLogger
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.parser.IParser.Companion.toJson
@@ -33,6 +34,7 @@ import com.playwright.remote.engine.websocket.impl.WebSocket
 import com.playwright.remote.engine.worker.impl.Worker
 
 class MessageProcessor(private val transport: ITransport) {
+    private val logger = CustomLogger()
     private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")
 
     private val objects = hashMapOf<String, ChannelOwner>()
@@ -145,6 +147,7 @@ class MessageProcessor(private val transport: ITransport) {
         message.addProperty("guid", guid)
         message.addProperty("method", method)
         message.add("params", params)
+        logger.logSendMessage(message.toString())
         transport.sendMessage(toJson(message))
         return result
     }

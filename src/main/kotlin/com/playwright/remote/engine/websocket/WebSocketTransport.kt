@@ -59,7 +59,6 @@ class WebSocketTransport(url: String) : ITransport {
     }
 
     override fun sendMessage(message: String) {
-        logger.logSendMessage(message)
         webSocket.send(message)
     }
 

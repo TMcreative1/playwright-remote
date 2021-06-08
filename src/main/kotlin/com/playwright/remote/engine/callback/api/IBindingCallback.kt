@@ -11,5 +11,5 @@ fun interface IBindingCallback {
         fun frame(): IFrame
     }
 
-    fun call(source: ISource, vararg args: Any): Any
+    fun call(source: ISource, args: Array<Any>): Any
 }

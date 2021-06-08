@@ -21,12 +21,6 @@ open class BaseTest {
     companion object {
 
         @JvmStatic
-        val HTTPS_PREFIX = "https://localhost:8443"
-
-        @JvmStatic
-        val HTTP_PREFIX = "http://localhost:8080"
-
-        @JvmStatic
         lateinit var httpServer: Server
 
         @JvmStatic
