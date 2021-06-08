@@ -9,7 +9,7 @@ class TestFrame : BaseTest() {
 
     @Test
     fun `frame press should work`() {
-        page.setContent("<iframe name=inner src='$HTTP_PREFIX/input/textarea.html'></iframe>")
+        page.setContent("<iframe name=inner src='${httpServer.prefixWithDomain}/input/textarea.html'></iframe>")
         val pressButton = "q"
         val frame = page.frame("inner")
         assertNotNull(frame)

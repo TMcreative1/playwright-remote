@@ -55,7 +55,7 @@ class Serialization {
                 value?.a != null -> {
                     val list = mutableListOf<Any>()
                     for (v in value.a!!) {
-                        list.add(v)
+                        list.add(deserialize(v))
                     }
                     list as T
                 }
@@ -116,7 +116,7 @@ class Serialization {
                 }
                 null -> result.v = "undefined"
                 is Double -> {
-                    when (value) {
+                    when {
                         value == Double.POSITIVE_INFINITY -> result.v = "Infinity"
                         value == Double.NEGATIVE_INFINITY -> result.v = "-Infinity"
                         value == -0 -> result.v = "-0"

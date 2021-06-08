@@ -162,7 +162,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     }
 
     override fun exposeFunction(name: String, callback: IFunctionCallback) {
-        exposeBinding(name) { _: ISource, args: Any -> callback.call(args) }
+        exposeBinding(name) { _: ISource, args: Array<Any> -> callback.call(args) }
     }
 
     override fun grantPermissions(permissions: List<String>?, options: GrantPermissionsOptions) {
