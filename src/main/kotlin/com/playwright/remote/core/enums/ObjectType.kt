@@ -15,7 +15,6 @@ enum class ObjectType(val type: String) {
     JS_HANDLE("JSHandle"),
     PAGE("Page"),
     PLAYWRIGHT("Playwright"),
-    REMOTE_BROWSER("RemoteBrowser"),
     REQUEST("Request"),
     RESPONSE("Response"),
     ROUTE("Route"),

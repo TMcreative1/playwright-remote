@@ -1,21 +1,14 @@
 package com.playwright.remote.engine.browser
 
-import com.google.gson.JsonObject
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.playwright.api.Playwright
-import com.playwright.remote.engine.playwright.impl.IPlaywright
-import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.processor.MessageProcessor
 import com.playwright.remote.engine.websocket.WebSocketTransport
 import okio.IOException
 
-class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
-    ChannelOwner(parent, type, guid, initializer) {
-
-    private fun browser(): IBrowser =
-        messageProcessor.getExistingObject(initializer["browser"].asJsonObject["guid"].asString)
+class RemoteBrowser {
 
     companion object {
         @JvmStatic

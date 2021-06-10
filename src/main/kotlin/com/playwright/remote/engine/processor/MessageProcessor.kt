@@ -9,10 +9,8 @@ import com.playwright.remote.core.exceptions.DriverException
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.core.exceptions.TimeoutException
 import com.playwright.remote.domain.message.Message
-import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
-import com.playwright.remote.engine.selector.impl.Selectors
 import com.playwright.remote.engine.callback.impl.BindingCall
 import com.playwright.remote.engine.console.impl.ConsoleMessage
 import com.playwright.remote.engine.dialog.impl.Dialog
@@ -29,6 +27,7 @@ import com.playwright.remote.engine.playwright.api.Playwright
 import com.playwright.remote.engine.route.impl.Route
 import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.impl.Response
+import com.playwright.remote.engine.selector.impl.Selectors
 import com.playwright.remote.engine.transport.ITransport
 import com.playwright.remote.engine.waits.impl.WaitResult
 import com.playwright.remote.engine.websocket.impl.WebSocket
@@ -36,6 +35,7 @@ import com.playwright.remote.engine.worker.impl.Worker
 
 class MessageProcessor(private val transport: ITransport) {
     private val logger = CustomLogger()
+
     private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")
 
     private val objects = hashMapOf<String, ChannelOwner>()
@@ -125,7 +125,6 @@ class MessageProcessor(private val transport: ITransport) {
             JS_HANDLE.type -> JSHandle(parent, type, guid, initializer)
             PAGE.type -> Page(parent, type, guid, initializer)
             PLAYWRIGHT.type -> Playwright(parent, type, guid, initializer)
-            REMOTE_BROWSER.type -> RemoteBrowser(parent, type, guid, initializer)
             REQUEST.type -> Request(parent, type, guid, initializer)
             RESPONSE.type -> Response(parent, type, guid, initializer)
             ROUTE.type -> Route(parent, type, guid, initializer)
