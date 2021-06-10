@@ -13,7 +13,8 @@ class ServerProvider : IServerProvider {
             val driverPath = Paths.get("drivers/${platform.platformType}")
             val node = driverPath.resolve(platform.nodeProcess).toString()
             val cli = driverPath.resolve("package/lib/cli/cli.js").toString()
-            command(node, cli, "launch-server", browserType.browserName)
+            val config = driverPath.resolve("config.json").toString()
+            command(node, cli, "launch-server", browserType.browserName, config)
         }
 
         process = pb.start()

@@ -454,7 +454,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         waits.add(
             WaitNavigation(
                 matcher ?: UrlMatcher.forOneOf(opt.url),
-                convert(opt.waitUntil, LoadState::class.java),
+                LoadState.valueOf(opt.waitUntil!!.name),
                 internalListeners,
                 messageProcessor,
                 loadStates

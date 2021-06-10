@@ -59,7 +59,7 @@ open class JSHandle(parent: ChannelOwner, type: String, guid: String, initialize
 
     override fun jsonValue(): Any {
         val json = sendMessage("jsonValue")!!.asJsonObject
-        val value = fromJson(json["value"].asString, SerializedError.SerializedValue::class.java)
+        val value = fromJson(json["value"], SerializedError.SerializedValue::class.java)
         return deserialize(value)
     }
 

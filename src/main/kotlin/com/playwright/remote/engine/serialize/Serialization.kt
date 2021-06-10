@@ -25,7 +25,7 @@ class Serialization {
             val result = SerializedArgument {}
             val handles = mutableListOf<IJSHandle>()
             result.value = serializeValue(arg, handles, 0)
-            result.handles = emptyArray()
+            result.handles = arrayOfNulls(handles.size)
             var i = 0
             for (handle in handles) {
                 result.handles!![i++] = SerializedArgument.Channel((handle as JSHandle).guid)

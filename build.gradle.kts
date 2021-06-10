@@ -5,7 +5,7 @@ import java.nio.file.*
 import kotlin.collections.*
 
 val archs = listOf("mac", "linux", "win32", "win32_x64")
-val playwrightVersion = "1.11.0-next-1617087307000"
+val playwrightVersion = "1.13.0-next-1623183015000"
 
 plugins {
     kotlin("jvm") version "1.5.20-M1"
@@ -33,6 +33,7 @@ tasks.test {
     }
     dependsOn("downloadAndUnzip")
     systemProperty("browser", System.getProperty("browser"))
+    maxHeapSize = "2560m"
 }
 
 task<DefaultTask>("downloadAndUnzip") {
@@ -42,6 +43,12 @@ task<DefaultTask>("downloadAndUnzip") {
     }
     if (Files.exists(Paths.get("$projectDir/drivers"))) {
         println("Drivers have been already downloaded")
+        archs.forEach { arch ->
+            copy {
+                from("$projectDir/src/main/resources/server/config.json")
+                into("$projectDir/drivers/$arch")
+            }
+        }
         return@task
     }
     archs.forEach { arch ->
@@ -56,6 +63,8 @@ task<DefaultTask>("downloadAndUnzip") {
         Files.copy(url.openStream(), destFile, StandardCopyOption.REPLACE_EXISTING)
         copy {
             from(zipTree(destFile))
+            into(destDir)
+            from("$projectDir/src/main/resources/server/config.json")
             into(destDir)
         }
         Files.deleteIfExists(destFile)
