@@ -5,7 +5,7 @@ import com.playwright.remote.engine.options.api.IBuilder
 
 data class SerializedArgument @JvmOverloads constructor(
     var value: SerializedValue? = null,
-    var handles: Array<Channel>? = null,
+    var handles: Array<Channel?>? = null,
     @Transient private val builder: IBuilder<SerializedArgument>
 ) {
     data class Channel(val guid: String)

@@ -11,7 +11,9 @@ import com.playwright.remote.engine.options.NewPageOptions
 import com.playwright.remote.engine.options.ScreenshotOptions
 import com.playwright.remote.engine.options.enum.ColorScheme.DARK
 import com.playwright.remote.engine.options.enum.ColorScheme.LIGHT
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import java.nio.file.Files
 import java.util.regex.Pattern
 import kotlin.io.path.Path
@@ -601,6 +603,406 @@ class TestPage : BaseTest() {
         """.trimMargin()
         val result = page.evaluate(jsScript)
         assertEquals(18, result)
+    }
+
+    @Test
+    fun `check to reject promise with exception`() {
+        try {
+            page.evaluate("() => not_existing_object.property")
+            fail("evaluate should throw ")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("not_existing_object"))
+        }
+    }
+
+    @Test
+    fun `check thrown string as the error message`() {
+        try {
+            page.evaluate("() => { throw 'err'; }")
+            fail("evaluate should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("err"))
+        }
+    }
+
+    @Test
+    fun `check thrown number as the error message`() {
+        try {
+            page.evaluate("() => { throw 404; }")
+            fail("evaluate should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("404"))
+        }
+    }
+
+    @Test
+    fun `check to return complex object`() {
+        val map = mapOf<String, Any>("foo" to "bar!")
+        val result = page.evaluate("a => a", map)
+        assertNotSame(map, result)
+        assertEquals(map, result)
+    }
+
+    @Test
+    fun `check to return NaN`() {
+        val result = page.evaluate("() => NaN")
+        assertEquals(Double.NaN, result)
+    }
+
+    @Test
+    fun `check to return 0`() {
+        val result = page.evaluate("() => -0")
+        assertEquals(Double.NEGATIVE_INFINITY, 1 / (result as Double))
+    }
+
+    @Test
+    fun `check to return infinity`() {
+        val result = page.evaluate("() => Infinity")
+        assertEquals(Double.POSITIVE_INFINITY, result)
+    }
+
+    @Test
+    fun `check to return negative infinity`() {
+        val result = page.evaluate("() => -Infinity")
+        assertEquals(Double.NEGATIVE_INFINITY, result)
+    }
+
+    @Test
+    fun `check correct work with overwritten promise`() {
+        var jsScript = """() => {
+            |   const initialPromise = window.Promise;
+            |   class Promise2 {
+            |       static all(arg) {
+            |           return wrap(initialPromise.all(arg));
+            |       }
+            |       static race(arg) {
+            |           return wrap(initialPromise.race(arg));
+            |       }
+            |       static resolve(arg) {
+            |           return wrap(initialPromise.resolve(arg));
+            |       }
+            |       constructor(f) {
+            |           this._promise = new initialPromise(f);
+            |       }
+            |       then(f, r) {
+            |           return wrap(this._promise.then(f, r));
+            |       }
+            |       catch(f) {
+            |           return wrap(this._promise.catch(f));
+            |       }
+            |       finally(f) {
+            |           return wrap(this._promise.finally(f));
+            |       }
+            |   }
+            |   const wrap = p => {
+            |       const result = new Promise2(() => { });
+            |       result._promise = p;
+            |       return result;
+            |   };
+            |   window.Promise = Promise2;
+            |   window['__Promise2'] = Promise2;
+            |}
+        """.trimMargin()
+        page.evaluate(jsScript)
+        jsScript = """() => {
+            |   const p = Promise.all([Promise.race([]), new Promise(() => { }).then(() => { })]);
+            |   return p instanceof window['__Promise2'];
+            |}
+        """.trimMargin()
+        assertEquals(true, page.evaluate(jsScript))
+        assertEquals(23, page.evaluate("() => Promise.resolve(23)"))
+    }
+
+    @Test
+    fun `check to serialize undefined fields`() {
+        val result = page.evaluate("() => ({ a: undefined })")
+        assertEquals(mapOf("a" to null), result)
+    }
+
+    @Test
+    fun `check to return null`() {
+        val result = page.evaluate("x => x", null)
+        assertNull(result)
+    }
+
+    @Test
+    fun `check to serialize null fields`() {
+        val result = page.evaluate("() => ({ a: null })")
+        assertEquals(mapOf("a" to null), result)
+    }
+
+    @Test
+    fun `check to return undefined values for unserializable objects`() {
+        val result = page.evaluate("() => window")
+        assertNull(result)
+    }
+
+    @Test
+    fun `check to return value for the looped object`() {
+        val jsScript = """() => {
+            |   const a = {};
+            |   const b = { a };
+            |   a.b = b;
+            |   return a;
+            |}
+        """.trimMargin()
+        assertNull(page.evaluate(jsScript))
+    }
+
+    @Test
+    fun `check to able to throw a tricky error`() {
+        val windowHandle = page.evaluateHandle("() => window")
+        val errorText: String?
+        try {
+            windowHandle.jsonValue()
+            fail("jsonValue should throw")
+        } catch (e: PlaywrightException) {
+            errorText = e.message
+        }
+        assertNotNull(errorText)
+        try {
+            val jsScript = """errorText => {
+                |   throw new Error(errorText);
+                |}
+            """.trimMargin()
+            page.evaluate(jsScript, errorText)
+            fail("evaluate should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains(errorText))
+        }
+    }
+
+    @Test
+    fun `check to accept value as string`() {
+        val result = page.evaluate("1 + 2")
+        assertEquals(3, result)
+    }
+
+    @Test
+    fun `check to accept value with semicolon`() {
+        val result = page.evaluate("1 + 5;")
+        assertEquals(6, result)
+    }
+
+    @Test
+    fun `check to accept values with comments`() {
+        val result = page.evaluate("2 + 5;\n//test comments")
+        assertEquals(7, result)
+    }
+
+    @Test
+    fun `check to accept element handle as an argument`() {
+        page.setContent("<section>23</section>")
+        val element = page.querySelector("section")
+        val text = page.evaluate("e => e.textContent", element)
+        assertEquals("23", text)
+    }
+
+    @Test
+    fun `check to throw if the underlying element was disposed`() {
+        page.setContent("<section>23</section>")
+        val element = page.querySelector("section")
+        assertNotNull(element)
+        element.dispose()
+        try {
+            page.evaluate("e => e.textContent", element)
+            fail("evaluate should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("JSHandle is disposed"))
+        }
+    }
+
+    @Test
+    fun `check to simulate a user gesture`() {
+        val jsScript = """() => {
+            |   document.body.appendChild(document.createTextNode('test'));
+            |   document.execCommand('selectAll');
+            |   return document.execCommand('copy');
+            |}
+        """.trimMargin()
+        assertEquals(true, page.evaluate(jsScript))
+    }
+
+    @Test
+    fun `check to throw error after navigation`() {
+        try {
+            val jsScript = """() => {
+                |   const promise = new Promise(f => window['__resolve'] = f);
+                |   window.location.reload();
+                |   setTimeout(() => window['__resolve'](23), 1000);
+                |   return promise;
+                |}
+            """.trimMargin()
+            page.waitForNavigation {
+                page.evaluate(jsScript)
+            }
+            fail("navigation should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("navigation"))
+        }
+    }
+
+    @Test
+    fun `check to not throw an error when evaluation does a navigation`() {
+        page.navigate("${httpServer.prefixWithDomain}/page-with-one-style.html")
+        val jsScript = """() => {
+            |   window.location.href = '/empty.html';
+            |   return [23];
+            |}
+        """.trimMargin()
+        val result = page.evaluate(jsScript)
+        assertEquals(listOf(23), result)
+    }
+
+    @Test
+    @DisabledIfSystemProperty(named = "browser", matches = "^\$|webkit")
+    fun `check not throw an error when evaluation does a synchronous navigation and returns and object`() {
+        val jsScript = """() => {
+            |   window.location.reload();
+            |   return { a: 23 };
+            |}
+        """.trimMargin()
+        val result = page.evaluate(jsScript)
+        assertEquals(mapOf("a" to 23), result)
+    }
+
+    @Test
+    fun `check to not throw an error when evaluation does a synchronous navigation and returns undefined`() {
+        val jsScript = """() => {
+            |   window.location.reload();
+            |   return undefined;
+            |}
+        """.trimMargin()
+        val result = page.evaluate(jsScript)
+        assertNull(result)
+    }
+
+    @Test
+    fun `check to transfer 100mb of data from page to node js`() {
+        val result = page.evaluate("() => Array(100* 1024 * 1024 + 1).join('a')")
+        result as String
+        assertEquals(100 * 1024 * 1024, result.length)
+        result.forEachIndexed { index, char ->
+            if ('a' != char) {
+                fail("Unexpected char at position $index")
+            }
+        }
+    }
+
+    @Test
+    fun `check to throw error with detailed information inside promise`() {
+        try {
+            val jsScript = """() => new Promise(() => {
+                |   throw new Error('Error in promise');
+                |})""".trimMargin()
+            page.evaluate(jsScript)
+            fail("evaluate should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Error in promise"))
+        }
+    }
+
+    @Test
+    fun `check correct work when json is set to null`() {
+        val jsScript = "() => { window.JSON.stringify = null; window.JSON = null; }"
+        page.evaluate(jsScript)
+        val result = page.evaluate("() => ({ abc: 123 })")
+        assertEquals(mapOf("abc" to 123), result)
+    }
+
+    @Test
+    fun `check to await promise from popup`() {
+        page.navigate(httpServer.emptyPage)
+        val jsScript = """() => {
+            |   const win = window.open('about:blank');
+            |   return new win['Promise'](f => f(23));
+            |}
+        """.trimMargin()
+        val result = page.evaluate(jsScript)
+        assertEquals(23, result)
+    }
+
+    @Test
+    fun `check correct work with new function and CSP`() {
+        httpServer.setCSP("/empty.html", "script-src ${httpServer.prefixWithDomain}")
+        page.navigate(httpServer.emptyPage)
+        val result = page.evaluate("() => new Function('return true')()")
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun `check correct work with non strict expression`() {
+        val jsScript = """() => {
+            |   y = 3.14;
+            |   return y;
+            |}
+        """.trimMargin()
+        assertEquals(3.14, page.evaluate(jsScript))
+    }
+
+    @Test
+    fun `check to throw with strict expression`() {
+        try {
+            val jsScript = """() => {
+                |   'use strict';
+                |   // @ts-ignore
+                |   variableY = 3.14;
+                |   // @ts-ignore
+                |   return variableY;
+                |}
+            """.trimMargin()
+            page.evaluate(jsScript)
+            fail("evaluate should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("variableY"))
+        }
+    }
+
+    @Test
+    fun `check not to leak utility script`() {
+        assertEquals(true, page.evaluate("() => this == window"))
+    }
+
+    @Test
+    fun `check not to leak handles`() {
+        try {
+            page.evaluate("handles.length")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("handles"))
+        }
+    }
+
+    @Test
+    fun `check correct work with CSP`() {
+        httpServer.setCSP("/empty.html", "script-src 'self'")
+        page.navigate(httpServer.emptyPage)
+        assertEquals(4, page.evaluate("() => 2 + 2"))
+    }
+
+    @Test
+    fun `check to evaluate exception`() {
+        val jsScript = """() => {
+                |   return (function functionOnStack() {
+                |       return new Error('error message');
+                |   })();
+                |}
+            """.trimMargin()
+        val result = page.evaluate(jsScript)
+        result as String
+        assertTrue(result.contains("Error: error message"))
+        assertTrue(result.contains("functionOnStack"))
+    }
+
+    @Test
+    fun `check to not use json when evaluating`() {
+        val result = page.evaluate("() => ({ toJSON: () => 'string', data: 'data' })")
+        assertEquals(mapOf("data" to "data", "toJSON" to emptyMap<Any, Any>()), result)
+    }
+
+    @Test
+    fun `check to not use json in json value`() {
+        val result = page.evaluateHandle("() => ({ toJSON: () => 'string', data: 'data' })")
+        assertEquals(mapOf("data" to "data", "toJSON" to emptyMap<Any, Any>()), result.jsonValue())
     }
     //endregion
 }
