@@ -5,7 +5,7 @@ import java.nio.file.*
 import kotlin.collections.*
 
 val archs = listOf("mac", "linux", "win32", "win32_x64")
-val playwrightVersion = "1.11.0-next-1617087307000"
+val playwrightVersion = "1.13.0-next-1623183015000"
 
 plugins {
     kotlin("jvm") version "1.5.20-M1"
