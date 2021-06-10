@@ -15,7 +15,8 @@ class Playwright(parent: ChannelOwner, type: String, guid: String, initializer: 
 
     override fun initSharedSelectors(parent: IPlaywright?) {
         assert(sharedSelectors == null)
-        sharedSelectors = if (parent == null) SharedSelectors() else (parent as Playwright).sharedSelectors
+        sharedSelectors =
+            if (parent != null && (parent as Playwright).sharedSelectors != null) parent.sharedSelectors else SharedSelectors()
         sharedSelectors!!.addSelector(selectors)
     }
 
