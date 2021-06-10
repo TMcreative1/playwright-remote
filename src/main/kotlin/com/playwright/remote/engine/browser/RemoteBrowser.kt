@@ -18,7 +18,7 @@ class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initialize
         fun connectWs(wsEndpoint: String): IBrowser {
             val webSocketTransport = WebSocketTransport(wsEndpoint)
             val messageProcessor = MessageProcessor(webSocketTransport)
-            val remoteBrowser = messageProcessor.waitForObjectByGuid("remoteBrowser") as RemoteBrowser
+            val remoteBrowser = messageProcessor.waitForObjectByGuid("Playwright") as RemoteBrowser
             val browser = remoteBrowser.browser() as Browser
 
             val connectionCloseListener: (WebSocketTransport) -> Unit = { browser.notifyRemoteClosed() }

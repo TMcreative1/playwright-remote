@@ -12,6 +12,7 @@ import com.playwright.remote.domain.message.Message
 import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
+import com.playwright.remote.engine.browser.impl.BrowserType
 import com.playwright.remote.engine.browser.impl.Selectors
 import com.playwright.remote.engine.callback.impl.BindingCall
 import com.playwright.remote.engine.console.impl.ConsoleMessage
@@ -110,16 +111,20 @@ class MessageProcessor(private val transport: ITransport) {
             ?: throw PlaywrightException("Cannot find parent object $parentGuid to create $guid")
         val initializer = params["initializer"].asJsonObject
         when (type) {
+            ANDROID.type -> println("Android")
             ARTIFACT.type -> Artifact(parent, type, guid, initializer)
             BINDING_CALL.type -> BindingCall(parent, type, guid, initializer)
             BROWSER.type -> Browser(parent, type, guid, initializer)
             BROWSER_CONTEXT.type -> BrowserContext(parent, type, guid, initializer)
+            BROWSER_TYPE.type -> BrowserType(parent, type, guid, initializer)
             CONSOLE_MESSAGE.type -> ConsoleMessage(parent, type, guid, initializer)
             DIALOG.type -> Dialog(parent, type, guid, initializer)
+            ELECTRON.type -> println("Electron")
             ELEMENT_HANDLE.type -> ElementHandle(parent, type, guid, initializer)
             FRAME.type -> Frame(parent, type, guid, initializer)
             JS_HANDLE.type -> JSHandle(parent, type, guid, initializer)
             PAGE.type -> Page(parent, type, guid, initializer)
+            PLAYWRIGHT.type -> println("Playwright")
             REMOTE_BROWSER.type -> RemoteBrowser(parent, type, guid, initializer)
             REQUEST.type -> Request(parent, type, guid, initializer)
             RESPONSE.type -> Response(parent, type, guid, initializer)
