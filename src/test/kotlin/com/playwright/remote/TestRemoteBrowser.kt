@@ -46,7 +46,7 @@ class TestRemoteBrowser : BaseTest() {
     @Test
     fun `check success connection to browser`() {
         try {
-            RemoteBrowser.connectWs(wsUrl).use {
+            browser.use {
                 assertTrue(it is Browser)
             }
         } catch (e: WebSocketException) {
