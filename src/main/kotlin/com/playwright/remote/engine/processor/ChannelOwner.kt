@@ -7,7 +7,7 @@ import com.playwright.remote.engine.waits.api.IWait
 open class ChannelOwner(
     protected val messageProcessor: MessageProcessor,
     private val parent: ChannelOwner?,
-    private val type: String,
+    val type: String,
     val guid: String,
     protected val initializer: JsonObject
 ) {

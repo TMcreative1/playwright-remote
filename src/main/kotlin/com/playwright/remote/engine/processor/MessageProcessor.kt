@@ -9,13 +9,16 @@ import com.playwright.remote.core.exceptions.DriverException
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.core.exceptions.TimeoutException
 import com.playwright.remote.domain.message.Message
+import com.playwright.remote.engine.android.impl.Android
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
+import com.playwright.remote.engine.browser.impl.BrowserType
 import com.playwright.remote.engine.callback.impl.BindingCall
 import com.playwright.remote.engine.console.impl.ConsoleMessage
 import com.playwright.remote.engine.dialog.impl.Dialog
 import com.playwright.remote.engine.download.impl.Artifact
 import com.playwright.remote.engine.download.stream.impl.Stream
+import com.playwright.remote.engine.electron.impl.Electron
 import com.playwright.remote.engine.frame.impl.Frame
 import com.playwright.remote.engine.handle.element.impl.ElementHandle
 import com.playwright.remote.engine.handle.js.impl.JSHandle
@@ -23,7 +26,7 @@ import com.playwright.remote.engine.logger.CustomLogger
 import com.playwright.remote.engine.page.impl.Page
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.parser.IParser.Companion.toJson
-import com.playwright.remote.engine.playwright.api.Playwright
+import com.playwright.remote.engine.playwright.impl.Playwright
 import com.playwright.remote.engine.route.impl.Route
 import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.impl.Response
@@ -54,6 +57,15 @@ class MessageProcessor(private val transport: ITransport) {
     fun waitForObjectByGuid(guid: String): ChannelOwner? {
         while (!objects.containsKey(guid)) {
             processMessage()
+        }
+        return objects[guid]
+    }
+
+    fun waitForLaunchedBrowser(): ChannelOwner? {
+        var guid = ""
+        while (guid.isEmpty()) {
+            processMessage()
+            guid = objects.values.filter { it.type == BROWSER.type }.map { it.guid }.firstOrNull() ?: ""
         }
         return objects[guid]
     }
@@ -111,15 +123,15 @@ class MessageProcessor(private val transport: ITransport) {
             ?: throw PlaywrightException("Cannot find parent object $parentGuid to create $guid")
         val initializer = params["initializer"].asJsonObject
         when (type) {
-            ANDROID.type -> println(type) //TODO discuss
+            ANDROID.type -> Android(parent, type, guid, initializer)
             ARTIFACT.type -> Artifact(parent, type, guid, initializer)
             BINDING_CALL.type -> BindingCall(parent, type, guid, initializer)
             BROWSER.type -> Browser(parent, type, guid, initializer)
-            BROWSER_TYPE.type -> println(type) //TODO discuss
+            BROWSER_TYPE.type -> BrowserType(parent, type, guid, initializer)
             BROWSER_CONTEXT.type -> BrowserContext(parent, type, guid, initializer)
             CONSOLE_MESSAGE.type -> ConsoleMessage(parent, type, guid, initializer)
             DIALOG.type -> Dialog(parent, type, guid, initializer)
-            ELECTRON.type -> println(type) //TODO discuss
+            ELECTRON.type -> Electron(parent, type, guid, initializer)
             ELEMENT_HANDLE.type -> ElementHandle(parent, type, guid, initializer)
             FRAME.type -> Frame(parent, type, guid, initializer)
             JS_HANDLE.type -> JSHandle(parent, type, guid, initializer)
