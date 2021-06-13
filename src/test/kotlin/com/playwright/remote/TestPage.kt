@@ -232,6 +232,32 @@ class TestPage : BaseTest() {
         assertEquals("press", messages[0].text())
         assertEquals("log", messages[0].type())
     }
+
+    @Test
+    fun `check to provide access to the opener page`() {
+        val popup = page.waitForPopup { page.evaluate("() => window.open('about:blank')") }
+        assertNotNull(popup)
+        val opener = popup.opener()
+        assertEquals(page, opener)
+    }
+
+    @Test
+    fun `check to return null if page has been closed`() {
+        val popup = page.waitForPopup { page.evaluate("() => window.open('about:blank')") }
+        page.close()
+        assertNotNull(popup)
+        val opener = popup.opener()
+        assertNull(opener)
+    }
+
+    @Test
+    fun `check correct work for page close with window close`(){
+        val newPage = page.waitForPopup { page.evaluate("() => window['newPage'] = window.open('about:blank')") }
+        assertNotNull(newPage)
+        assertFalse(newPage.isClosed())
+        newPage.waitForClose { page.evaluate("() => window['newPage'].close()") }
+        assertTrue(newPage.isClosed())
+    }
     //endregion
 
     //region Dialog

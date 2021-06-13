@@ -85,7 +85,6 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     private val touchScreen: ITouchScreen
     private val frames = linkedSetOf<IFrame>()
     private val timeoutSettings: TimeoutSettings
-    private var opener: IPage? = null
     private val routes = Router()
     private var video: IVideo? = null
     val waitClosedOrCrashed: IWait<Any>
@@ -122,8 +121,6 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         frames.add(mainFrame)
         timeoutSettings = TimeoutSettings(browserContext.timeoutSettings)
         waitClosedOrCrashed = createWaitForCloseHelper()
-        opener =
-            if (initializer.has("opener")) messageProcessor.getExistingObject(initializer["opener"].asJsonObject["guid"].asString) else null
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -254,10 +251,6 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     @Suppress("UNCHECKED_CAST")
     override fun offPopup(handler: (IPage) -> Unit) {
         listeners.remove(POPUP, handler as UniversalConsumer)
-    }
-
-    fun notifyPopup(popup: IPage) {
-        listeners.notify(POPUP, popup)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -541,10 +534,8 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun opener(): IPage? {
-        if (opener == null || opener!!.isClosed()) {
-            return null
-        }
-        return opener
+        val result = sendMessage("opener")!!.asJsonObject
+        return if (!result.has("page")) null else messageProcessor.getExistingObject(result["page"].asJsonObject["guid"].asString)
     }
 
     override fun pause() {
@@ -1017,6 +1008,11 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
                 val guid = params["response"].asJsonObject["guid"].asString
                 val response = messageProcessor.getExistingObject<IResponse>(guid)
                 listeners.notify(RESPONSE, response)
+            }
+            "popup" -> {
+                val guid = params["page"].asJsonObject["guid"].asString
+                val popup = messageProcessor.getExistingObject<IPage>(guid)
+                listeners.notify(POPUP, popup)
             }
             "frameAttached" -> {
                 val guid = params["frame"].asJsonObject["guid"].asString

@@ -280,8 +280,8 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
             }
             "page" -> {
                 val page = messageProcessor.getExistingObject<IPage>(params["page"].asJsonObject["guid"].asString)
-                listeners.notify(EventType.PAGE, page)
                 pages.add(page)
+                listeners.notify(PAGE, page)
             }
             "bindingCall" -> {
                 val bindingCall =
