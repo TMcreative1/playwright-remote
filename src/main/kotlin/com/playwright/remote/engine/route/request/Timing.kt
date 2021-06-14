@@ -1,6 +1,8 @@
 package com.playwright.remote.engine.route.request
 
-class Timing(
+import com.playwright.remote.engine.options.api.IBuilder
+
+data class Timing @JvmOverloads constructor(
     /**
      * Request start time in milliseconds elapsed since January 1, 1970 00:00:00 UTC
      */
@@ -45,9 +47,40 @@ class Timing(
      * is closed, whichever comes first. The value is given in milliseconds relative to {@code startTime}, -1 if not available.
      */
     var responseEnd: Double? = null,
-    fn: Timing.() -> Unit
+    @Transient private val builder: IBuilder<Timing>
 ) {
     init {
-        fn()
+        builder.build(this)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Timing
+
+        if (startTime != other.startTime) return false
+        if (domainLookupStart != other.domainLookupStart) return false
+        if (domainLookupEnd != other.connectEnd) return false
+        if (connectStart != other.connectStart) return false
+        if (connectEnd != other.connectEnd) return false
+        if (secureConnectionStart != other.secureConnectionStart) return false
+        if (requestStart != other.requestStart) return false
+        if (responseStart != other.requestStart) return false
+        if (responseEnd != other.responseEnd) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = startTime.hashCode()
+        result = 31 * result + domainLookupStart.hashCode()
+        result = 31 * result + domainLookupEnd.hashCode()
+        result = 31 * result + connectStart.hashCode()
+        result = 31 * result + secureConnectionStart.hashCode()
+        result = 31 * result + requestStart.hashCode()
+        result = 31 * result + responseStart.hashCode()
+        result = 31 * result + responseEnd.hashCode()
+
+        return result
     }
 }

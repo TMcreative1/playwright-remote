@@ -9,7 +9,12 @@ import com.playwright.remote.engine.route.response.api.IResponse
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class Request : ChannelOwner, IRequest {
+class Request(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
+    parent,
+    type,
+    guid,
+    initializer
+), IRequest {
     private var postData: ByteArray? = null
     private var redirectedFrom: IRequest? = null
     private var redirectedTo: IRequest? = null
@@ -17,12 +22,7 @@ class Request : ChannelOwner, IRequest {
     var failure: String = ""
     var timing: Timing = Timing {}
 
-    constructor(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : super(
-        parent,
-        type,
-        guid,
-        initializer
-    ) {
+    init {
         if (initializer.has("redirectedFrom")) {
             redirectedFrom =
                 messageProcessor.getExistingObject(initializer["redirectedFrom"].asJsonObject["guid"].asString)
@@ -32,7 +32,6 @@ class Request : ChannelOwner, IRequest {
             val item = element.asJsonObject
             headers[item["name"].asString.lowercase()] = item["value"].asString
         }
-
         if (initializer.has("postData")) {
             postData = Base64.getDecoder().decode(initializer["postData"].asString)
         }
