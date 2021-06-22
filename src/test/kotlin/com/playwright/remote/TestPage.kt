@@ -2,20 +2,22 @@ package com.playwright.remote
 
 import com.playwright.remote.base.BaseTest
 import com.playwright.remote.core.enums.Media
+import com.playwright.remote.core.enums.Platform.*
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.frame.impl.Frame
-import com.playwright.remote.engine.options.CloseOptions
-import com.playwright.remote.engine.options.EmulateMediaOptions
-import com.playwright.remote.engine.options.NewPageOptions
-import com.playwright.remote.engine.options.ScreenshotOptions
+import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.enum.ColorScheme.DARK
 import com.playwright.remote.engine.options.enum.ColorScheme.LIGHT
-import org.junit.jupiter.api.Disabled
+import com.playwright.remote.engine.route.request.api.IRequest
+import com.playwright.remote.engine.route.response.api.IResponse
+import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
+import java.io.ByteArrayInputStream
 import java.nio.file.Files
 import java.util.regex.Pattern
+import javax.imageio.ImageIO
 import kotlin.io.path.Path
 import kotlin.test.*
 
@@ -229,6 +231,32 @@ class TestPage : BaseTest() {
         page.press("input", "Enter")
         assertEquals("press", messages[0].text())
         assertEquals("log", messages[0].type())
+    }
+
+    @Test
+    fun `check to provide access to the opener page`() {
+        val popup = page.waitForPopup { page.evaluate("() => window.open('about:blank')") }
+        assertNotNull(popup)
+        val opener = popup.opener()
+        assertEquals(page, opener)
+    }
+
+    @Test
+    fun `check to return null if page has been closed`() {
+        val popup = page.waitForPopup { page.evaluate("() => window.open('about:blank')") }
+        page.close()
+        assertNotNull(popup)
+        val opener = popup.opener()
+        assertNull(opener)
+    }
+
+    @Test
+    fun `check correct work for page close with window close`(){
+        val newPage = page.waitForPopup { page.evaluate("() => window['newPage'] = window.open('about:blank')") }
+        assertNotNull(newPage)
+        assertFalse(newPage.isClosed())
+        newPage.waitForClose { page.evaluate("() => window['newPage'].close()") }
+        assertTrue(newPage.isClosed())
     }
     //endregion
 
@@ -1003,6 +1031,136 @@ class TestPage : BaseTest() {
     fun `check to not use json in json value`() {
         val result = page.evaluateHandle("() => ({ toJSON: () => 'string', data: 'data' })")
         assertEquals(mapOf("data" to "data", "toJSON" to emptyMap<Any, Any>()), result.jsonValue())
+    }
+    //endregion
+
+    //region EventNetwork
+    @Test
+    fun `check request events`() {
+        val requests = arrayListOf<IRequest>()
+        page.onRequest { requests.add(it) }
+        page.navigate(httpServer.emptyPage)
+        assertEquals(1, requests.size)
+        assertEquals(httpServer.emptyPage, requests[0].url())
+        assertEquals("document", requests[0].resourceType())
+        assertEquals("GET", requests[0].method())
+        assertNotNull(requests[0].response())
+        assertEquals(page.mainFrame(), requests[0].frame())
+        assertEquals(httpServer.emptyPage, requests[0].frame().url())
+    }
+
+    @Test
+    fun `check response events`() {
+        val responses = arrayListOf<IResponse>()
+        page.onResponse { responses.add(it) }
+        page.navigate(httpServer.emptyPage)
+        assertEquals(1, responses.size)
+        assertEquals(httpServer.emptyPage, responses[0].url())
+        assertEquals(200, responses[0].status())
+        assertTrue(responses[0].ok())
+        assertNotNull(responses[0].request())
+    }
+
+    @Test
+    fun `check request failed events`() {
+        httpServer.setRoute("/one-style.css") { it.responseBody.close() }
+        val failedRequests = arrayListOf<IRequest>()
+        page.onRequestFailed { failedRequests.add(it) }
+        page.navigate("${httpServer.prefixWithDomain}/page-with-one-style.html")
+        assertEquals(1, failedRequests.size)
+        assertTrue(failedRequests[0].url().contains("one-style.css"))
+        assertNull(failedRequests[0].response())
+        assertEquals("stylesheet", failedRequests[0].resourceType())
+        when {
+            isChromium() -> assertEquals("net::ERR_EMPTY_RESPONSE", failedRequests[0].failure())
+            isWebkit() -> when (getCurrentPlatform()) {
+                MAC -> assertEquals("The network connection was lost.", failedRequests[0].failure())
+                WINDOWS64, WINDOWS32 -> assertEquals(
+                    "Server returned nothing (no headers, no data)",
+                    failedRequests[0].failure()
+                )
+                else -> assertEquals("Message Corrupt", failedRequests[0].failure())
+            }
+            else -> assertEquals("NS_ERROR_NET_RESET", failedRequests[0].failure())
+        }
+        assertNotNull(failedRequests[0].frame())
+    }
+
+    @Test
+    fun `check request finished events`() {
+        val finishedRequests = arrayListOf<IRequest>()
+        page.onRequestFinished { finishedRequests.add(it) }
+        val response = page.navigate(httpServer.emptyPage)
+        assertNotNull(response)
+        assertNull(response.finished())
+        assertNotNull(finishedRequests[0])
+        assertEquals(response.request(), finishedRequests[0])
+        assertEquals(httpServer.emptyPage, finishedRequests[0].url())
+        assertNotNull(finishedRequests[0].response())
+        assertEquals(page.mainFrame(), finishedRequests[0].frame())
+        assertEquals(httpServer.emptyPage, finishedRequests[0].frame().url())
+        assertTrue(finishedRequests[0].failure().isEmpty())
+    }
+
+    @Test
+    fun `check events in proper order`() {
+        val events = arrayListOf<String>()
+        page.onRequest { events.add("request") }
+        page.onResponse { events.add("response") }
+        page.onRequestFinished { events.add("requestFinished") }
+        val response = page.navigate(httpServer.emptyPage)
+        assertNull(response!!.finished())
+        assertEquals(listOf("request", "response", "requestFinished"), events)
+    }
+
+    @Test
+    fun `check to support redirects`() {
+        val events = arrayListOf<String>()
+        page.onRequest { events.add("${it.method()} ${it.url()}") }
+        page.onResponse { events.add("${it.status()} ${it.url()}") }
+        page.onRequestFinished { events.add("DONE ${it.url()}") }
+        page.onRequestFailed { events.add("FAILED ${it.url()}") }
+        httpServer.setRedirect("/em.html", "/empty.html")
+        val emUrl = "${httpServer.prefixWithDomain}/em.html"
+        val response = page.navigate(emUrl)
+        response!!.finished()
+        assertEquals(
+            listOf(
+                "GET $emUrl",
+                "302 $emUrl",
+                "DONE $emUrl",
+                "GET ${httpServer.emptyPage}",
+                "200 ${httpServer.emptyPage}",
+                "DONE ${httpServer.emptyPage}",
+            ), events
+        )
+        val redirectFrom = response.request().redirectedFrom()
+        assertNotNull(redirectFrom)
+        assertTrue(redirectFrom.url().contains("/em.html"))
+        assertNull(redirectFrom.redirectedFrom())
+        assertEquals(response.request(), redirectFrom.redirectedTo())
+    }
+    //endregion
+
+    //region Screenshot
+    @Test
+    fun `check correct work of screenshot`() {
+        page.setViewportSize(500, 500)
+        page.navigate("${httpServer.prefixWithDomain}/grid.html")
+        val screenshot = page.screenshot()
+        val image = ImageIO.read(ByteArrayInputStream(screenshot))
+        assertEquals(500, image.width)
+        assertEquals(500, image.height)
+    }
+
+    @Test
+    fun `check correct work of screenshot with clip`() {
+        page.setViewportSize(500, 500)
+        page.navigate("${httpServer.prefixWithDomain}/grid.html")
+        val screenshot = page.screenshot(ScreenshotOptions { it.clip = Clip(50.0, 100.0, 150.0, 100.0) })
+        val image = ImageIO.read(ByteArrayInputStream(screenshot))
+        assertEquals(150, image.width)
+        assertEquals(100, image.height)
     }
     //endregion
 }

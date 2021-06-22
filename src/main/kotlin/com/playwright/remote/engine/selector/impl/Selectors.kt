@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.browser.impl
+package com.playwright.remote.engine.selector.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.browser.api.ISelectors
+import com.playwright.remote.engine.selector.api.ISelectors
 import com.playwright.remote.engine.options.RegisterOptions
 import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.serialize.CustomGson.Companion.gson

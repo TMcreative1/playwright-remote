@@ -6,6 +6,8 @@ import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.wait.WaitForPageOptions
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.route.api.IRoute
+import com.playwright.remote.engine.route.request.api.IRequest
+import com.playwright.remote.engine.route.response.api.IResponse
 import java.nio.file.Path
 import java.util.regex.Pattern
 
@@ -49,6 +51,59 @@ interface IBrowserContext : AutoCloseable {
      * Removes handler that was previously added with {@link #onPage onPage(handler)}.
      */
     fun offPage(handler: (IPage) -> Unit)
+
+    /**
+     * Emitted when a request is issued from any pages created through this context. The [request] object is read-only. To only
+     * listen for requests from a particular page, use {@link Page#onRequest Page.onRequest()}.
+     *
+     * <p> In order to intercept and mutate requests, see {@link BrowserContext#route BrowserContext.route()} or {@link Page#route
+     * Page.route()}.
+     */
+    fun onRequest(handler: (IRequest) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onRequest onRequest(handler)}.
+     */
+    fun offRequest(handler: (IRequest) -> Unit)
+
+    /**
+     * Emitted when a request fails, for example by timing out. To only listen for failed requests from a particular page, use
+     * {@link Page#onRequestFailed Page.onRequestFailed()}.
+     *
+     * <p> <strong>NOTE:</strong> HTTP Error responses, such as 404 or 503, are still successful responses from HTTP standpoint, so request will complete
+     * with {@link BrowserContext#onRequestFinished BrowserContext.onRequestFinished()} event and not with {@link
+     * BrowserContext#onRequestFailed BrowserContext.onRequestFailed()}.
+     */
+    fun onRequestFailed(handler: (IRequest) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onRequestFailed onRequestFailed(handler)}.
+     */
+    fun offRequestFailed(handler: (IRequest) -> Unit)
+
+    /**
+     * Emitted when a request finishes successfully after downloading the response body. For a successful response, the
+     * sequence of events is {@code request}, {@code response} and {@code requestfinished}. To listen for successful requests from a particular
+     * page, use {@link Page#onRequestFinished Page.onRequestFinished()}.
+     */
+    fun onRequestFinished(handler: (IRequest) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onRequestFinished onRequestFinished(handler)}.
+     */
+    fun offRequestFinished(handler: (IRequest) -> Unit)
+
+    /**
+     * Emitted when [response] status and headers are received for a request. For a successful response, the sequence of events
+     * is {@code request}, {@code response} and {@code requestfinished}. To listen for response events from a particular page, use {@link
+     * Page#onResponse Page.onResponse()}.
+     */
+    fun onResponse(handler: (IResponse) -> Unit)
+
+    /**
+     * Removes handler that was previously added with {@link #onResponse onResponse(handler)}.
+     */
+    fun offResponse(handler: (IResponse) -> Unit)
 
     /**
      * Creates a new page in the browser context.
