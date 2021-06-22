@@ -38,7 +38,7 @@ tasks.test {
 
 task<DefaultTask>("downloadAndUnzip") {
     var baseUrl = "https://playwright.azureedge.net/builds/driver/"
-    if (playwrightVersion.contains("next", ignoreCase = true)) {
+    if (!playwrightVersion.matches(Regex("^[0-9]+\\.[0-9]+\\.[0-9]+\$"))) {
         baseUrl += "next/"
     }
     if (Files.exists(Paths.get("$projectDir/drivers"))) {
