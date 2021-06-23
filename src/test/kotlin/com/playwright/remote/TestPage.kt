@@ -4,8 +4,10 @@ import com.playwright.remote.base.BaseTest
 import com.playwright.remote.core.enums.Media
 import com.playwright.remote.core.enums.Platform.*
 import com.playwright.remote.core.exceptions.PlaywrightException
+import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.frame.impl.Frame
+import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.enum.ColorScheme.DARK
 import com.playwright.remote.engine.options.enum.ColorScheme.LIGHT
