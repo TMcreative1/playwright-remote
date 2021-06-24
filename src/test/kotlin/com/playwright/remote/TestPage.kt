@@ -4,14 +4,17 @@ import com.playwright.remote.base.BaseTest
 import com.playwright.remote.core.enums.Media
 import com.playwright.remote.core.enums.Platform.*
 import com.playwright.remote.core.exceptions.PlaywrightException
+import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.frame.impl.Frame
+import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.enum.ColorScheme.DARK
 import com.playwright.remote.engine.options.enum.ColorScheme.LIGHT
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import java.io.ByteArrayInputStream
@@ -1363,6 +1366,610 @@ class TestPage : BaseTest() {
         val image = ImageIO.read(ByteArrayInputStream(screenshot))
         assertEquals(150, image.width)
         assertEquals(100, image.height)
+    }
+    //endregion
+
+    //region Fill
+    @Test
+    fun `check to fill textarea`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        page.fill("textarea", "my value")
+        val result = page.evaluate("() => window['result']")
+        assertEquals("my value", result)
+    }
+
+    @Test
+    fun `check to fill input`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        page.fill("input", "my value")
+        val result = page.evaluate("() => window['result']")
+        assertEquals("my value", result)
+    }
+
+    @Test
+    fun `check to throw unsupported inputs exception`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        arrayListOf("button", "checkbox", "file", "image", "radio", "range", "reset", "submit").forEach {
+            page.evalOnSelector("input", "(input, type) => input.setAttribute('type', type)", it)
+            try {
+                page.fill("input", "")
+                fail("fill should throw")
+            } catch (e: PlaywrightException) {
+                assertTrue(e.message!!.contains("input of type \"$it\" cannot be filled"), e.message)
+            }
+        }
+    }
+
+    @Test
+    fun `check to fill different input types`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        arrayListOf("password", "search", "tel", "text", "url").forEach {
+            page.evalOnSelector("input", "(input, type) => input.setAttribute('type', type)", it)
+            val expectedValue = "text $it"
+            page.fill("input", expectedValue)
+            val result = page.evaluate("() => window['result']")
+            assertEquals(expectedValue, result)
+        }
+    }
+
+    @Test
+    fun `check to fill date input after clicking`() {
+        page.setContent("<input type=date>")
+        page.click("input")
+        val expectedDate = "2021-06-23"
+        page.fill("input", expectedDate)
+        val result = page.evalOnSelector("input", "input => input.value")
+        assertEquals(expectedDate, result)
+    }
+
+    @Test
+    @DisabledIfSystemProperty(named = "browser", matches = "^\$|webkit")
+    fun `check to throw exception on incorrect date`() {
+        page.setContent("<input type=date>")
+        try {
+            page.fill("input", "2021-13-23")
+            fail("fill should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Malformed value"))
+        }
+    }
+
+    @Test
+    fun `check to fill time input`() {
+        page.setContent("<input type=time>")
+        val expectedTime = "14:32"
+        page.fill("input", expectedTime)
+        val result = page.evalOnSelector("input", "input => input.value")
+        assertEquals(expectedTime, result)
+    }
+
+    @Test
+    @DisabledIfSystemProperty(named = "browser", matches = "^\$|webkit")
+    fun `check to throw exception on incorrect time`() {
+        page.setContent("<input type=time>")
+        try {
+            page.fill("input", "26:10")
+            fail("fill should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Malformed value"))
+        }
+    }
+
+    @Test
+    fun `check to fill datetime local input`() {
+        page.setContent("<input type=datetime-local>")
+        val expectedDateTime = "2021-06-23T15:25"
+        page.fill("input", expectedDateTime)
+        val result = page.evalOnSelector("input", "input => input.value", expectedDateTime)
+        assertEquals(expectedDateTime, result)
+    }
+
+    @Test
+    @DisabledIfSystemProperty(named = "browser", matches = "^\$|webkit")
+    fun `check to throw exception on incorrect datetime local`() {
+        page.setContent("<input type=datetime-local>")
+        try {
+            page.fill("input", "word")
+            fail("fill should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Malformed value"))
+        }
+    }
+
+    @Test
+    fun `check to fill content editable`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val expectedValue = "my value"
+        page.fill("div[contenteditable]", expectedValue)
+        val result = page.evalOnSelector("div[contenteditable]", "div => div.textContent")
+        assertEquals(expectedValue, result)
+    }
+
+    @Test
+    fun `check to fill elements with existing value and selection`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+
+        page.evalOnSelector("input", "input => input.value = 'value one'")
+        var expectedValue = "another value"
+        page.fill("input", expectedValue)
+        var result = page.evaluate("() => window['result']")
+        assertEquals(expectedValue, result)
+
+        page.evalOnSelector(
+            "input", """input => {
+            |   input.selectionStart = 1;
+            |   input.selectionEnd = 2;
+            |}
+        """.trimMargin()
+        )
+
+        expectedValue = "or this value"
+        page.fill("input", expectedValue)
+        result = page.evaluate("() => window['result']")
+        assertEquals(expectedValue, result)
+
+        page.evalOnSelector(
+            "div[contenteditable]", """div => {
+            |   div.innerHTML = 'some text <span>some more text<span> and even more text';
+            |   const range = document.createRange();
+            |   range.selectNodeContents(div.querySelector('span'));
+            |   const selection = window.getSelection();
+            |   selection.removeAllRanges();
+            |   selection.addRange(range);
+            |}
+        """.trimMargin()
+        )
+        expectedValue = "replace with this"
+        page.fill("div[contenteditable]", expectedValue)
+        result = page.evalOnSelector("div[contenteditable]", "div => div.textContent")
+        assertEquals(expectedValue, result)
+    }
+
+    @Test
+    fun `check to throw exception when element is not an input textarea or content editable`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        try {
+            page.fill("body", "")
+            fail("fill should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Element is not an <input>"))
+        }
+    }
+
+    @Test
+    fun `check to fill the body`() {
+        page.setContent("<body contentEditable='true'></body>")
+        val expectedValue = "my value"
+        page.fill("body", expectedValue)
+        val result = page.evaluate("() => document.body.textContent")
+        assertEquals(expectedValue, result)
+    }
+
+    @Test
+    fun `check to fill fixed position input`() {
+        page.setContent("<input style='position: fixed;'/>")
+        val expectedValue = "my value"
+        page.fill("input", expectedValue)
+        val result = page.evaluate("() => document.querySelector('input').value")
+        assertEquals(expectedValue, result)
+    }
+
+    @Test
+    fun `check to fill when focus in the wrong frame`() {
+        page.setContent(
+            """<div contentEditable='true'></div>
+            |<iframe></iframe>
+        """.trimMargin()
+        )
+
+        page.focus("iframe")
+        val expectedValue = "my value"
+        page.fill("div", expectedValue)
+        val result = page.evalOnSelector("div", "d => d.textContent")
+        assertEquals(expectedValue, result)
+    }
+
+    @Test
+    fun `check to fill the input type number`() {
+        page.setContent("<input id='input' type='number'></input>")
+        val expectedValue = "23"
+        page.fill("input", expectedValue)
+        val result = page.evaluate("() => window['input'].value")
+        assertEquals(expectedValue, result)
+    }
+
+    @Test
+    fun `check to fill exponent into the input type number`() {
+        page.setContent("<input id='input' type='number'></input>")
+        val expectedValue = "-10e5"
+        page.fill("input", expectedValue)
+        val result = page.evaluate("() => window['input'].value")
+        assertEquals(expectedValue, result)
+    }
+
+    @Test
+    fun `check to fill input type number with empty string`() {
+        page.setContent("<input id='input' type='number' value='123'></input>")
+        page.fill("input", "")
+        val result = page.evaluate("() => window['input'].value")
+        assertEquals("", result)
+    }
+
+    @Test
+    fun `check to fill text into the input type number`() {
+        page.setContent("<input id='input' type='number'></input>")
+        try {
+            page.fill("input", "word")
+            fail("fill should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Cannot type text into input[type=number]"))
+        }
+    }
+
+    @Test
+    fun `check to clear input`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        var expectedValue = "my value"
+        page.fill("input", expectedValue)
+        var result = page.evaluate("() => window['result']")
+        assertEquals(expectedValue, result)
+
+        expectedValue = ""
+        page.fill("input", expectedValue)
+        result = page.evaluate("() => window['result']")
+        assertEquals(expectedValue, result)
+    }
+    //endregion
+
+    //region Keyboard
+    @Test
+    fun `check to type into a textarea`() {
+        val jsScript = """() => {
+            |   const textarea = document.createElement('textarea');
+            |   document.body.appendChild(textarea);
+            |   textarea.focus();
+            |}
+        """.trimMargin()
+        page.evaluate(jsScript)
+        val text = "Hello world. I am the next that was typed!"
+        page.keyboard().type(text)
+        val result = page.evaluate("() => document.querySelector('textarea').value")
+        assertEquals(text, result)
+    }
+
+    @Test
+    fun `check to move with the arrow keys`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        var text = "Age 23"
+        page.type("textarea", text)
+        var result = page.evaluate("() => document.querySelector('textarea').value")
+        assertEquals(text, result)
+
+        for (i in 0 until "23".length) {
+            page.keyboard().press("ArrowLeft")
+        }
+        page.keyboard().type("inserted ")
+        text = "Age inserted 23"
+        result = page.evaluate("() => document.querySelector('textarea').value")
+        assertEquals(text, result)
+
+        page.keyboard().down("Shift")
+        for (i in 0 until "inserted ".length) {
+            page.keyboard().press("ArrowLeft")
+        }
+        page.keyboard().up("Shift")
+        page.keyboard().press("Backspace")
+        text = "Age 23"
+        result = page.evaluate("() => document.querySelector('textarea').value")
+        assertEquals(text, result)
+    }
+
+    @Test
+    fun `check to send a character by element handle press`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val textarea = page.querySelector("textarea")
+        assertNotNull(textarea)
+        val character = "a"
+        textarea.press(character)
+        var result = page.evaluate("() => document.querySelector('textarea').value")
+        assertEquals(character, result)
+
+        page.evaluate("() => window.addEventListener('keydown', e => e.preventDefault(), true)")
+        textarea.press("b")
+        result = page.evaluate("() => document.querySelector('textarea').value")
+        assertEquals(character, result)
+    }
+
+    @Test
+    fun `check to send a character by insert text`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        page.focus("textarea")
+        var character = "嗨"
+        page.keyboard().insertText(character)
+        var result = page.evaluate("() => document.querySelector('textarea').value")
+        assertEquals(character, result)
+
+        page.evaluate("() => window.addEventListener('keydown', e => e.preventDefault(), true)")
+        page.keyboard().insertText("a")
+        character += "a"
+        result = page.evaluate("() => document.querySelector('textarea').value")
+        assertEquals(character, result)
+    }
+
+    @Test
+    fun `check to insert text should only emit input event`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        page.focus("textarea")
+        val jsScript = """() => {
+            |   const events = [];
+            |   document.addEventListener('keydown', e => events.push(e.type));
+            |   document.addEventListener('keyup', e => events.push(e.type));
+            |   document.addEventListener('keypress', e => events.push(e.type));
+            |   document.addEventListener('input', e => events.push(e.type));
+            |   return events;
+            |}
+        """.trimMargin()
+        val events = page.evaluateHandle(jsScript)
+        page.keyboard().insertText("Hello!")
+        assertEquals(arrayListOf("input"), events.jsonValue())
+    }
+
+    @Test
+    fun `check to report shift key`() {
+        // Don't test on MacOs Firefox
+        Assumptions.assumeFalse(isFirefox() && getCurrentPlatform() == MAC)
+        page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
+        val keyboard = page.keyboard()
+        val codeKey = hashMapOf(
+            "Shift" to 16,
+            "Alt" to 18,
+            "Control" to 17
+        )
+        codeKey.forEach {
+            keyboard.down(it.key)
+            var expectedValue = "Keydown: ${it.key} ${it.key}Left ${it.value} [${it.key}]"
+            var result = page.evaluate("getResult()")
+            assertEquals(expectedValue, result)
+
+            keyboard.down("!")
+            expectedValue = "Keydown: ! Digit1 49 [${it.key}]"
+            result = page.evaluate("getResult()")
+            if ("Shift" == it.key) {
+                expectedValue += "\nKeypress: ! Digit1 33 33 [${it.key}]"
+            }
+            assertEquals(expectedValue, result)
+
+            keyboard.up("!")
+            expectedValue = "Keyup: ! Digit1 49 [${it.key}]"
+            result = page.evaluate("getResult()")
+            assertEquals(expectedValue, result)
+
+            keyboard.up(it.key)
+            expectedValue = "Keyup: ${it.key} ${it.key}Left ${it.value} []"
+            result = page.evaluate("getResult()")
+            assertEquals(expectedValue, result)
+        }
+    }
+
+    @Test
+    fun `check to report multiple modifiers`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
+        val keyboard = page.keyboard()
+        keyboard.down("Control")
+        var expectedResult = "Keydown: Control ControlLeft 17 [Control]"
+        var result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+
+        keyboard.down("Alt")
+        expectedResult = "Keydown: Alt AltLeft 18 [Alt Control]"
+        result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+
+        keyboard.down(";")
+        expectedResult = "Keydown: ; Semicolon 186 [Alt Control]"
+        result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+
+        keyboard.up(";")
+        expectedResult = "Keyup: ; Semicolon 186 [Alt Control]"
+        result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+
+        keyboard.up("Control")
+        expectedResult = "Keyup: Control ControlLeft 17 [Alt]"
+        result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+
+        keyboard.up("Alt")
+        expectedResult = "Keyup: Alt AltLeft 18 []"
+        result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun `check to send proper codes while typing`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
+        page.keyboard().type("!")
+        var expectedResult = arrayListOf(
+            "Keydown: ! Digit1 49 []",
+            "Keypress: ! Digit1 33 33 []",
+            "Keyup: ! Digit1 49 []"
+        ).joinToString(separator = "\n")
+        var result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+
+        page.keyboard().type("^")
+        expectedResult = arrayListOf(
+            "Keydown: ^ Digit6 54 []",
+            "Keypress: ^ Digit6 94 94 []",
+            "Keyup: ^ Digit6 54 []"
+        ).joinToString(separator = "\n")
+        result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun `check to send proper codes while typing with shift`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
+        val keyboard = page.keyboard()
+        keyboard.down("Shift")
+        page.keyboard().type("~")
+        val expectedResult = arrayListOf(
+            "Keydown: Shift ShiftLeft 16 [Shift]",
+            "Keydown: ~ Backquote 192 [Shift]",
+            "Keypress: ~ Backquote 126 126 [Shift]",
+            "Keyup: ~ Backquote 192 [Shift]"
+        ).joinToString(separator = "\n")
+        val result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun `check to not type canceled events`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        page.focus("textarea")
+        val jsScript = """() => {
+            |   window.addEventListener('keydown', event => {
+            |       event.stopPropagation();
+            |       event.stopImmediatePropagation();
+            |       if (event.key == 'l')
+            |           event.preventDefault();
+            |       if (event.key == 'o')
+            |           event.preventDefault();
+            |   }, false);
+            |}
+        """.trimMargin()
+        page.evaluate(jsScript)
+        page.keyboard().type("Hello World!")
+        val result = page.evalOnSelector("textarea", "textarea => textarea.value")
+        assertEquals("He Wrd!", result)
+    }
+
+    @Test
+    fun `check to press plus`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
+        page.keyboard().press("+")
+        val expectedResult = arrayListOf(
+            "Keydown: + Equal 187 []",
+            "Keypress: + Equal 43 43 []",
+            "Keyup: + Equal 187 []"
+        ).joinToString(separator = "\n")
+        val result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun `check to press shift plus`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
+        page.keyboard().press("Shift++")
+        val expectedResult = arrayListOf(
+            "Keydown: Shift ShiftLeft 16 [Shift]",
+            "Keydown: + Equal 187 [Shift]",
+            "Keypress: + Equal 43 43 [Shift]",
+            "Keyup: + Equal 187 [Shift]",
+            "Keyup: Shift ShiftLeft 16 []"
+        ).joinToString(separator = "\n")
+        val result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun `check to support plus separated modifier`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
+        page.keyboard().press("Shift+~")
+        val expectedResult = arrayListOf(
+            "Keydown: Shift ShiftLeft 16 [Shift]",
+            "Keydown: ~ Backquote 192 [Shift]",
+            "Keypress: ~ Backquote 126 126 [Shift]",
+            "Keyup: ~ Backquote 192 [Shift]",
+            "Keyup: Shift ShiftLeft 16 []"
+        ).joinToString(separator = "\n")
+        val result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun `check to support multiple plus separated modifier`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
+        page.keyboard().press("Control+Shift+~")
+        val expectedResult = arrayListOf(
+            "Keydown: Control ControlLeft 17 [Control]",
+            "Keydown: Shift ShiftLeft 16 [Control Shift]",
+            "Keydown: ~ Backquote 192 [Control Shift]",
+            "Keyup: ~ Backquote 192 [Control Shift]",
+            "Keyup: Shift ShiftLeft 16 [Control]",
+            "Keyup: Control ControlLeft 17 []"
+        ).joinToString(separator = "\n")
+        val result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun `check to shift raw codes`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
+        page.keyboard().press("Shift+Digit3")
+        val expectedResult = arrayListOf(
+            "Keydown: Shift ShiftLeft 16 [Shift]",
+            "Keydown: # Digit3 51 [Shift]",
+            "Keypress: # Digit3 35 35 [Shift]",
+            "Keyup: # Digit3 51 [Shift]",
+            "Keyup: Shift ShiftLeft 16 []"
+        ).joinToString(separator = "\n")
+        val result = page.evaluate("getResult()")
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun `check to specify repeat property`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        page.focus("textarea")
+        val lastEvent = captureLastKeyDown()
+        page.keyboard().down("a")
+        assertEquals(false, lastEvent.evaluate("e => e.repeat"))
+
+        page.keyboard().press("a")
+        assertEquals(true, lastEvent.evaluate("e => e.repeat"))
+
+        page.keyboard().down("b")
+        assertEquals(false, lastEvent.evaluate("e => e.repeat"))
+
+        page.keyboard().press("b")
+        assertEquals(true, lastEvent.evaluate("e => e.repeat"))
+
+        page.keyboard().up("a")
+        page.keyboard().down("a")
+        assertEquals(false, lastEvent.evaluate("e => e.repeat"))
+    }
+
+    @Test
+    fun `check to type all kinds of characters`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        page.focus("textarea")
+        val text = """This text goes onto two lines.
+            |This is character is 嗨.
+        """.trimMargin()
+        page.keyboard().type(text)
+        val result = page.evalOnSelector("textarea", "t => t.value")
+        assertEquals(text, result)
+    }
+
+    @Test
+    fun `check to specify location`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val lastEvent = captureLastKeyDown()
+        val textarea = page.querySelector("textarea")
+        assertNotNull(textarea)
+        textarea.press("Digit5")
+        assertEquals(0, lastEvent.evaluate("e => e.location"))
+
+        textarea.press("ControlLeft")
+        assertEquals(1, lastEvent.evaluate("e => e.location"))
+
+        textarea.press("ControlRight")
+        assertEquals(2, lastEvent.evaluate("e => e.location"))
+
+        textarea.press("NumpadSubtract")
+        assertEquals(3, lastEvent.evaluate("e => e.location"))
     }
     //endregion
 }
