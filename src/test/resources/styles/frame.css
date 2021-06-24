@@ -1,0 +1,12 @@
+body {
+    height: 100px;
+    margin: 8px;
+    border: 0;
+    background-color: #555;
+
+}
+
+div {
+    color: blue;
+    line-height: 18px;
+}
