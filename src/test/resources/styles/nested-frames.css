@@ -1,0 +1,16 @@
+body {
+    display: flex;
+    height: 500px;
+    margin: 8px;
+}
+
+body iframe {
+    flex-grow: 1;
+    flex-shrink: 1;
+    border: 0;
+    background-color: green;
+}
+
+::-webkit-scrollbar{
+    display: none;
+}
