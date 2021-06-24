@@ -7,6 +7,7 @@ import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.frame.api.IFrame
+import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.server.api.IServerProvider
 import com.playwright.remote.engine.server.impl.ServerProvider
@@ -113,4 +114,28 @@ open class BaseTest {
         return handle.asElement()?.contentFrame()
     }
 
+    protected fun captureLastKeyDown(): IJSHandle {
+        val jsScript = """() => {
+            |   const lastEvent = {
+            |       repeat: false,
+            |       location: -1,
+            |       code: '',
+            |       key: '',
+            |       metaKey: false,
+            |       keyIdentifier: 'unsupported'
+            |   };
+            |   document.addEventListener('keydown', e => {
+            |       lastEvent.repeat = e.repeat;
+            |       lastEvent.location = e.location;
+            |       lastEvent.key = e.key;
+            |       lastEvent.code = e.code;
+            |       lastEvent.metaKey = e.metaKey;
+            |       // keyIdentifier only exists in WebKit, and isn't in TypeScript's lib.
+            |       lastEvent.keyIdentifier = 'keyIdentifier' in e && e['keyIdentifier'];
+            |   }, true);
+            |   return lastEvent;
+            |}
+        """.trimMargin()
+        return page.evaluateHandle(jsScript)
+    }
 }
