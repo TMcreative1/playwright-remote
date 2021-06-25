@@ -25,6 +25,11 @@ class WaitNavigation(
     private var request: IRequest? = null
     private var exception: RuntimeException? = null
 
+    init {
+        @Suppress("UNCHECKED_CAST")
+        internalListeners.add(NAVIGATED, this as UniversalConsumer)
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun invoke(p1: JsonObject) {
         if (!matcher.test(p1["url"].asString)) {
@@ -34,9 +39,9 @@ class WaitNavigation(
             exception = PlaywrightException(p1["error"].asString)
         } else {
             if (p1.has("newDocument")) {
-                val jsonRequest = p1["newDocument"].asJsonObject["request"].asJsonObject
+                val jsonRequest = p1["newDocument"].asJsonObject["request"]
                 if (jsonRequest != null) {
-                    request = messageProcessor.getExistingObject(jsonRequest["guid"].asString)
+                    request = messageProcessor.getExistingObject(jsonRequest.asJsonObject["guid"].asString)
                 }
             }
             waitLoadState = WaitLoadState(expectedLoadState, internalListeners, loadStates)
