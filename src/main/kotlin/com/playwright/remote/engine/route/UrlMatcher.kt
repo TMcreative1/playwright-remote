@@ -8,7 +8,7 @@ import java.util.regex.Pattern.compile
 
 typealias Predicate = (String) -> Boolean
 
-class UrlMatcher(private val rawSource: Any = "", private val predicate: Predicate = { false }) {
+class UrlMatcher(private val rawSource: Any = "", private val predicate: Predicate? = null) {
 
     companion object {
         private fun toPredicate(pattern: Pattern): Predicate = { str -> pattern.matcher(str).find() }
@@ -30,11 +30,11 @@ class UrlMatcher(private val rawSource: Any = "", private val predicate: Predica
 
     constructor(predicate: Predicate) : this(predicate, predicate)
 
-    constructor(url: String = "") : this(
+    constructor(url: String) : this(
         url,
         toPredicate(compile(globToRegex(url))).also { str -> url == "" || url.equals(str) })
 
-    fun test(value: String) = predicate == { false } || predicate(value)
+    fun test(value: String) = predicate == null || predicate.invoke(value)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
