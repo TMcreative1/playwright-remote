@@ -3,6 +3,7 @@ package com.playwright.remote
 import com.playwright.remote.base.BaseTest
 import com.playwright.remote.core.enums.Media
 import com.playwright.remote.core.enums.Platform.*
+import com.playwright.remote.core.enums.WaitUntilState.LOAD
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
@@ -11,14 +12,18 @@ import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.enum.ColorScheme.DARK
 import com.playwright.remote.engine.options.enum.ColorScheme.LIGHT
+import com.playwright.remote.engine.options.wait.WaitForNavigationOptions
+import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
+import jdk.jfr.Description
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import java.io.ByteArrayInputStream
 import java.nio.file.Files
+import java.util.Collections.singletonList
 import java.util.regex.Pattern
 import javax.imageio.ImageIO
 import kotlin.io.path.Path
@@ -254,7 +259,7 @@ class TestPage : BaseTest() {
     }
 
     @Test
-    fun `check correct work for page close with window close`(){
+    fun `check correct work for page close with window close`() {
         val newPage = page.waitForPopup { page.evaluate("() => window['newPage'] = window.open('about:blank')") }
         assertNotNull(newPage)
         assertFalse(newPage.isClosed())
@@ -1306,6 +1311,21 @@ class TestPage : BaseTest() {
     }
 
     @Test
+    fun `check to not throw exception during navigation`() {
+        page.exposeBinding("logMe", { _, _ -> 23 }, ExposeBindingOptions { it.handle = true })
+        page.navigate(httpServer.emptyPage)
+
+        page.waitForNavigation(WaitForNavigationOptions { it.waitUntil = LOAD }) {
+            val jsScript = """async url => {
+                |   window['logMe']({ foo: 24 });
+                |   window.location.href = url;
+                |}
+            """.trimMargin()
+            page.evaluate(jsScript, "${httpServer.prefixWithDomain}/page-with-one-style.html")
+        }
+    }
+
+    @Test
     fun `check to throw for duplicate registrations`() {
         page.exposeFunction("fun1") { "response" }
         try {
@@ -1717,7 +1737,7 @@ class TestPage : BaseTest() {
     @Test
     fun `check to report shift key`() {
         // Don't test on MacOs Firefox
-        Assumptions.assumeFalse(isFirefox() && getCurrentPlatform() == MAC)
+        Assumptions.assumeFalse(isFirefox() && isMac())
         page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
         val keyboard = page.keyboard()
         val codeKey = hashMapOf(
@@ -1970,6 +1990,365 @@ class TestPage : BaseTest() {
 
         textarea.press("NumpadSubtract")
         assertEquals(3, lastEvent.evaluate("e => e.location"))
+    }
+
+    @Test
+    fun `check to press enter`() {
+        page.setContent("<textarea></textarea>")
+        page.focus("textarea")
+        val lastEvent = captureLastKeyDown()
+        testEnterKey(lastEvent, "Enter", "Enter")
+        testEnterKey(lastEvent, "NumpadEnter", "NumpadEnter")
+        testEnterKey(lastEvent, "\n", "Enter")
+        testEnterKey(lastEvent, "\n", "Enter")
+    }
+
+    private fun testEnterKey(lastEventHandle: IJSHandle, key: String, expectedCode: String) {
+        page.keyboard().press(key)
+        val lastEvent = lastEventHandle.jsonValue() as LinkedHashMap<*, *>
+        assertEquals("Enter", lastEvent["key"], lastEvent.toString())
+        assertEquals(expectedCode, lastEvent["code"], lastEvent.values.joinToString(separator = ","))
+
+        val value = page.evalOnSelector("textarea", "t => t.value")
+        assertEquals("\n", value)
+        page.evalOnSelector("textarea", "t => t.value = ''")
+    }
+
+    @Test
+    fun `check to throw on unknown keys`() {
+        testUnknownKey("NotARealKey")
+        testUnknownKey("ё")
+        testUnknownKey("☺")
+    }
+
+    private fun testUnknownKey(key: String) {
+        try {
+            page.keyboard().press(key)
+            fail("press should throw")
+        } catch (e: Exception) {
+            assertTrue(e.message!!.contains("Unknown key: \"${key}\""))
+        }
+    }
+
+    @Test
+    fun `check to type emoji`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val expectedText = "👹 Tokyo street Japan 🇯🇵"
+        page.type("textarea", expectedText)
+        val result = page.evalOnSelector("textarea", "textarea => textarea.value")
+        assertEquals(expectedText, result)
+    }
+
+    @Test
+    fun `check to type emoji into an iframe`() {
+        page.navigate(httpServer.emptyPage)
+        attachFrame(page, "emoji-test", "${httpServer.prefixWithDomain}/input/textarea.html")
+        val frame = page.frames()[1]
+        val textarea = frame.querySelector("textarea")
+        assertNotNull(textarea)
+        val expectedText = "👹 Tokyo street Japan 🇯🇵"
+        textarea.type(expectedText)
+        val result = frame.evalOnSelector("textarea", "textarea => textarea.value")
+        assertEquals(expectedText, result)
+    }
+
+    @Test
+    fun `check to handle select all`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val textarea = page.querySelector("textarea")
+        val expectedText = "my text"
+        assertNotNull(textarea)
+        textarea.type(expectedText)
+
+        val modifier = if (isMac()) "Meta" else "Control"
+        page.keyboard().down(modifier)
+        page.keyboard().press("a")
+        page.keyboard().up(modifier)
+        page.keyboard().press("Backspace")
+
+        val result = page.evalOnSelector("textarea", "textarea => textarea.value") as String
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun `check to prevent select all`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val textarea = page.querySelector("textarea")
+        assertNotNull(textarea)
+        val expectedText = "my text"
+        textarea.type(expectedText)
+
+        val jsScript = """textarea => {
+            |   textarea.addEventListener('keydown', event => {
+            |       if (event.key === 'a' && (event.metaKey || event.ctrlKey))
+            |           event.preventDefault();
+            |   }, false);
+            |}
+        """.trimMargin()
+        page.evalOnSelector("textarea", jsScript)
+        val modifier = if (isMac()) "Meta" else "Control"
+        page.keyboard().down(modifier)
+        page.keyboard().press("a")
+        page.keyboard().up(modifier)
+        page.keyboard().press("Backspace")
+        val result = page.evalOnSelector("textarea", "textarea => textarea.value")
+        assertEquals(expectedText.substring(0, expectedText.lastIndex), result)
+    }
+
+    @Test
+    @Description("Test only for MacOs")
+    fun `check to support macOs shortcuts`() {
+        Assumptions.assumeTrue(isMac())
+        Assumptions.assumeFalse(isFirefox())
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val textarea = page.querySelector("textarea")
+        assertNotNull(textarea)
+        val expectedText = "my text"
+        textarea.type(expectedText)
+        page.keyboard().press("Shift+Control+Alt+KeyB")
+        page.keyboard().press("Backspace")
+        val result = page.evalOnSelector("textarea", "textarea => textarea.value")
+        assertEquals(expectedText, result)
+    }
+
+    @Test
+    fun `check to press metaKey`() {
+        val lastEvent = captureLastKeyDown()
+        page.keyboard().press("Meta")
+        val eventData = lastEvent.jsonValue() as LinkedHashMap<*, *>
+        if (isFirefox() && !isMac()) {
+            assertEquals("OS", eventData["key"])
+            assertFalse(eventData["metaKey"] as Boolean)
+        } else {
+            assertEquals("Meta", eventData["key"])
+            assertTrue(eventData["metaKey"] as Boolean)
+        }
+        if (isFirefox()) {
+            assertEquals("OSLeft", eventData["code"])
+        } else {
+            assertEquals("MetaLeft", eventData["code"])
+        }
+    }
+
+    @Test
+    fun `check correct work after a cross origin navigation for keyboard`() {
+        page.navigate(httpServer.emptyPage)
+        page.navigate("${httpServer.prefixWithIP}/empty.html")
+        val lastEvent = captureLastKeyDown()
+        page.keyboard().press("a")
+        val result = lastEvent.evaluate("l => l.key")
+        assertEquals("a", result)
+    }
+
+    @Test
+    @Description("Test only for WebKit")
+    @DisabledIfSystemProperty(named = "browser", matches = "^chromium|firefox")
+    fun `check to expose key identifier in web kit`() {
+        val lastEvent = captureLastKeyDown()
+        val keyMap = hashMapOf(
+            "ArrowUp" to "Up",
+            "ArrowDown" to "Down",
+            "ArrowLeft" to "Left",
+            "ArrowRight" to "Right",
+            "Backspace" to "U+0008",
+            "Tab" to "U+0009",
+            "Delete" to "U+007F",
+            "a" to "U+0041",
+            "b" to "U+0042",
+            "F12" to "F12",
+        )
+        keyMap.forEach {
+            page.keyboard().press(it.key)
+            val result = lastEvent.evaluate("e => e.keyIdentifier")
+            assertEquals(it.value, result)
+        }
+    }
+
+    @Test
+    fun `check to scroll by page down`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/scrollable.html")
+        page.click("body")
+        page.keyboard().press("PageDown")
+        page.waitForFunction("() => scrollY > 0")
+    }
+    //endregion
+
+    //region Route
+    @Test
+    fun `check to intercept`() {
+        val intercept = arrayListOf(false)
+        page.route("**/empty.html") {
+            val request = it.request()
+            assertTrue(request.url().contains("empty.html"))
+            assertNotNull(request.headers()["user-agent"])
+            assertEquals("GET", request.method())
+            assertNull(request.postData())
+            assertTrue(request.isNavigationRequest())
+            assertEquals("document", request.resourceType())
+            assertEquals(request.frame(), page.mainFrame())
+            assertEquals("about:blank", request.frame().url())
+            it.resume()
+            intercept[0] = true
+        }
+        val response = page.navigate(httpServer.emptyPage)
+        assertNotNull(response)
+        assertTrue(response.ok())
+        assertTrue(intercept[0])
+    }
+
+    @Test
+    fun `check to unroute`() {
+        val intercepted = arrayListOf<Int>()
+        val handler1: (IRoute) -> Unit = {
+            intercepted.add(1)
+            it.resume()
+        }
+        page.route("**/empty.html", handler1)
+        page.route("**/empty.html") {
+            intercepted.add(2)
+            it.resume()
+        }
+        page.route("**/empty.html") {
+            intercepted.add(3)
+            it.resume()
+        }
+        page.route("**/*") {
+            intercepted.add(4)
+            it.resume()
+        }
+        page.navigate(httpServer.emptyPage)
+        assertEquals(arrayListOf(1), intercepted)
+
+        intercepted.clear()
+        page.unroute("**/empty.html", handler1)
+        page.navigate(httpServer.emptyPage)
+        assertEquals(arrayListOf(2), intercepted)
+
+        intercepted.clear()
+        page.unroute("**/empty.html")
+        page.navigate(httpServer.emptyPage)
+        assertEquals(arrayListOf(4), intercepted)
+    }
+
+    @Test
+    fun `check to correct work when post is redirected with 302`() {
+        httpServer.setRedirect("/rredirect", "/empty.html")
+        page.navigate(httpServer.emptyPage)
+        page.route("**/*") { it.resume() }
+        val content = """<form action='/rredirect' method='post'>
+            |   <input type='hidden' id='foo' name='foo' value='FOOBAR'>
+            |</form>
+        """.trimMargin()
+        page.setContent(content)
+        page.waitForNavigation { page.evalOnSelector("form", "form => form.submit()") }
+    }
+
+    @Test
+    fun `check correct work when header manipulation headers with redirect`() {
+        httpServer.setRedirect("/rrredict", "/empty.html")
+        page.route("**/*") {
+            val headers = it.request().headers() as HashMap
+            headers["age"] = "23"
+            it.resume(ResumeOptions { it.headers = headers })
+        }
+        page.navigate("${httpServer.prefixWithDomain}/rrredirect")
+    }
+
+    @Test
+    fun `check to remove headers`() {
+        page.navigate(httpServer.emptyPage)
+        page.route("**/*") {
+            val headers = it.request().headers() as HashMap
+            headers.remove("age")
+            it.resume(ResumeOptions { it.headers = headers })
+        }
+
+        val serverRequest = httpServer.futureRequest("/title.html")
+        page.evaluate("url => fetch(url, { headers: { age: '23'} })", "${httpServer.prefixWithDomain}/title.html")
+        assertFalse(serverRequest.get().headers.containsKey("age"))
+    }
+
+    @Test
+    fun `check to contain referer header`() {
+        val requests = arrayListOf<IRequest>()
+        page.route("**/*") {
+            requests.add(it.request())
+            it.resume()
+        }
+        page.navigate("${httpServer.prefixWithDomain}/page-with-one-style.html")
+        assertTrue(requests[1].url().contains("/one-style.css"))
+        assertTrue(requests[1].headers().containsKey("referer"))
+        assertTrue(requests[1].headers()["referer"]!!.contains("/page-with-one-style.html"))
+    }
+
+    @Test
+    fun `check to return navigation reponse when url has cookies`() {
+        page.navigate(httpServer.emptyPage)
+        browserContext.addCookies(singletonList(Cookie {
+            it.name = "age"
+            it.value = "23"
+            it.url = httpServer.emptyPage
+        }))
+        page.route("**/*") { it.resume() }
+        val response = page.reload()
+        assertNotNull(response)
+        assertEquals(200, response.status())
+    }
+
+    @Test
+    fun `check to show custom http headers`() {
+        page.setExtraHTTPHeaders(mapOf("age" to "23"))
+        page.route("**/*") {
+            assertEquals("23", it.request().headers()["age"])
+            it.resume()
+        }
+        val response = page.navigate(httpServer.emptyPage)
+        assertNotNull(response)
+        assertTrue(response.ok())
+    }
+
+    @Test
+    @DisabledIfSystemProperty(named = "browser", matches = "^\$|webkit")
+    fun `check correct work route with redirect inside sync xhr`() {
+        page.navigate(httpServer.emptyPage)
+        httpServer.setRedirect("/logo.png", "/playwright.png")
+        page.route("**/*") { it.resume() }
+        val jsScript = """async () => {
+            |   const request = new XMLHttpRequest();
+            |   request.open('GET', '/logo.png', false);
+            |   request.send(null);
+            |   return request.status;
+            |}
+        """.trimMargin()
+        val result = page.evaluate(jsScript)
+        assertEquals(200, result)
+    }
+
+    @Test
+    fun `check correct work route with custom referer headers`() {
+        page.setExtraHTTPHeaders(mapOf("referer" to httpServer.emptyPage))
+        page.route("**/*") {
+            assertEquals(httpServer.emptyPage, it.request().headers()["referer"])
+            it.resume()
+        }
+        val response = page.navigate(httpServer.emptyPage)
+        assertNotNull(response)
+        assertTrue(response.ok())
+    }
+
+    @Test
+    fun `check to be aborted`() {
+        page.route(Pattern.compile(".*\\.css$")) { it.abort() }
+        val failed = arrayListOf(false)
+        page.onRequestFailed {
+            if (it.url().contains(".css"))
+                failed[0] = true
+        }
+        val response = page.navigate("${httpServer.prefixWithDomain}/page-with-one-style.html")
+        assertNotNull(response)
+        assertTrue(response.ok())
+        assertTrue(response.request().failure().isEmpty())
+        assertTrue(failed[0])
     }
     //endregion
 }
