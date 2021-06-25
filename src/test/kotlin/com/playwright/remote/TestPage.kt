@@ -3,7 +3,6 @@ package com.playwright.remote
 import com.playwright.remote.base.BaseTest
 import com.playwright.remote.core.enums.Media
 import com.playwright.remote.core.enums.Platform.*
-import com.playwright.remote.core.enums.WaitUntilState
 import com.playwright.remote.core.enums.WaitUntilState.LOAD
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.callback.api.IBindingCallback
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import java.io.ByteArrayInputStream
 import java.nio.file.Files
+import java.util.Collections.singletonList
 import java.util.regex.Pattern
 import javax.imageio.ImageIO
 import kotlin.io.path.Path
@@ -2241,6 +2241,114 @@ class TestPage : BaseTest() {
         """.trimMargin()
         page.setContent(content)
         page.waitForNavigation { page.evalOnSelector("form", "form => form.submit()") }
+    }
+
+    @Test
+    fun `check correct work when header manipulation headers with redirect`() {
+        httpServer.setRedirect("/rrredict", "/empty.html")
+        page.route("**/*") {
+            val headers = it.request().headers() as HashMap
+            headers["age"] = "23"
+            it.resume(ResumeOptions { it.headers = headers })
+        }
+        page.navigate("${httpServer.prefixWithDomain}/rrredirect")
+    }
+
+    @Test
+    fun `check to remove headers`() {
+        page.navigate(httpServer.emptyPage)
+        page.route("**/*") {
+            val headers = it.request().headers() as HashMap
+            headers.remove("age")
+            it.resume(ResumeOptions { it.headers = headers })
+        }
+
+        val serverRequest = httpServer.futureRequest("/title.html")
+        page.evaluate("url => fetch(url, { headers: { age: '23'} })", "${httpServer.prefixWithDomain}/title.html")
+        assertFalse(serverRequest.get().headers.containsKey("age"))
+    }
+
+    @Test
+    fun `check to contain referer header`() {
+        val requests = arrayListOf<IRequest>()
+        page.route("**/*") {
+            requests.add(it.request())
+            it.resume()
+        }
+        page.navigate("${httpServer.prefixWithDomain}/page-with-one-style.html")
+        assertTrue(requests[1].url().contains("/one-style.css"))
+        assertTrue(requests[1].headers().containsKey("referer"))
+        assertTrue(requests[1].headers()["referer"]!!.contains("/page-with-one-style.html"))
+    }
+
+    @Test
+    fun `check to return navigation reponse when url has cookies`() {
+        page.navigate(httpServer.emptyPage)
+        browserContext.addCookies(singletonList(Cookie {
+            it.name = "age"
+            it.value = "23"
+            it.url = httpServer.emptyPage
+        }))
+        page.route("**/*") { it.resume() }
+        val response = page.reload()
+        assertNotNull(response)
+        assertEquals(200, response.status())
+    }
+
+    @Test
+    fun `check to show custom http headers`() {
+        page.setExtraHTTPHeaders(mapOf("age" to "23"))
+        page.route("**/*") {
+            assertEquals("23", it.request().headers()["age"])
+            it.resume()
+        }
+        val response = page.navigate(httpServer.emptyPage)
+        assertNotNull(response)
+        assertTrue(response.ok())
+    }
+
+    @Test
+    @DisabledIfSystemProperty(named = "browser", matches = "^\$|webkit")
+    fun `check correct work route with redirect inside sync xhr`() {
+        page.navigate(httpServer.emptyPage)
+        httpServer.setRedirect("/logo.png", "/playwright.png")
+        page.route("**/*") { it.resume() }
+        val jsScript = """async () => {
+            |   const request = new XMLHttpRequest();
+            |   request.open('GET', '/logo.png', false);
+            |   request.send(null);
+            |   return request.status;
+            |}
+        """.trimMargin()
+        val result = page.evaluate(jsScript)
+        assertEquals(200, result)
+    }
+
+    @Test
+    fun `check correct work route with custom referer headers`() {
+        page.setExtraHTTPHeaders(mapOf("referer" to httpServer.emptyPage))
+        page.route("**/*") {
+            assertEquals(httpServer.emptyPage, it.request().headers()["referer"])
+            it.resume()
+        }
+        val response = page.navigate(httpServer.emptyPage)
+        assertNotNull(response)
+        assertTrue(response.ok())
+    }
+
+    @Test
+    fun `check to be aborted`() {
+        page.route(Pattern.compile(".*\\.css$")) { it.abort() }
+        val failed = arrayListOf(false)
+        page.onRequestFailed {
+            if (it.url().contains(".css"))
+                failed[0] = true
+        }
+        val response = page.navigate("${httpServer.prefixWithDomain}/page-with-one-style.html")
+        assertNotNull(response)
+        assertTrue(response.ok())
+        assertTrue(response.request().failure().isEmpty())
+        assertTrue(failed[0])
     }
     //endregion
 }
