@@ -995,6 +995,29 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
             "domcontentloaded" -> {
                 listeners.notify(DOMCONTENTLOADED, this)
             }
+            "request" -> {
+                val guid = params["request"].asJsonObject["guid"].asString
+                val request = messageProcessor.getExistingObject<IRequest>(guid)
+                listeners.notify(REQUEST, request)
+            }
+            "requestFailed" -> {
+                val guid = params["request"].asJsonObject["guid"].asString
+                val request = messageProcessor.getExistingObject<IRequest>(guid)
+                if (params.has("failureText")) {
+                    (request as Request).failure = params["failureText"].asString
+                }
+                listeners.notify(REQUESTFAILED, request)
+            }
+            "requestFinished" -> {
+                val guid = params["request"].asJsonObject["guid"].asString
+                val request = messageProcessor.getExistingObject<IRequest>(guid)
+                listeners.notify(REQUESTFINISHED, request)
+            }
+            "response" -> {
+                val guid = params["response"].asJsonObject["guid"].asString
+                val response = messageProcessor.getExistingObject<IResponse>(guid)
+                listeners.notify(RESPONSE, response)
+            }
             "frameAttached" -> {
                 val guid = params["frame"].asJsonObject["guid"].asString
                 val frame = messageProcessor.getExistingObject<IFrame>(guid)
