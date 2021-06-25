@@ -39,9 +39,9 @@ class WaitNavigation(
             exception = PlaywrightException(p1["error"].asString)
         } else {
             if (p1.has("newDocument")) {
-                val jsonRequest = p1["newDocument"].asJsonObject["request"].asJsonObject
+                val jsonRequest = p1["newDocument"].asJsonObject["request"]
                 if (jsonRequest != null) {
-                    request = messageProcessor.getExistingObject(jsonRequest["guid"].asString)
+                    request = messageProcessor.getExistingObject(jsonRequest.asJsonObject["guid"].asString)
                 }
             }
             waitLoadState = WaitLoadState(expectedLoadState, internalListeners, loadStates)

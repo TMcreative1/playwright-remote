@@ -3,6 +3,8 @@ package com.playwright.remote
 import com.playwright.remote.base.BaseTest
 import com.playwright.remote.core.enums.Media
 import com.playwright.remote.core.enums.Platform.*
+import com.playwright.remote.core.enums.WaitUntilState
+import com.playwright.remote.core.enums.WaitUntilState.LOAD
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.callback.api.IBindingCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
@@ -11,9 +13,10 @@ import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.options.*
 import com.playwright.remote.engine.options.enum.ColorScheme.DARK
 import com.playwright.remote.engine.options.enum.ColorScheme.LIGHT
+import com.playwright.remote.engine.options.wait.WaitForNavigationOptions
+import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
-import com.playwright.remote.utils.PlatformUtils
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
 import jdk.jfr.Description
 import org.junit.jupiter.api.Assumptions
@@ -1308,6 +1311,21 @@ class TestPage : BaseTest() {
     }
 
     @Test
+    fun `check to not throw exception during navigation`() {
+        page.exposeBinding("logMe", { _, _ -> 23 }, ExposeBindingOptions { it.handle = true })
+        page.navigate(httpServer.emptyPage)
+
+        page.waitForNavigation(WaitForNavigationOptions { it.waitUntil = LOAD }) {
+            val jsScript = """async url => {
+                |   window['logMe']({ foo: 24 });
+                |   window.location.href = url;
+                |}
+            """.trimMargin()
+            page.evaluate(jsScript, "${httpServer.prefixWithDomain}/page-with-one-style.html")
+        }
+    }
+
+    @Test
     fun `check to throw for duplicate registrations`() {
         page.exposeFunction("fun1") { "response" }
         try {
@@ -2152,6 +2170,77 @@ class TestPage : BaseTest() {
         page.click("body")
         page.keyboard().press("PageDown")
         page.waitForFunction("() => scrollY > 0")
+    }
+    //endregion
+
+    //region Route
+    @Test
+    fun `check to intercept`() {
+        val intercept = arrayListOf(false)
+        page.route("**/empty.html") {
+            val request = it.request()
+            assertTrue(request.url().contains("empty.html"))
+            assertNotNull(request.headers()["user-agent"])
+            assertEquals("GET", request.method())
+            assertNull(request.postData())
+            assertTrue(request.isNavigationRequest())
+            assertEquals("document", request.resourceType())
+            assertEquals(request.frame(), page.mainFrame())
+            assertEquals("about:blank", request.frame().url())
+            it.resume()
+            intercept[0] = true
+        }
+        val response = page.navigate(httpServer.emptyPage)
+        assertNotNull(response)
+        assertTrue(response.ok())
+        assertTrue(intercept[0])
+    }
+
+    @Test
+    fun `check to unroute`() {
+        val intercepted = arrayListOf<Int>()
+        val handler1: (IRoute) -> Unit = {
+            intercepted.add(1)
+            it.resume()
+        }
+        page.route("**/empty.html", handler1)
+        page.route("**/empty.html") {
+            intercepted.add(2)
+            it.resume()
+        }
+        page.route("**/empty.html") {
+            intercepted.add(3)
+            it.resume()
+        }
+        page.route("**/*") {
+            intercepted.add(4)
+            it.resume()
+        }
+        page.navigate(httpServer.emptyPage)
+        assertEquals(arrayListOf(1), intercepted)
+
+        intercepted.clear()
+        page.unroute("**/empty.html", handler1)
+        page.navigate(httpServer.emptyPage)
+        assertEquals(arrayListOf(2), intercepted)
+
+        intercepted.clear()
+        page.unroute("**/empty.html")
+        page.navigate(httpServer.emptyPage)
+        assertEquals(arrayListOf(4), intercepted)
+    }
+
+    @Test
+    fun `check to correct work when post is redirected with 302`() {
+        httpServer.setRedirect("/rredirect", "/empty.html")
+        page.navigate(httpServer.emptyPage)
+        page.route("**/*") { it.resume() }
+        val content = """<form action='/rredirect' method='post'>
+            |   <input type='hidden' id='foo' name='foo' value='FOOBAR'>
+            |</form>
+        """.trimMargin()
+        page.setContent(content)
+        page.waitForNavigation { page.evalOnSelector("form", "form => form.submit()") }
     }
     //endregion
 }
