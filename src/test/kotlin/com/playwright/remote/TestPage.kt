@@ -13,7 +13,9 @@ import com.playwright.remote.engine.options.enum.ColorScheme.DARK
 import com.playwright.remote.engine.options.enum.ColorScheme.LIGHT
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.response.api.IResponse
+import com.playwright.remote.utils.PlatformUtils
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
+import jdk.jfr.Description
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
@@ -1717,7 +1719,7 @@ class TestPage : BaseTest() {
     @Test
     fun `check to report shift key`() {
         // Don't test on MacOs Firefox
-        Assumptions.assumeFalse(isFirefox() && getCurrentPlatform() == MAC)
+        Assumptions.assumeFalse(isFirefox() && isMac())
         page.navigate("${httpServer.prefixWithDomain}/input/keyboard.html")
         val keyboard = page.keyboard()
         val codeKey = hashMapOf(
@@ -1970,6 +1972,186 @@ class TestPage : BaseTest() {
 
         textarea.press("NumpadSubtract")
         assertEquals(3, lastEvent.evaluate("e => e.location"))
+    }
+
+    @Test
+    fun `check to press enter`() {
+        page.setContent("<textarea></textarea>")
+        page.focus("textarea")
+        val lastEvent = captureLastKeyDown()
+        testEnterKey(lastEvent, "Enter", "Enter")
+        testEnterKey(lastEvent, "NumpadEnter", "NumpadEnter")
+        testEnterKey(lastEvent, "\n", "Enter")
+        testEnterKey(lastEvent, "\n", "Enter")
+    }
+
+    private fun testEnterKey(lastEventHandle: IJSHandle, key: String, expectedCode: String) {
+        page.keyboard().press(key)
+        val lastEvent = lastEventHandle.jsonValue() as LinkedHashMap<*, *>
+        assertEquals("Enter", lastEvent["key"], lastEvent.toString())
+        assertEquals(expectedCode, lastEvent["code"], lastEvent.values.joinToString(separator = ","))
+
+        val value = page.evalOnSelector("textarea", "t => t.value")
+        assertEquals("\n", value)
+        page.evalOnSelector("textarea", "t => t.value = ''")
+    }
+
+    @Test
+    fun `check to throw on unknown keys`() {
+        testUnknownKey("NotARealKey")
+        testUnknownKey("ё")
+        testUnknownKey("☺")
+    }
+
+    private fun testUnknownKey(key: String) {
+        try {
+            page.keyboard().press(key)
+            fail("press should throw")
+        } catch (e: Exception) {
+            assertTrue(e.message!!.contains("Unknown key: \"${key}\""))
+        }
+    }
+
+    @Test
+    fun `check to type emoji`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val expectedText = "👹 Tokyo street Japan 🇯🇵"
+        page.type("textarea", expectedText)
+        val result = page.evalOnSelector("textarea", "textarea => textarea.value")
+        assertEquals(expectedText, result)
+    }
+
+    @Test
+    fun `check to type emoji into an iframe`() {
+        page.navigate(httpServer.emptyPage)
+        attachFrame(page, "emoji-test", "${httpServer.prefixWithDomain}/input/textarea.html")
+        val frame = page.frames()[1]
+        val textarea = frame.querySelector("textarea")
+        assertNotNull(textarea)
+        val expectedText = "👹 Tokyo street Japan 🇯🇵"
+        textarea.type(expectedText)
+        val result = frame.evalOnSelector("textarea", "textarea => textarea.value")
+        assertEquals(expectedText, result)
+    }
+
+    @Test
+    fun `check to handle select all`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val textarea = page.querySelector("textarea")
+        val expectedText = "my text"
+        assertNotNull(textarea)
+        textarea.type(expectedText)
+
+        val modifier = if (isMac()) "Meta" else "Control"
+        page.keyboard().down(modifier)
+        page.keyboard().press("a")
+        page.keyboard().up(modifier)
+        page.keyboard().press("Backspace")
+
+        val result = page.evalOnSelector("textarea", "textarea => textarea.value") as String
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun `check to prevent select all`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val textarea = page.querySelector("textarea")
+        assertNotNull(textarea)
+        val expectedText = "my text"
+        textarea.type(expectedText)
+
+        val jsScript = """textarea => {
+            |   textarea.addEventListener('keydown', event => {
+            |       if (event.key === 'a' && (event.metaKey || event.ctrlKey))
+            |           event.preventDefault();
+            |   }, false);
+            |}
+        """.trimMargin()
+        page.evalOnSelector("textarea", jsScript)
+        val modifier = if (isMac()) "Meta" else "Control"
+        page.keyboard().down(modifier)
+        page.keyboard().press("a")
+        page.keyboard().up(modifier)
+        page.keyboard().press("Backspace")
+        val result = page.evalOnSelector("textarea", "textarea => textarea.value")
+        assertEquals(expectedText.substring(0, expectedText.lastIndex), result)
+    }
+
+    @Test
+    @Description("Test only for MacOs")
+    fun `check to support macOs shortcuts`() {
+        Assumptions.assumeTrue(isMac())
+        Assumptions.assumeFalse(isFirefox())
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        val textarea = page.querySelector("textarea")
+        assertNotNull(textarea)
+        val expectedText = "my text"
+        textarea.type(expectedText)
+        page.keyboard().press("Shift+Control+Alt+KeyB")
+        page.keyboard().press("Backspace")
+        val result = page.evalOnSelector("textarea", "textarea => textarea.value")
+        assertEquals(expectedText, result)
+    }
+
+    @Test
+    fun `check to press metaKey`() {
+        val lastEvent = captureLastKeyDown()
+        page.keyboard().press("Meta")
+        val eventData = lastEvent.jsonValue() as LinkedHashMap<*, *>
+        if (isFirefox() && !isMac()) {
+            assertEquals("OS", eventData["key"])
+            assertFalse(eventData["metaKey"] as Boolean)
+        } else {
+            assertEquals("Meta", eventData["key"])
+            assertTrue(eventData["metaKey"] as Boolean)
+        }
+        if (isFirefox()) {
+            assertEquals("OSLeft", eventData["code"])
+        } else {
+            assertEquals("MetaLeft", eventData["code"])
+        }
+    }
+
+    @Test
+    fun `check correct work after a cross origin navigation for keyboard`() {
+        page.navigate(httpServer.emptyPage)
+        page.navigate("${httpServer.prefixWithIP}/empty.html")
+        val lastEvent = captureLastKeyDown()
+        page.keyboard().press("a")
+        val result = lastEvent.evaluate("l => l.key")
+        assertEquals("a", result)
+    }
+
+    @Test
+    @Description("Test only for WebKit")
+    @DisabledIfSystemProperty(named = "browser", matches = "^chromium|firefox")
+    fun `check to expose key identifier in web kit`() {
+        val lastEvent = captureLastKeyDown()
+        val keyMap = hashMapOf(
+            "ArrowUp" to "Up",
+            "ArrowDown" to "Down",
+            "ArrowLeft" to "Left",
+            "ArrowRight" to "Right",
+            "Backspace" to "U+0008",
+            "Tab" to "U+0009",
+            "Delete" to "U+007F",
+            "a" to "U+0041",
+            "b" to "U+0042",
+            "F12" to "F12",
+        )
+        keyMap.forEach {
+            page.keyboard().press(it.key)
+            val result = lastEvent.evaluate("e => e.keyIdentifier")
+            assertEquals(it.value, result)
+        }
+    }
+
+    @Test
+    fun `check to scroll by page down`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/scrollable.html")
+        page.click("body")
+        page.keyboard().press("PageDown")
+        page.waitForFunction("() => scrollY > 0")
     }
     //endregion
 }
