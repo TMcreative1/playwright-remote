@@ -128,7 +128,7 @@ class MessageProcessor(private val transport: ITransport) {
             STREAM.type -> Stream(parent, type, guid, initializer)
             WEBSOCKET.type -> WebSocket(parent, type, guid, initializer)
             WORKER.type -> Worker(parent, type, guid, initializer)
-            else -> println(type)
+            else -> throw PlaywrightException("Unknown type $type")
         }
     }
 
