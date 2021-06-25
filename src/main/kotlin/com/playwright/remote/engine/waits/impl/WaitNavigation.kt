@@ -25,6 +25,11 @@ class WaitNavigation(
     private var request: IRequest? = null
     private var exception: RuntimeException? = null
 
+    init {
+        @Suppress("UNCHECKED_CAST")
+        internalListeners.add(NAVIGATED, this as UniversalConsumer)
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun invoke(p1: JsonObject) {
         if (!matcher.test(p1["url"].asString)) {
