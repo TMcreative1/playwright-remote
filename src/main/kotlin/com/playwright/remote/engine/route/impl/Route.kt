@@ -75,6 +75,7 @@ class Route(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
             val item = JsonObject()
             item.addProperty("name", it.key)
             item.addProperty("value", it.value)
+            array.add(item)
         }
         return array
     }
