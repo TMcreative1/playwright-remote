@@ -1,6 +1,6 @@
 package com.playwright.remote.core.exceptions
 
-class TimeoutException : RuntimeException {
+class TimeoutException : PlaywrightException {
 
     constructor(message: String) : super(message)
 
