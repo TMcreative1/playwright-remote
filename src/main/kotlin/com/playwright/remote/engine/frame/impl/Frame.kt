@@ -44,7 +44,6 @@ import okio.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files.readAllBytes
 import java.nio.file.Path
-import java.util.regex.Pattern
 
 class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
     parent,
@@ -216,8 +215,8 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         val params = gson().toJsonTree(options).asJsonObject
         params.addProperty("url", url)
         val result = sendMessage("goto", params)
-        val jsonResponse = result!!.asJsonObject["response"].asJsonObject ?: return null
-        return messageProcessor.getExistingObject(jsonResponse["guid"].asString)
+        val jsonResponse = result!!.asJsonObject["response"] ?: return null
+        return messageProcessor.getExistingObject(jsonResponse.asJsonObject["guid"].asString)
     }
 
     override fun hover(selector: String, options: HoverOptions?) {
