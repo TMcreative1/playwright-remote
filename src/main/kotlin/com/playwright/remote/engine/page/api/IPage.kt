@@ -2068,7 +2068,7 @@ interface IPage {
      * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
      * is considered matching if all specified properties match.
      */
-    fun selectOption(selector: String, values: Array<String>): List<String> {
+    fun selectOption(selector: String, values: Array<String>?): List<String> {
         return selectOption(selector, values, null)
     }
 
@@ -2176,7 +2176,7 @@ interface IPage {
      * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
      * is considered matching if all specified properties match.
      */
-    fun selectOption(selector: String, values: Array<IElementHandle>): List<String> {
+    fun selectOption(selector: String, values: Array<IElementHandle>?): List<String> {
         return selectOption(selector, values, null)
     }
 
@@ -2230,7 +2230,7 @@ interface IPage {
      * first option matching one of the passed options is selected. String values are equivalent to {@code {value:'string'}}. Option
      * is considered matching if all specified properties match.
      */
-    fun selectOption(selector: String, values: Array<SelectOption>): List<String> {
+    fun selectOption(selector: String, values: Array<SelectOption>?): List<String> {
         return selectOption(selector, values, null)
     }
 
