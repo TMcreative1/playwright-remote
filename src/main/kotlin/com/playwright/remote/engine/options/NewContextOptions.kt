@@ -25,7 +25,7 @@ data class NewContextOptions @JvmOverloads constructor(
     /**
      * An object containing additional HTTP headers to be sent with every request. All header values must be strings.
      */
-    var extraHTTPHeaders: Map<String, String>? = null,
+    var extraHTTPHeaders: Map<String, String?>? = null,
     var geolocation: Geolocation? = null,
     /**
      * Specifies if viewport supports touch events. Defaults to false.
