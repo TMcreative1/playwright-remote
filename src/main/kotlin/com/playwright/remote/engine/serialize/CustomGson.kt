@@ -38,8 +38,7 @@ class CustomGson {
                     )
                     .registerTypeAdapter(Optional::class.java, OptionalSerializer())
                     .registerTypeHierarchyAdapter(JSHandle::class.java, HandleSerializer())
-                    .registerTypeAdapter(getGenericType<Map<String, String>>(), StringMapSerializer())
-                    .registerTypeAdapter(getGenericType<Map<String, Any>>(), FirefoxUserPrefsSerializer())
+                    .registerTypeAdapter(getGenericType<Map<String, Any>>(), MapSerializer())
                     .registerTypeHierarchyAdapter(Path::class.java, PathSerializer())
                     .create()
             }
@@ -47,6 +46,6 @@ class CustomGson {
         }
 
         private inline fun <reified T> getGenericType() =
-            object : TypeToken<T>() {}.type
+            object : TypeToken<T>() {}.rawType
     }
 }
