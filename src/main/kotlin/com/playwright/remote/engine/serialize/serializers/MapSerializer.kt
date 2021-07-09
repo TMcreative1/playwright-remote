@@ -4,16 +4,23 @@ import com.google.gson.*
 import com.playwright.remote.core.exceptions.PlaywrightException
 import java.lang.reflect.Type
 
-class StringMapSerializer : JsonSerializer<Map<String, String>> {
+class MapSerializer : JsonSerializer<MutableMap<String, Any>> {
+    @Suppress("UNCHECKED_CAST")
     override fun serialize(
-        src: Map<String, String>?,
+        src: MutableMap<String, Any>?,
         typeOfSrc: Type?,
         context: JsonSerializationContext?
     ): JsonElement {
-        if ("java.util.Map<java.lang.String, ? extends java.lang.String>" != typeOfSrc!!.typeName) {
-            throw PlaywrightException("Unexpected map type: $typeOfSrc")
+        return when (typeOfSrc!!.typeName) {
+            "java.util.Map<java.lang.String, ?>" -> {
+                context!!.serialize(src, Map::class.java)
+            }
+            "java.util.Map<java.lang.String, java.lang.String>" -> {
+                mapToJsonArray(src as Map<String, String>)
+            }
+            else -> throw PlaywrightException("Unexpected map type: $typeOfSrc")
         }
-        return mapToJsonArray(src)
+
     }
 
     private fun mapToJsonArray(map: Map<String, String>?): JsonArray {
