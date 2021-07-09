@@ -2328,7 +2328,7 @@ interface IPage {
      * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
      */
     fun setInputFiles(selector: String, files: Path) {
-        setInputFiles(selector, files)
+        setInputFiles(selector, files, null)
     }
 
     /**
