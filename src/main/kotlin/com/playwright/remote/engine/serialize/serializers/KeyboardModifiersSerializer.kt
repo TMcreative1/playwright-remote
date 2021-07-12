@@ -1,19 +1,21 @@
 package com.playwright.remote.engine.serialize.serializers
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import com.playwright.remote.core.enums.KeyboardModifier
 import com.playwright.remote.core.enums.KeyboardModifier.*
 import java.lang.reflect.Type
 
-class KeyboardModifiersSerializer : JsonSerializer<List<KeyboardModifier>> {
+class KeyboardModifiersSerializer : JsonSerializer<MutableList<KeyboardModifier>> {
+
 
     override fun serialize(
-        src: List<KeyboardModifier>?,
+        src: MutableList<KeyboardModifier>?,
         typeOfSrc: Type?,
         context: JsonSerializationContext?
-    ): JsonArray {
+    ): JsonElement {
         val result = JsonArray()
         if (src!!.contains(ALT)) {
             result.add("Alt")
@@ -29,4 +31,5 @@ class KeyboardModifiersSerializer : JsonSerializer<List<KeyboardModifier>> {
         }
         return result
     }
+
 }
