@@ -26,7 +26,5 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run Tests
         run: |
-          ls
-          cat README.md
-#          chmod +x ./gradlew,
-#          ./gradlew test
+          chmod +x gradlew
+          ./gradlew test
