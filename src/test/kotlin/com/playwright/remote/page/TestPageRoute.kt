@@ -220,13 +220,13 @@ class TestPageRoute : BaseTest() {
 
     @Test
     fun `check to send referer`() {
-        page.setExtraHTTPHeaders(mapOf("referer" to "http://google.com"))
+        page.setExtraHTTPHeaders(mapOf("referer" to "http://google.com/"))
         page.route("**/*") {
             it.resume()
         }
         val request = httpServer.futureRequest("/grid.html")
         page.navigate("${httpServer.prefixWithDomain}/grid.html")
-        assertEquals(Collections.singletonList("http://google.com"), request.get().headers["referer"])
+        assertEquals(Collections.singletonList("http://google.com/"), request.get().headers["referer"])
     }
 
     @Test
