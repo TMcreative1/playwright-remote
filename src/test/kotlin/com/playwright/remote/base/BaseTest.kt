@@ -14,6 +14,7 @@ import com.playwright.remote.engine.server.api.IServerProvider
 import com.playwright.remote.engine.server.impl.ServerProvider
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 
@@ -46,25 +47,13 @@ open class BaseTest {
         @JvmStatic
         @BeforeAll
         fun beforeAll() {
-            createHttpServers()
             launchBrowserServer()
         }
 
         @JvmStatic
         @AfterAll
         fun afterAll() {
-            stopHttpServers()
             stopServerBrowserServer()
-        }
-
-        private fun createHttpServers() {
-            httpServer = Server.createHttp(8080)
-            httpsServer = Server.createHttps(8443)
-        }
-
-        private fun stopHttpServers() {
-            httpServer.stop()
-            httpsServer.stop()
         }
 
         private fun launchBrowserServer() {
@@ -93,10 +82,30 @@ open class BaseTest {
     }
 
     @BeforeEach
+    private fun beforeEach() {
+        createBrowser()
+        createHttpServers()
+    }
+
+    @AfterEach
+    private fun afterEach() {
+        stopHttpServers()
+    }
+
     private fun createBrowser() {
         browser = RemoteBrowser.connectWs(wsUrl)
         browserContext = browser.newContext()
         page = browserContext.newPage()
+    }
+
+    private fun createHttpServers() {
+        httpServer = Server.createHttp(8080)
+        httpsServer = Server.createHttps(8443)
+    }
+
+    private fun stopHttpServers() {
+        httpServer.stop()
+        httpsServer.stop()
     }
 
     protected fun attachFrame(page: IPage, name: String, url: String): IFrame? {
