@@ -9,7 +9,7 @@ typealias Predicate<T> = (T) -> Boolean
 open class WaitEvent<EventType, T>(
     private val listeners: ListenerCollection<EventType>,
     private val type: EventType,
-    private val predicate: Predicate<T> = { false },
+    private val predicate: Predicate<T>? = null,
     private var eventArg: T? = null
 ) : IWait<T>, (T) -> Unit {
 
@@ -19,7 +19,7 @@ open class WaitEvent<EventType, T>(
     }
 
     override fun invoke(p1: T) {
-        if (predicate(p1)) {
+        if (predicate != null && !predicate.invoke(p1)) {
             return
         }
         eventArg = p1
