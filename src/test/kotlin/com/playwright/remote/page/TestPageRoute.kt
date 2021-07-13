@@ -468,7 +468,7 @@ class TestPageRoute : BaseTest() {
             }
             route.fulfill(FulfillOptions {
                 it.status = 301
-                it.headers = mapOf("location" to "/empty.html")
+                it.headers = mapOf("location" to "/blank.html")
             })
         }
         val jsScript = """async url => {
