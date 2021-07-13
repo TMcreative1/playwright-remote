@@ -33,9 +33,9 @@ class TestPageBasic : BaseTest() {
 
     @Test
     fun `check all promises are rejected after close page via browser context`() {
-        BaseTest.page.close()
+        page.close()
         try {
-            BaseTest.page.evaluate("() => new Promise(r => {})")
+            page.evaluate("() => new Promise(r => {})")
             fail("evaluate should throw")
         } catch (e: PlaywrightException) {
             assertTrue(e.message!!.contains("Protocol error"))
@@ -44,29 +44,29 @@ class TestPageBasic : BaseTest() {
 
     @Test
     fun `closed page should not be visible in context`() {
-        assertTrue(BaseTest.browserContext.pages().contains(BaseTest.page))
-        BaseTest.page.close()
-        assertFalse(BaseTest.browserContext.pages().contains(BaseTest.page))
+        assertTrue(browserContext.pages().contains(page))
+        page.close()
+        assertFalse(browserContext.pages().contains(page))
     }
 
     @Test
     fun `check run beforeunload if asked for`() {
-        BaseTest.page.navigate("${BaseTest.httpServer.prefixWithDomain}/beforeunload.html")
+        page.navigate("${httpServer.prefixWithDomain}/beforeunload.html")
 
-        BaseTest.page.click("body")
+        page.click("body")
         val didShowDialog = arrayOf(false)
-        BaseTest.page.onDialog {
+        page.onDialog {
             didShowDialog[0] = true
             assertEquals("beforeunload", it.type())
             assertEquals("", it.defaultValue())
             when {
-                BaseTest.isChromium() -> {
+                isChromium() -> {
                     assertEquals("", it.message())
                 }
-                BaseTest.isWebkit() -> {
+                isWebkit() -> {
                     assertEquals("Leave?", it.message())
                 }
-                BaseTest.isFirefox() -> {
+                isFirefox() -> {
                     assertEquals(
                         "This page is asking you to confirm that you want to leave - data you have entered may not be saved.",
                         it.message()
@@ -81,39 +81,39 @@ class TestPageBasic : BaseTest() {
             }
             it.accept()
         }
-        BaseTest.page.close(CloseOptions { it.runBeforeUnload = true })
+        page.close(CloseOptions { it.runBeforeUnload = true })
         for (index in 0..300) {
             if (didShowDialog[0]) {
                 break
             }
-            BaseTest.page.waitForTimeout(100.0)
+            page.waitForTimeout(100.0)
         }
         assertTrue(didShowDialog[0])
     }
 
     @Test
     fun `should not run beforeunload by default`() {
-        BaseTest.page.navigate("${BaseTest.httpServer.prefixWithDomain}/beforeunload.html")
-        BaseTest.page.click("body")
+        page.navigate("${httpServer.prefixWithDomain}/beforeunload.html")
+        page.click("body")
         val didShowDialog = arrayOf(false)
-        BaseTest.page.onDialog { didShowDialog[0] = true }
-        BaseTest.page.close()
+        page.onDialog { didShowDialog[0] = true }
+        page.close()
         assertFalse(didShowDialog[0])
     }
 
     @Test
     fun `should set the page close state`() {
-        assertFalse(BaseTest.page.isClosed())
-        BaseTest.page.close()
-        assertTrue(BaseTest.page.isClosed())
+        assertFalse(page.isClosed())
+        page.close()
+        assertTrue(page.isClosed())
     }
 
     @Test
     fun `should terminate network waiters`() {
         try {
-            BaseTest.page.waitForResponse("**") {
+            page.waitForResponse("**") {
                 try {
-                    BaseTest.page.waitForRequest(BaseTest.httpServer.emptyPage) { BaseTest.page.close() }
+                    page.waitForRequest(httpServer.emptyPage) { page.close() }
                     fail("waitForRequest() should throw")
                 } catch (e: PlaywrightException) {
                     assertTrue(e.message!!.contains("Page closed"))
@@ -130,9 +130,9 @@ class TestPageBasic : BaseTest() {
     @Test
     fun `check that close should be callable several times`() {
         try {
-            BaseTest.page.close()
-            BaseTest.page.close()
-            BaseTest.page.close()
+            page.close()
+            page.close()
+            page.close()
         } catch (e: PlaywrightException) {
             fail("Error should not be thrown")
         }
@@ -140,17 +140,17 @@ class TestPageBasic : BaseTest() {
 
     @Test
     fun `check that page url should include hashes`() {
-        var expectedUrl = "${BaseTest.httpServer.emptyPage}#hash"
-        BaseTest.page.navigate(expectedUrl)
-        assertEquals(expectedUrl, BaseTest.page.url())
-        BaseTest.page.evaluate("() => { window.location.hash = 'dynamic'; }")
-        expectedUrl = "${BaseTest.httpServer.emptyPage}#dynamic"
-        assertEquals(expectedUrl, BaseTest.page.url())
+        var expectedUrl = "${httpServer.emptyPage}#hash"
+        page.navigate(expectedUrl)
+        assertEquals(expectedUrl, page.url())
+        page.evaluate("() => { window.location.hash = 'dynamic'; }")
+        expectedUrl = "${httpServer.emptyPage}#dynamic"
+        assertEquals(expectedUrl, page.url())
     }
 
     @Test
     fun `check navigate method in browser`() {
-        val navigatedUrl = BaseTest.httpServer.emptyPage
+        val navigatedUrl = httpServer.emptyPage
         val page = createPageForHttps()
         assertEquals("about:blank", page.url())
         val response = page.navigate(navigatedUrl)
@@ -160,15 +160,15 @@ class TestPageBasic : BaseTest() {
 
     @Test
     fun `check title method should return title of page`() {
-        val navigatedUrl = BaseTest.httpServer.emptyPage
-        BaseTest.page.navigate(navigatedUrl)
-        assertEquals("Empty Page", BaseTest.page.title())
+        val navigatedUrl = httpServer.emptyPage
+        page.navigate(navigatedUrl)
+        assertEquals("Empty Page", page.title())
     }
 
     @Test
     fun `check page close should work with page close`() {
         try {
-            BaseTest.page.waitForClose { BaseTest.page.close() }
+            page.waitForClose { page.close() }
         } catch (e: PlaywrightException) {
             fail("Error should not be thrown")
         }
@@ -176,19 +176,19 @@ class TestPageBasic : BaseTest() {
 
     @Test
     fun `check page frame should respect name`() {
-        BaseTest.page.setContent("<iframe name=target></iframe>")
-        assertNull(BaseTest.page.frame("bogus"))
-        val frame = BaseTest.page.frame("target")
+        page.setContent("<iframe name=target></iframe>")
+        assertNull(page.frame("bogus"))
+        val frame = page.frame("target")
         assertNotNull(frame)
-        assertEquals((BaseTest.page.mainFrame() as Frame).childFrames.toList()[0], frame)
+        assertEquals((page.mainFrame() as Frame).childFrames.toList()[0], frame)
     }
 
     @Test
     fun `check page frame should respect url`() {
-        val emptyPage = BaseTest.httpServer.emptyPage
-        BaseTest.page.setContent("<iframe src='$emptyPage'></iframe>")
-        assertNull(BaseTest.page.frameByUrl(Pattern.compile("bogus")))
-        val frame = BaseTest.page.frameByUrl(Pattern.compile(".*empty.*"))
+        val emptyPage = httpServer.emptyPage
+        page.setContent("<iframe src='$emptyPage'></iframe>")
+        assertNull(page.frameByUrl(Pattern.compile("bogus")))
+        val frame = page.frameByUrl(Pattern.compile(".*empty.*"))
         assertNotNull(frame)
         assertEquals(emptyPage, frame.url())
     }
@@ -197,8 +197,8 @@ class TestPageBasic : BaseTest() {
     fun `check screenshot should be saved`() {
         val screenShotFile = Path("screenshot.png")
         try {
-            BaseTest.page.navigate(BaseTest.httpServer.emptyPage)
-            val byte = BaseTest.page.screenshot(ScreenshotOptions { it.path = screenShotFile })
+            page.navigate(httpServer.emptyPage)
+            val byte = page.screenshot(ScreenshotOptions { it.path = screenShotFile })
             assertTrue(Files.exists(screenShotFile))
             assertTrue(screenShotFile.toFile().readBytes().contentEquals(byte))
         } finally {
@@ -209,33 +209,33 @@ class TestPageBasic : BaseTest() {
     @Test
     fun `check page press should work`() {
         val pressedButton = "q"
-        BaseTest.page.navigate("${BaseTest.httpServer.prefixWithDomain}/input/textarea.html")
-        BaseTest.page.press("textarea", pressedButton)
-        assertEquals(pressedButton, BaseTest.page.evaluate("() => document.querySelector('textarea').value"))
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        page.press("textarea", pressedButton)
+        assertEquals(pressedButton, page.evaluate("() => document.querySelector('textarea').value"))
     }
 
     @Test
     fun `check page press should work for enter`() {
-        BaseTest.page.setContent("<input onkeypress='console.log(\"press\")'></input>")
+        page.setContent("<input onkeypress='console.log(\"press\")'></input>")
         val messages = arrayListOf<IConsoleMessage>()
-        BaseTest.page.onConsoleMessage { messages.add(it) }
-        BaseTest.page.press("input", "Enter")
+        page.onConsoleMessage { messages.add(it) }
+        page.press("input", "Enter")
         assertEquals("press", messages[0].text())
         assertEquals("log", messages[0].type())
     }
 
     @Test
     fun `check to provide access to the opener page`() {
-        val popup = BaseTest.page.waitForPopup { BaseTest.page.evaluate("() => window.open('about:blank')") }
+        val popup = page.waitForPopup { page.evaluate("() => window.open('about:blank')") }
         assertNotNull(popup)
         val opener = popup.opener()
-        assertEquals(BaseTest.page, opener)
+        assertEquals(page, opener)
     }
 
     @Test
     fun `check to return null if page has been closed`() {
-        val popup = BaseTest.page.waitForPopup { BaseTest.page.evaluate("() => window.open('about:blank')") }
-        BaseTest.page.close()
+        val popup = page.waitForPopup { page.evaluate("() => window.open('about:blank')") }
+        page.close()
         assertNotNull(popup)
         val opener = popup.opener()
         assertNull(opener)
@@ -244,10 +244,10 @@ class TestPageBasic : BaseTest() {
     @Test
     fun `check correct work for page close with window close`() {
         val newPage =
-            BaseTest.page.waitForPopup { BaseTest.page.evaluate("() => window['newPage'] = window.open('about:blank')") }
+            page.waitForPopup { page.evaluate("() => window['newPage'] = window.open('about:blank')") }
         assertNotNull(newPage)
         assertFalse(newPage.isClosed())
-        newPage.waitForClose { BaseTest.page.evaluate("() => window['newPage'].close()") }
+        newPage.waitForClose { page.evaluate("() => window['newPage'].close()") }
         assertTrue(newPage.isClosed())
     }
 }

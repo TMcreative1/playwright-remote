@@ -543,7 +543,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun pdf(options: PdfOptions?): ByteArray {
-        if (browserContext.browser().name() == "chromium") {
+        if (browserContext.browser().name() != "chromium") {
             throw PlaywrightException("Page.pdf only supported in headless Chromium")
         }
         val opt = options ?: PdfOptions {}
