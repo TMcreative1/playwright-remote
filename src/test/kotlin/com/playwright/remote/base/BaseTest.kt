@@ -3,7 +3,6 @@ package com.playwright.remote.base
 import com.playwright.remote.base.server.Server
 import com.playwright.remote.core.enums.BrowserType
 import com.playwright.remote.core.enums.BrowserType.valueOf
-import com.playwright.remote.core.enums.Platform
 import com.playwright.remote.core.enums.Platform.*
 import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.api.IBrowser
