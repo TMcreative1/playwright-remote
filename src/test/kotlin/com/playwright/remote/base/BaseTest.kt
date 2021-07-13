@@ -4,7 +4,7 @@ import com.playwright.remote.base.server.Server
 import com.playwright.remote.core.enums.BrowserType
 import com.playwright.remote.core.enums.BrowserType.valueOf
 import com.playwright.remote.core.enums.Platform
-import com.playwright.remote.core.enums.Platform.MAC
+import com.playwright.remote.core.enums.Platform.*
 import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
@@ -143,5 +143,9 @@ open class BaseTest {
 
     protected fun isMac(): Boolean {
         return getCurrentPlatform() == MAC
+    }
+
+    protected fun isWindows(): Boolean {
+        return getCurrentPlatform() == WINDOWS32 || getCurrentPlatform() == WINDOWS64
     }
 }
