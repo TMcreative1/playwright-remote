@@ -430,7 +430,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
 
     override fun waitForLoadState(state: LoadState?, options: WaitForLoadStateOptions?) {
         val waits = arrayListOf<IWait<Void?>>()
-        waits.add(WaitLoadState(state, internalListeners, loadStates))
+        waits.add(WaitLoadState(state?: LoadState.LOAD, internalListeners, loadStates))
         waits.add((page as Page).createWaitForCloseHelper())
         waits.add((page as Page).createWaitTimeout((options ?: WaitForLoadStateOptions {}).timeout))
         runUtil(WaitRace(waits)) {}

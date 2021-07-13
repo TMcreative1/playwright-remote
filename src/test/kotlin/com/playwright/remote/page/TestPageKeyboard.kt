@@ -538,4 +538,29 @@ class TestPageKeyboard : BaseTest() {
         page.keyboard().press("PageDown")
         page.waitForFunction("() => scrollY > 0")
     }
+
+    private fun captureLastKeyDown(): IJSHandle {
+        val jsScript = """() => {
+            |   const lastEvent = {
+            |       repeat: false,
+            |       location: -1,
+            |       code: '',
+            |       key: '',
+            |       metaKey: false,
+            |       keyIdentifier: 'unsupported'
+            |   };
+            |   document.addEventListener('keydown', e => {
+            |       lastEvent.repeat = e.repeat;
+            |       lastEvent.location = e.location;
+            |       lastEvent.key = e.key;
+            |       lastEvent.code = e.code;
+            |       lastEvent.metaKey = e.metaKey;
+            |       // keyIdentifier only exists in WebKit, and isn't in TypeScript's lib.
+            |       lastEvent.keyIdentifier = 'keyIdentifier' in e && e['keyIdentifier'];
+            |   }, true);
+            |   return lastEvent;
+            |}
+        """.trimMargin()
+        return page.evaluateHandle(jsScript)
+    }
 }
