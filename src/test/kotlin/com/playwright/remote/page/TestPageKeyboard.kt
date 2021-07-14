@@ -475,7 +475,7 @@ class TestPageKeyboard : BaseTest() {
         page.keyboard().press("Shift+Control+Alt+KeyB")
         page.keyboard().press("Backspace")
         val result = page.evalOnSelector("textarea", "textarea => textarea.value")
-        assertEquals(expectedText, result)
+        assertEquals("my ", result)
     }
 
     @Test
