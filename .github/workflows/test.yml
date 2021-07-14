@@ -13,9 +13,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+      - uses: microsoft/playwright-github-action@v1
 
       - name: Use Node.js
         uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install Media Pack
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: powershell
+        run: Install-WindowsFeature Server-Media-Foundation
 
       - name: Get access to gradlew
         run: chmod +x gradlew
