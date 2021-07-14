@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 import java.net.URL
@@ -28,6 +29,8 @@ dependencies {
 }
 
 tasks.test {
+    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = FULL
     useJUnitPlatform {
         include("**/Test*.class")
     }
