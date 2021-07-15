@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: microsoft/playwright-github-action@v1
-      
+
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
@@ -62,8 +62,8 @@ jobs:
 
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
         run: ./gradlew test -Dbrowser=${{ matrix.browser }}
-        
+
       - name: Cleanup Gradle Cache
         run: |
-          rm -f ~/.gradle/caches/modules-2/modules-2.lock
-          rm -f ~/.gradle/caches/modules-2/gc.properties
+          rm -Force ~/.gradle/caches/modules-2/modules-2.lock
+          rm -Force ~/.gradle/caches/modules-2/gc.properties
