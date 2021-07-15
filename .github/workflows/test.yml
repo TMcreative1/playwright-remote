@@ -61,7 +61,7 @@ jobs:
           npm install
 
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
-        run: ./gradlew test -Dbrowser=${{ matrix.browser }}
+        run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
 
       - name: Cleanup Gradle Cache
         run: |
