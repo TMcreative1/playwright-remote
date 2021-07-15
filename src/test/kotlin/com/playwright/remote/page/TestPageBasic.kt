@@ -55,7 +55,6 @@ class TestPageBasic : BaseTest() {
 
         page.click("body")
         val didShowDialog = arrayOf(false)
-
         page.onDialog {
             didShowDialog[0] = true
             assertEquals("beforeunload", it.type())
