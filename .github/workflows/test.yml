@@ -64,6 +64,7 @@ jobs:
         run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
 
       - name: Cleanup Gradle Cache
+        shell: bash
         run: |
           rm -rf ~/.gradle/caches/modules-2/modules-2.lock
           rm -rf ~/.gradle/caches/modules-2/gc.properties
