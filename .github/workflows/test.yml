@@ -62,9 +62,3 @@ jobs:
 
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
         run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
-
-      - name: Cleanup Gradle Cache
-        shell: bash
-        run: |
-          rm -rf ~/.gradle/caches/modules-2/modules-2.lock
-          rm -rf ~/.gradle/caches/modules-2/gc.properties
