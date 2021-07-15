@@ -65,5 +65,5 @@ jobs:
 
       - name: Cleanup Gradle Cache
         run: |
-          rm -Force ~/.gradle/caches/modules-2/modules-2.lock
-          rm -Force ~/.gradle/caches/modules-2/gc.properties
+          rm -rf ~/.gradle/caches/modules-2/modules-2.lock
+          rm -rf ~/.gradle/caches/modules-2/gc.properties
