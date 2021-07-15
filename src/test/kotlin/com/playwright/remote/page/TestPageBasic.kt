@@ -68,13 +68,13 @@ class TestPageBasic : BaseTest() {
                 }
                 isFirefox() -> {
                     assertEquals(
-                        "This page is asking you to confirm that you want to leave - data you have entered may not be saved.",
+                        "This page is asking you to confirm that you want to leave — information you’ve entered may not be saved.",
                         it.message()
                     )
                 }
                 else -> {
                     assertEquals(
-                        "This page is asking you to confirm that you want to leave — information you’ve entered may not be saved.",
+                        "This page is asking you to confirm that you want to leave - data you have entered may not be saved.",
                         it.message()
                     )
                 }
