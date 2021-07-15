@@ -1,4 +1,4 @@
-name: Run Tests for release-1.11.1
+name: Run Tests for release branch
 on:
   pull_request:
     branches: [ release-1.11.1 ]
