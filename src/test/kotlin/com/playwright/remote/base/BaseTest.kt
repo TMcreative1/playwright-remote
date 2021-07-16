@@ -99,7 +99,7 @@ open class BaseTest {
     }
 
     private fun createHttpServers() {
-        httpServer = Server.createHttp(8080)
+        httpServer = Server.createHttp(8083)
         httpsServer = Server.createHttps(8443)
     }
 
