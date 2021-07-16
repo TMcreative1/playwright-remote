@@ -22,6 +22,10 @@ import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
+import com.playwright.remote.engine.route.request.Timing
+import com.playwright.remote.engine.route.request.api.IRequest
+import com.playwright.remote.engine.route.request.impl.Request
+import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import com.playwright.remote.engine.waits.TimeoutSettings
 import com.playwright.remote.engine.waits.api.IWait
@@ -65,6 +69,46 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     @Suppress("UNCHECKED_CAST")
     override fun offPage(handler: (IPage) -> Unit) {
         listeners.remove(PAGE, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onRequest(handler: (IRequest) -> Unit) {
+        listeners.add(REQUEST, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offRequest(handler: (IRequest) -> Unit) {
+        listeners.remove(REQUEST, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onRequestFailed(handler: (IRequest) -> Unit) {
+        listeners.add(REQUESTFAILED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offRequestFailed(handler: (IRequest) -> Unit) {
+        listeners.remove(REQUESTFAILED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onRequestFinished(handler: (IRequest) -> Unit) {
+        listeners.add(REQUESTFINISHED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offRequestFinished(handler: (IRequest) -> Unit) {
+        listeners.remove(REQUESTFINISHED, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onResponse(handler: (IResponse) -> Unit) {
+        listeners.add(RESPONSE, handler as UniversalConsumer)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun offResponse(handler: (IResponse) -> Unit) {
+        listeners.remove(RESPONSE, handler as UniversalConsumer)
     }
 
     override fun newPage(): IPage {
@@ -291,6 +335,51 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
                 val binding = bindings[bindingCall.name()]
                 if (binding != null) {
                     bindingCall.call(binding)
+                }
+            }
+            "request" -> {
+                val guid = params["request"].asJsonObject["guid"].asString
+                val request = messageProcessor.getExistingObject<IRequest>(guid)
+                listeners.notify(REQUEST, request)
+                if (params.has("page")) {
+                    val page = messageProcessor.getExistingObject<Page>(params["page"].asJsonObject["guid"].asString)
+                    page.listeners.notify(REQUEST, request)
+                }
+            }
+            "requestFailed" -> {
+                val guid = params["request"].asJsonObject["guid"].asString
+                val request = messageProcessor.getExistingObject<Request>(guid)
+                if (params.has("failureText")) {
+                    request.failure = params["failureText"].asString
+                }
+                if (request.timing != Timing {}) {
+                    request.timing.responseEnd = params["responseEndTiming"].asDouble
+                }
+                listeners.notify(REQUESTFAILED, request)
+                if (params.has("page")) {
+                    val page = messageProcessor.getExistingObject<Page>(params["page"].asJsonObject["guid"].asString)
+                    page.listeners.notify(REQUESTFAILED, request)
+                }
+            }
+            "requestFinished" -> {
+                val guid = params["request"].asJsonObject["guid"].asString
+                val request = messageProcessor.getExistingObject<Request>(guid)
+                if (request.timing != Timing {}) {
+                    request.timing.responseEnd = params["responseEndTiming"].asDouble
+                }
+                listeners.notify(REQUESTFINISHED, request)
+                if (params.has("page")) {
+                    val page = messageProcessor.getExistingObject<Page>(params["page"].asJsonObject["guid"].asString)
+                    page.listeners.notify(REQUESTFINISHED, request)
+                }
+            }
+            "response" -> {
+                val guid = params["response"].asJsonObject["guid"].asString
+                val response = messageProcessor.getExistingObject<IResponse>(guid)
+                listeners.notify(RESPONSE, response)
+                if (params.has("page")) {
+                    val page = messageProcessor.getExistingObject<Page>(params["page"].asJsonObject["guid"].asString)
+                    page.listeners.notify(RESPONSE, response)
                 }
             }
             else -> {
