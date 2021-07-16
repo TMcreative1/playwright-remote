@@ -29,6 +29,7 @@ dependencies {
 }
 
 tasks.test {
+    outputs.upToDateWhen { false }
     testLogging.showStandardStreams = true
     testLogging.exceptionFormat = FULL
     useJUnitPlatform {
