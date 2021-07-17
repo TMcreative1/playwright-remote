@@ -14,12 +14,6 @@ jobs:
         browser: [ chromium, webkit, firefox ]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Runner workspace path
-        shell: bash
-        run: |
-          echo "Cleaning up previous run"
-          rm -rf "${{ github.workspace }}"
-
       - uses: actions/checkout@v2
       - uses: microsoft/playwright-github-action@v1
 
@@ -74,3 +68,9 @@ jobs:
 
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
         run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
+
+      - name: Runner workspace path
+        shell: bash
+        run: |
+          echo "Cleaning up previous run"
+          rm -rf "${{ github.workspace }}"
