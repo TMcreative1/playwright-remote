@@ -7,12 +7,16 @@ jobs:
   build:
     timeout-minutes: 15
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
         browser: [ chromium, webkit, firefox ]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Clean Workspace
+        uses: AutoModality/action-clean@v1.1.0
+
       - uses: actions/checkout@v2
       - uses: microsoft/playwright-github-action@v1
 
