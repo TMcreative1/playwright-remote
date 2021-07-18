@@ -70,8 +70,5 @@ jobs:
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
         run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
 
-      - name: Runner workspace path
-        shell: bash
-        run: |
-          echo "Cleaning up previous run"
-          rm -rf "${{ github.workspace }}"
+      - name: Clean after
+        uses: mickem/clean-after-action@v1.1.1
