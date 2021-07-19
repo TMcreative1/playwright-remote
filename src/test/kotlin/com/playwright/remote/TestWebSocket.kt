@@ -4,6 +4,7 @@ import com.playwright.remote.base.BaseTest
 import com.playwright.remote.base.server.WebSocketServer
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.options.wait.WaitForFrameReceivedOptions
+import com.playwright.remote.engine.options.wait.WaitForFrameSentOptions
 import com.playwright.remote.engine.websocket.api.IWebSocket
 import com.playwright.remote.engine.websocket.api.IWebSocketFrame
 import org.junit.jupiter.api.AfterAll
@@ -216,7 +217,6 @@ class TestWebSocket : BaseTest() {
         }
     }
 
-    //region new ver
     @Test
     fun `check to call frame received predicate`() {
         val ws = page.waitForWebSocket {
@@ -240,5 +240,77 @@ class TestWebSocket : BaseTest() {
         assertEquals("incoming", text[0])
         assertEquals("incoming", frame.text())
     }
-    //endregion
+
+    @Test
+    fun `check to call frame sent predicate`() {
+        val ws = page.waitForWebSocket {
+            val jsScript = """port => {
+                |   window.ws = new WebSocket('ws://localhost:' + port + '/ws');
+                |   return new Promise(f => ws.addEventListener('open', f));
+                |}
+            """.trimMargin()
+            page.evaluate(jsScript, webSocketServer.port)
+        }
+        assertNotNull(ws)
+
+        val text = arrayListOf<String?>(null)
+        val predicate: (IWebSocketFrame) -> Boolean = {
+            if ("outgoing" == it.text()) {
+                text[0] = it.text()
+            }
+            text[0] != null
+        }
+        val frame = ws.waitForFrameSent(WaitForFrameSentOptions {
+            it.predicate = predicate
+        }) { page.evaluate("ws.send('outgoing')") }
+        assertEquals("outgoing", text[0])
+        assertNotNull(frame)
+        assertEquals("outgoing", frame.text())
+    }
+
+    @Test
+    fun `check correct work frame received with timeout`() {
+        val ws = page.waitForWebSocket {
+            val jsScript = """port => {
+                |   window.ws = new WebSocket('ws://localhost:' + port + '/ws');
+                |   return new Promise(f => ws.addEventListener('open', f))
+                |}
+            """.trimMargin()
+            page.evaluate(jsScript, webSocketServer.port)
+        }
+        assertNotNull(ws)
+
+        try {
+            ws.waitForFrameReceived(WaitForFrameReceivedOptions {
+                it.predicate = { false }
+                it.timeout = 1.0
+            }) {}
+            fail("waitForFrameReceived method should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Timeout"), e.message)
+        }
+    }
+
+    @Test
+    fun `check correct work frame sent with timeout`() {
+        val ws = page.waitForWebSocket {
+            val jsScript = """port => {
+                |   window.ws = new WebSocket('ws://localhost:' + port + '/ws');
+                |   return new Promise(f => ws.addEventListener('open', f));
+                |}
+            """.trimMargin()
+            page.evaluate(jsScript, webSocketServer.port)
+        }
+
+        assertNotNull(ws)
+        try {
+            ws.waitForFrameSent(WaitForFrameSentOptions {
+                it.predicate = { false }
+                it.timeout = 1.0
+            }) { page.evaluate("ws.send('outgoing');") }
+            fail("waitForFrameSent method should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Timeout"), e.message)
+        }
+    }
 }
