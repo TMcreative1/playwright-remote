@@ -157,12 +157,14 @@ class TestPageEvaluate : BaseTest() {
 
     @Test
     fun `check correct work after a cross origin navigation`() {
-        page.navigate(httpServer.emptyPage)
+        val context = browser.newContext()
+        val newPage = context.newPage()
+        newPage.navigate(httpServer.emptyPage)
         val frameEvaluation = arrayListOf<Any>(0)
-        page.onFrameNavigated {
+        newPage.onFrameNavigated {
             frameEvaluation[0] = it.evaluate("() => 4 * 3")
         }
-        page.navigate("${httpServer.prefixWithIP}/empty.page")
+        newPage.navigate("${httpServer.prefixWithIP}/empty.page")
         assertEquals(12, frameEvaluation[0])
     }
 
