@@ -20,7 +20,7 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v2.1.0
         with:
-          distribution: 'adopt'
+          distribution: 'adopt-openj9'
           java-version: '8'
 
       - name: Cache Gradle packages
