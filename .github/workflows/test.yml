@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
-        browser: [ chromium, webkit, firefox ]
+        browser: [ firefox, chromium, webkit ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
