@@ -13,6 +13,8 @@ jobs:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
         browser: [ firefox, chromium, webkit ]
     runs-on: ${{ matrix.os }}
+    env: 
+      DEBUG: on
     steps:
       - uses: actions/checkout@v2
       - uses: microsoft/playwright-github-action@v1
@@ -66,10 +68,6 @@ jobs:
         run: |
           cd drivers/win32/package
           npm install
-
-      - name: "Set environmental variables"
-        run: |
-          echo "DEBUG=on" >> $GITHUB_ENV
 
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
         run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
