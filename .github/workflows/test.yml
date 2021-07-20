@@ -13,8 +13,6 @@ jobs:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
         browser: [ firefox, chromium, webkit ]
     runs-on: ${{ matrix.os }}
-    env: 
-      DEBUG: on
     steps:
       - uses: actions/checkout@v2
       - uses: microsoft/playwright-github-action@v1
