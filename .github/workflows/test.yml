@@ -18,7 +18,6 @@ jobs:
       - uses: microsoft/playwright-github-action@v1
 
       - name: Setup Java JDK
-        if: ${{ matrix.os != 'windows-latest' }}
         uses: actions/setup-java@v2.1.0
         with:
           distribution: 'adopt'
