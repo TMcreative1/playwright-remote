@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
 class WebSocketTransport(url: String) : ITransport {
+    private var isClosed: Array<Boolean?> = arrayOf(null)
     private val logger = CustomLogger()
     private val incomingMessages = LinkedBlockingQueue<String>()
     private val incomingErrors = ConcurrentHashMap<String, Exception>()
@@ -24,15 +25,27 @@ class WebSocketTransport(url: String) : ITransport {
         .readTimeout(defaultTimeOut, TimeUnit.SECONDS)
         .build()
     private val webSocket: WebSocket
-    private val webSocketListener = CustomWebSocketListener(incomingMessages, lastException, incomingErrors)
+    private val webSocketListener = CustomWebSocketListener(incomingMessages, lastException, incomingErrors, isClosed)
 
     private class CustomWebSocketListener(
-        val incomingMessages: BlockingQueue<String>,
-        var lastException: Exception,
-        val incomingErrors: ConcurrentHashMap<String, Exception>
+        private val incomingMessages: BlockingQueue<String>,
+        private var lastException: Exception,
+        private val incomingErrors: ConcurrentHashMap<String, Exception>,
+        private var isClosed: Array<Boolean?>
     ) :
         WebSocketListener() {
         private val logger = CustomLogger()
+
+        override fun onOpen(webSocket: WebSocket, response: Response) {
+            isClosed[0] = false
+            logger.logInfo("Connection open")
+        }
+
+        override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            isClosed[0] = true
+            logger.logInfo("Connection close")
+        }
+
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             lastException = t as Exception
             incomingErrors["error"] = lastException
@@ -63,17 +76,31 @@ class WebSocketTransport(url: String) : ITransport {
     }
 
     override fun pollMessage(timeout: Long, timeUnit: TimeUnit): String? {
-        if (!incomingErrors.isEmpty()) {
-            closeConnection()
-            throw WebSocketException(incomingErrors["error"]?.message, incomingErrors["error"]?.cause)
-        }
+        checkIfClosed()
         return incomingMessages.poll(timeout, timeUnit)
     }
 
     override fun closeConnection() {
         webSocket.close(1000, "Normal Closure")
         client.dispatcher.executorService.shutdown()
+        isClosed[0] = true
         logger.logInfo("Active connection count: ${client.connectionPool.connectionCount()}")
+    }
+
+    private fun checkIfClosed() {
+        when {
+            isClosed[0] != null && isClosed[0] == true -> {
+                if (!incomingErrors.isEmpty()) {
+                    throw WebSocketException(incomingErrors["error"]?.message, incomingErrors["error"]?.cause)
+                } else {
+                    throw WebSocketException("Connection was closed")
+                }
+            }
+            isClosed[0] == null && !incomingErrors.isEmpty() -> throw WebSocketException(
+                incomingErrors["error"]?.message,
+                incomingErrors["error"]?.cause
+            )
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
