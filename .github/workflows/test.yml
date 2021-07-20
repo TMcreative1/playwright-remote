@@ -67,6 +67,10 @@ jobs:
           cd drivers/win32/package
           npm install
 
+      - name: "Set environmental variables"
+        run: |
+          echo "DEBUG=on" >> $GITHUB_ENV
+
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
         run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
 
