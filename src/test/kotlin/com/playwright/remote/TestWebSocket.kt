@@ -107,7 +107,7 @@ class TestWebSocket : BaseTest() {
         }
         assertEquals("open", log[0], "Events: $log")
         assertEquals("close", log[3], "Events: $log")
-        assertEquals(arrayListOf("open", "send outgoing", "received incoming", "close"), log)
+        assertEquals(arrayListOf("open", "send outgoing", "received incoming", "close").sorted(), log.sorted())
     }
 
     @Test
