@@ -20,21 +20,10 @@ jobs:
       - uses: microsoft/playwright-github-action@v1
 
       - name: Setup Java JDK
-        if: ${{ matrix.os != 'windows-latest' }}
         uses: actions/setup-java@v2.1.0
         with:
           distribution: 'adopt'
           java-version: '8'
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
 
       - name: Use Node.js
         uses: actions/setup-node@v1
@@ -45,6 +34,16 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         shell: powershell
         run: Install-WindowsFeature Server-Media-Foundation
+        
+      - name: Install C++ compiler
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: powershell
+        run: |
+          Install-Module -Name VcRedist -Force
+          New-Item -Path C:\Temp\VcRedist -ItemType Directory
+          $VcList = Get-VcList -Release "2012"
+          Save-VcRedist -VcList $VcList -Path C:\Temp\VcRedist
+          Install-VcRedist -Path C:\Temp\VcRedist -VcList $VcList -Silent
 
       - name: Get access to gradlew
         run: chmod +x gradlew
