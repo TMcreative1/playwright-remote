@@ -202,10 +202,10 @@ class TestPageEvaluate : BaseTest() {
     @Test
     fun `check thrown number as the error message`() {
         try {
-            page.evaluate("() => { throw 404; }")
+            page.evaluate("() => { throw 100500; }")
             fail("evaluate should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("404"))
+            assertTrue(e.message!!.contains("100500"))
         }
     }
 
