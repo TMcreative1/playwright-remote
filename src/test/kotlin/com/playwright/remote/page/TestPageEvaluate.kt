@@ -452,6 +452,7 @@ class TestPageEvaluate : BaseTest() {
     }
 
     @Test
+    @Ignore
     fun `check to transfer 100mb of data from page to node js`() {
         val result = page.evaluate("() => Array(100* 1024 * 1024 + 1).join('a')")
         result as String
