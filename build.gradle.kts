@@ -26,6 +26,7 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("org.java-websocket:Java-WebSocket:1.5.2")
     implementation("com.google.code.gson:gson:2.8.6")
 }
 
@@ -39,13 +40,15 @@ tasks.test {
         showStackTraces = true
 
         debug {
-            events(STARTED, FAILED, PASSED, SKIPPED, STANDARD_ERROR, STANDARD_OUT)
+            events(
+                STARTED,
+                FAILED, PASSED, SKIPPED, STANDARD_ERROR, STANDARD_OUT
+            )
             exceptionFormat = FULL
         }
         info.events = debug.events
         info.exceptionFormat = debug.exceptionFormat
     }
-
     useJUnitPlatform {
         include("**/Test*.class")
     }

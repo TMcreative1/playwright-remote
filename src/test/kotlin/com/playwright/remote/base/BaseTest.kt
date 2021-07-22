@@ -8,7 +8,6 @@ import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.server.api.IServerProvider
 import com.playwright.remote.engine.server.impl.ServerProvider
@@ -108,6 +107,12 @@ open class BaseTest {
     private fun createHttpServers() {
         httpServer = Server.createHttp(8080)
         httpsServer = Server.createHttps(8443)
+    }
+
+    private fun destroyBrowser() {
+        page.close()
+        browserContext.close()
+        browser.close()
     }
 
     private fun stopHttpServers() {

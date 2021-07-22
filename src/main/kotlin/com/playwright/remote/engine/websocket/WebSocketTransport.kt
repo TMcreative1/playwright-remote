@@ -29,7 +29,7 @@ class WebSocketTransport(url: String) : ITransport {
     private class CustomWebSocketListener(
         private val incomingMessages: BlockingQueue<String>,
         private var lastException: Exception,
-        private val incomingErrors: ConcurrentHashMap<String, Exception>,
+        private val incomingErrors: ConcurrentHashMap<String, Exception>
     ) :
         WebSocketListener() {
         private val logger = CustomLogger()
