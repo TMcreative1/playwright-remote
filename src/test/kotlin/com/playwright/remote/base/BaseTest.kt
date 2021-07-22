@@ -109,12 +109,6 @@ open class BaseTest {
         httpsServer = Server.createHttps(8443)
     }
 
-    private fun destroyBrowser() {
-        page.close()
-        browserContext.close()
-        browser.close()
-    }
-
     private fun stopHttpServers() {
         httpServer.stop()
         httpsServer.stop()
