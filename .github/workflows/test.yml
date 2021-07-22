@@ -7,6 +7,7 @@ jobs:
   build:
     timeout-minutes: 15
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
@@ -30,7 +31,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         shell: powershell
         run: Install-WindowsFeature Server-Media-Foundation
-        
+
       - name: Install C++ compiler
         if: ${{ matrix.os == 'windows-latest' }}
         shell: powershell
