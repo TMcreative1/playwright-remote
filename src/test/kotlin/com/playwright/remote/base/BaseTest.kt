@@ -89,6 +89,7 @@ open class BaseTest {
 
     @AfterEach
     private fun afterEach() {
+        destroyBrowser()
         stopHttpServers()
     }
 
@@ -96,6 +97,12 @@ open class BaseTest {
         browser = RemoteBrowser.connectWs(wsUrl)
         browserContext = browser.newContext()
         page = browserContext.newPage()
+    }
+
+    private fun destroyBrowser() {
+        page.close()
+        browserContext.close()
+        browser.close()
     }
 
     private fun createHttpServers() {
