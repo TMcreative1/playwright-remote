@@ -2,11 +2,13 @@ package com.playwright.remote.engine.server.impl
 
 import com.playwright.remote.core.enums.BrowserType
 import com.playwright.remote.core.enums.Platform
+import com.playwright.remote.engine.logger.CustomLogger
 import com.playwright.remote.engine.server.api.IServerProvider
 import java.nio.file.Paths
 
 class ServerProvider : IServerProvider {
     private lateinit var process: Process
+    private val logger = CustomLogger()
 
     override fun launchServer(platform: Platform, browserType: BrowserType): String? {
         val pb = ProcessBuilder().apply {
@@ -17,15 +19,22 @@ class ServerProvider : IServerProvider {
             command(node, cli, "launch-server", browserType.browserName, config)
         }
 
+        logger.logInfo("Playwright server is starting")
         process = pb.start()
-        return process.inputStream.bufferedReader().useLines {
+        val firstLine = process.inputStream.bufferedReader().useLines {
             it.firstOrNull()
         }
+        logger.logInfo("Playwright server started with url $firstLine")
+        return firstLine
     }
 
 
-    override fun stopServer(): Int = process.runCatching {
-        destroy()
-        waitFor()
-    }.getOrThrow()
+    override fun stopServer() {
+        logger.logInfo("Playwright server is stopping")
+        process.runCatching {
+            destroy()
+            waitFor()
+        }.getOrThrow()
+        logger.logInfo("Playwright server was stopped")
+    }
 }
