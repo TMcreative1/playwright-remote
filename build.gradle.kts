@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.*
 import java.net.URL
@@ -5,7 +7,7 @@ import java.nio.file.*
 import kotlin.collections.*
 
 val archs = listOf("mac", "linux", "win32", "win32_x64")
-val playwrightVersion = "1.13.0-next-1623789547000"
+val playwrightVersion = "1.13.0-next-1626177968000"
 
 plugins {
     kotlin("jvm") version "1.5.20-M1"
@@ -24,16 +26,35 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    testImplementation("org.java-websocket:Java-WebSocket:1.5.2")
     implementation("com.google.code.gson:gson:2.8.6")
 }
 
 tasks.test {
+    outputs.upToDateWhen { false }
+    testLogging {
+        events(FAILED, PASSED, SKIPPED, STANDARD_OUT)
+        exceptionFormat = FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+
+        debug {
+            events(
+                STARTED,
+                FAILED, PASSED, SKIPPED, STANDARD_ERROR, STANDARD_OUT
+            )
+            exceptionFormat = FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+    }
     useJUnitPlatform {
         include("**/Test*.class")
     }
     dependsOn("downloadAndUnzip")
     systemProperty("browser", System.getProperty("browser"))
-    maxHeapSize = "2560m"
+    maxHeapSize = "3072m"
 }
 
 task<DefaultTask>("downloadAndUnzip") {
