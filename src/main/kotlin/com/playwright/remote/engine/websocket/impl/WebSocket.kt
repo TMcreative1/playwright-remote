@@ -78,24 +78,38 @@ class WebSocket(parent: ChannelOwner, type: String, guid: String, initializer: J
     }
 
     override fun waitForFrameReceived(options: WaitForFrameReceivedOptions?, callback: () -> Unit): IWebSocketFrame? {
+        val opt = options ?: WaitForFrameReceivedOptions {}
         return waitForEventWithTimeout(
             FRAMERECEIVED,
-            if (options == null) WaitForFrameReceivedOptions {}.timeout else options.timeout,
+            opt.timeout,
+            opt.predicate,
             callback
         )
     }
 
     override fun waitForFrameSent(options: WaitForFrameSentOptions?, callback: () -> Unit): IWebSocketFrame? {
+        val opt = options ?: WaitForFrameSentOptions {}
         return waitForEventWithTimeout(
             FRAMESENT,
-            if (options == null) WaitForFrameSentOptions {}.timeout else options.timeout,
+            opt.timeout,
+            opt.predicate,
             callback
         )
     }
 
-    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T? {
+    private fun <T> waitForEventWithTimeout(
+        eventType: EventType,
+        timeout: Double?,
+        predicate: ((IWebSocketFrame) -> Boolean)?,
+        code: () -> Unit
+    ): T? {
         val waitList = arrayListOf<IWait<T>>()
-        waitList.add(WaitEvent(listeners, eventType))
+        waitList.add(
+            WaitEvent(
+                listeners,
+                eventType,
+                { frame -> predicate == null || predicate.invoke(frame as IWebSocketFrame) })
+        )
         waitList.add(WaitWebSocketClose(listeners))
         waitList.add(WaitWebSocketError(listeners))
         waitList.add((page as Page).createWaitForCloseHelper())

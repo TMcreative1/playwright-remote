@@ -104,7 +104,7 @@ class TestPageFill : BaseTest() {
     }
 
     @Test
-    @DisabledIfSystemProperty(named = "browser", matches = "^\$|webkit")
+    @DisabledIfSystemProperty(named = "browser", matches = "^\$|webkit|firefox")
     fun `check to throw exception on incorrect datetime local`() {
         page.setContent("<input type=datetime-local>")
         try {

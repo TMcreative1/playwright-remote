@@ -27,12 +27,21 @@ class WebSocketTransport(url: String) : ITransport {
     private val webSocketListener = CustomWebSocketListener(incomingMessages, lastException, incomingErrors)
 
     private class CustomWebSocketListener(
-        val incomingMessages: BlockingQueue<String>,
-        var lastException: Exception,
-        val incomingErrors: ConcurrentHashMap<String, Exception>
+        private val incomingMessages: BlockingQueue<String>,
+        private var lastException: Exception,
+        private val incomingErrors: ConcurrentHashMap<String, Exception>
     ) :
         WebSocketListener() {
         private val logger = CustomLogger()
+
+        override fun onOpen(webSocket: WebSocket, response: Response) {
+            logger.logInfo("Connection open")
+        }
+
+        override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            logger.logInfo("Connection close")
+        }
+
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             lastException = t as Exception
             incomingErrors["error"] = lastException

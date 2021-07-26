@@ -3072,8 +3072,8 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
      * @param callback Callback that performs the action triggering the event.
      */
-    fun waitForRequest(urlOrPredicate: Pattern, callback: () -> Unit): IRequest {
-        return waitForRequest(urlOrPredicate, callback)
+    fun waitForRequest(urlOrPredicate: Pattern, callback: () -> Unit): IRequest? {
+        return waitForRequest(urlOrPredicate, null, callback)
     }
 
     /**
@@ -3118,8 +3118,8 @@ interface IPage {
      * @param urlOrPredicate Request URL string, regex or predicate receiving {@code Request} object.
      * @param callback       Callback that performs the action triggering the event.
      */
-    fun waitForRequest(urlOrPredicate: ((IRequest) -> Boolean), callback: () -> Unit): IRequest {
-        return waitForRequest(urlOrPredicate, callback)
+    fun waitForRequest(urlOrPredicate: ((IRequest) -> Boolean), callback: () -> Unit): IRequest? {
+        return waitForRequest(urlOrPredicate, null, callback)
     }
 
     /**

@@ -72,7 +72,7 @@ class TestPageWaitForNavigation : BaseTest() {
                 else -> listOf("SSL_ERROR_UNKNOWN")
             }
             assertTrue(
-                possibleErrorMessages.stream().anyMatch { it.contains(e.message!!) },
+                possibleErrorMessages.stream().anyMatch { e.message!!.contains(it) },
                 "Unexpected exception: '${e.message}' check message(s): ${possibleErrorMessages.joinToString(separator = ",")}"
             )
         }

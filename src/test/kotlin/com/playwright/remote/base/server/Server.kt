@@ -113,10 +113,10 @@ class Server private constructor(port: Int, https: Boolean) : HttpHandler {
     }
 
     fun setRedirect(from: String, to: String) {
-        setRoute(from) { exchange: HttpExchange ->
-            exchange.responseHeaders["location"] = listOf(to)
-            exchange.sendResponseHeaders(302, -1)
-            exchange.responseBody.close()
+        setRoute(from) {
+            it.responseHeaders["location"] = listOf(to)
+            it.sendResponseHeaders(302, -1)
+            it.responseBody.close()
         }
     }
 
