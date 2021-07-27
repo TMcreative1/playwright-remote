@@ -131,6 +131,7 @@ class TestWorker : BaseTest() {
     }
 
     @Test
+    @DisabledIfSystemProperty(named = "browser", matches = "^chromium|firefox")
     fun `check attribute network activity for worker inside iframe`() {
         page.navigate(httpServer.emptyPage)
         val frame = arrayListOf<IFrame?>(null)
