@@ -8,8 +8,10 @@ import com.playwright.remote.engine.options.NewContextOptions
 import com.playwright.remote.engine.route.request.api.IRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
+import java.text.NumberFormat
 import java.time.Duration
 import java.time.Instant
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -197,7 +199,8 @@ class TestWorker : BaseTest() {
             page.evaluate("() => new Worker(URL.createObjectURL(new Blob(['console.log(1)'], {type: 'application/javascript'})))")
         }
         assertNotNull(worker)
-        assertEquals("10\u00A0000,2", worker.evaluate("() => (10000.20).toLocaleString()"))
+        val expectedVal = if (isFirefox()) "10000.2" else "10,000.2"
+        assertEquals(expectedVal, worker.evaluate("() => (10000.20).toLocaleString()"))
         context.close()
     }
 }
