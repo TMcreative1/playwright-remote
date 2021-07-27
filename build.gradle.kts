@@ -1,10 +1,10 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.io.*
 import java.net.URL
-import java.nio.file.*
-import kotlin.collections.*
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 val archs = listOf("mac", "linux", "win32", "win32_x64")
 val playwrightVersion = "1.12.0-next-1622765855000"
@@ -26,7 +26,7 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
-    implementation("org.java-websocket:Java-WebSocket:1.5.2")
+    testImplementation("org.java-websocket:Java-WebSocket:1.5.2")
     implementation("com.google.code.gson:gson:2.8.6")
 }
 
@@ -54,7 +54,7 @@ tasks.test {
     }
     dependsOn("downloadAndUnzip")
     systemProperty("browser", System.getProperty("browser"))
-    maxHeapSize = "3072m"
+    maxHeapSize = "2560m"
 }
 
 task<DefaultTask>("downloadAndUnzip") {
