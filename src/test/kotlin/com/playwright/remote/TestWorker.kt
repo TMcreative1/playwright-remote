@@ -199,7 +199,7 @@ class TestWorker : BaseTest() {
             page.evaluate("() => new Worker(URL.createObjectURL(new Blob(['console.log(1)'], {type: 'application/javascript'})))")
         }
         assertNotNull(worker)
-        val expectedVal = if (isFirefox()) "10,000.2" else "10\u00A0000,2"
+        val expectedVal = if (isFirefox()) "10000.2" else "10,000.2"
         assertEquals(expectedVal, worker.evaluate("() => (10000.20).toLocaleString()"))
         context.close()
     }
