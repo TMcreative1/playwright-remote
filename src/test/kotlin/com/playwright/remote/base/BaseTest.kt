@@ -137,4 +137,8 @@ open class BaseTest {
     protected fun isWindows(): Boolean {
         return getCurrentPlatform() == WINDOWS32 || getCurrentPlatform() == WINDOWS64
     }
+
+    protected fun isLinux(): Boolean {
+        return getCurrentPlatform() == LINUX
+    }
 }

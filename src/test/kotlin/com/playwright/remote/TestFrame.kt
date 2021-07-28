@@ -1,9 +1,14 @@
 package com.playwright.remote
 
 import com.playwright.remote.base.BaseTest
+import com.playwright.remote.core.enums.LoadState
+import com.playwright.remote.core.exceptions.TimeoutException
+import com.playwright.remote.engine.options.NavigateOptions
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class TestFrame : BaseTest() {
 
@@ -25,6 +30,34 @@ class TestFrame : BaseTest() {
             it.setContent("<button id='foo' onfocus='window.goFocus=true'></button>")
             it.focus("#foo")
             assertEquals(true, it.evaluate("() => !!window['goFocus']"))
+        }
+    }
+
+    @Test
+    fun `check to navigate sub-frames`() {
+        page.navigate("${httpServer.prefixWithDomain}/frames/one-frame.html")
+        assertTrue(page.frames()[0].url().contains("/frames/one-frame.html"))
+        assertTrue(page.frames()[1].url().contains("/frames/frame.html"))
+
+        val response = page.frames()[1].navigate(httpServer.emptyPage)
+        assertNotNull(response)
+        assertTrue(response.ok())
+        assertEquals(page.frames()[1], response.frame())
+    }
+
+    @Test
+    fun `check to continue after client redirect`() {
+        httpServer.setRoute("/scripts/frame.js") {}
+        val url = "${httpServer.prefixWithDomain}/frames/child-redirect.html"
+        try {
+            page.navigate(url, NavigateOptions {
+                it.timeout = 5000.0
+                it.waitUntil = LoadState.NETWORKIDLE.value
+            })
+            fail("navigate should throw")
+        } catch (e: TimeoutException) {
+            assertTrue(e.message!!.contains("Timeout 5000ms exceeded."))
+            assertTrue(e.message!!.contains("navigating to \"${url}\", waiting until \"networkidle\""))
         }
     }
 }
