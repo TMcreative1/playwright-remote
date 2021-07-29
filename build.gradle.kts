@@ -1,10 +1,10 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.io.*
 import java.net.URL
-import java.nio.file.*
-import kotlin.collections.*
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 val archs = listOf("mac", "linux", "win32", "win32_x64")
 val playwrightVersion = "1.11.0-next-1617087307000"
@@ -54,7 +54,7 @@ tasks.test {
     }
     dependsOn("downloadAndUnzip")
     systemProperty("browser", System.getProperty("browser"))
-    maxHeapSize = "3072m"
+    maxHeapSize = "2560m"
 }
 
 task<DefaultTask>("downloadAndUnzip") {
