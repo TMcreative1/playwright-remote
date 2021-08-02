@@ -479,7 +479,7 @@ interface IPage : AutoCloseable {
      * <p> <strong>NOTE:</strong> if {@code runBeforeUnload} is passed as true, a {@code beforeunload} dialog might be summoned and should be handled manually via
      * {@link Page#onDialog Page.onDialog()} event.
      */
-    fun close() {
+    override fun close() {
         close(null)
     }
 
@@ -1449,6 +1449,25 @@ interface IPage : AutoCloseable {
      * href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
      */
     fun innerText(selector: String, options: InnerTextOptions?): String
+
+    /**
+     * Returns {@code input.value} for the selected {@code <input>} or {@code <textarea>} element. Throws for non-input elements.
+     *
+     * @param selector A selector to search for an element. If there are multiple elements satisfying the selector, the first will be used. See
+     * <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun inputValue(selector: String): String {
+        return inputValue(selector, null)
+    }
+
+    /**
+     * Returns {@code input.value} for the selected {@code <input>} or {@code <textarea>} element. Throws for non-input elements.
+     *
+     * @param selector A selector to search for an element. If there are multiple elements satisfying the selector, the first will be used. See
+     * <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun inputValue(selector: String, options: InputValueOptions?): String
+
 
     /**
      * Returns whether the element is checked. Throws if the element is not a checkbox or radio input.
