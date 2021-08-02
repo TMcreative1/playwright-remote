@@ -11,6 +11,7 @@ import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.handle.element.api.IElementHandle
 import com.playwright.remote.engine.handle.js.impl.JSHandle
 import com.playwright.remote.engine.options.CheckOptions
+import com.playwright.remote.engine.options.InputValueOptions
 import com.playwright.remote.engine.options.SelectOption
 import com.playwright.remote.engine.options.element.*
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
@@ -117,6 +118,12 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
 
     override fun innerText(): String {
         val json = sendMessage("innerText")!!.asJsonObject
+        return json["value"].asString
+    }
+
+    override fun inputValue(options: InputValueOptions?): String {
+        val params = gson().toJsonTree(options ?: InputValueOptions {}).asJsonObject
+        val json = sendMessage("inputValue", params)!!.asJsonObject
         return json["value"].asString
     }
 

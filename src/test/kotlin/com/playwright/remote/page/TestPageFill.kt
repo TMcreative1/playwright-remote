@@ -258,4 +258,13 @@ class TestPageFill : BaseTest() {
         result = page.evaluate("() => window['result']")
         assertEquals(expectedValue, result)
     }
+
+    @Test
+    fun `check to input value`() {
+        page.navigate("${httpServer.prefixWithDomain}/input/textarea.html")
+        page.fill("input", "my-text-content")
+        assertEquals("my-text-content", page.inputValue("input"))
+        page.fill("input", "")
+        assertEquals("", page.inputValue("input"))
+    }
 }

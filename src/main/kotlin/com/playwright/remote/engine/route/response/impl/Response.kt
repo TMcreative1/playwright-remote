@@ -1,6 +1,8 @@
 package com.playwright.remote.engine.route.response.impl
 
 import com.google.gson.JsonObject
+import com.playwright.remote.domain.response.SecurityDetails
+import com.playwright.remote.domain.response.ServerAddress
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.parser.IParser.Companion.fromJson
 import com.playwright.remote.engine.processor.ChannelOwner
@@ -8,6 +10,7 @@ import com.playwright.remote.engine.route.request.Timing
 import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.api.IResponse
+import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -54,6 +57,22 @@ class Response(parent: ChannelOwner, type: String, guid: String, initializer: Js
     override fun ok(): Boolean = status() == 0 || (status() in 200..299)
 
     override fun request(): IRequest = request
+
+    override fun securityDetails(): SecurityDetails? {
+        val json = sendMessage("securityDetails")!!.asJsonObject
+        if (json.has("value")) {
+            return gson().fromJson(json["value"], SecurityDetails::class.java)
+        }
+        return null
+    }
+
+    override fun serverAddress(): ServerAddress? {
+        val json = sendMessage("serverAddr")!!.asJsonObject
+        if (json.has("value")) {
+            return gson().fromJson(json["value"], ServerAddress::class.java)
+        }
+        return null
+    }
 
     override fun status(): Int = initializer["status"].asInt
 

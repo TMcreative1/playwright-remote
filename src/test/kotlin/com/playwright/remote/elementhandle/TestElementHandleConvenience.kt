@@ -1,10 +1,9 @@
 package com.playwright.remote.elementhandle
 
 import com.playwright.remote.base.BaseTest
+import com.playwright.remote.core.exceptions.PlaywrightException
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.*
 
 class TestElementHandleConvenience : BaseTest() {
 
@@ -44,7 +43,28 @@ class TestElementHandleConvenience : BaseTest() {
     fun `check to input value`() {
         page.navigate("${httpServer.prefixWithDomain}/dom.html")
 
-        page.fill("#textarea", "my value")
-        assertEquals("my value", page.inputValue("#textarea"))
+        page.fill("#textarea", "textarea value")
+        assertEquals("textarea value", page.inputValue("#textarea"))
+
+        page.fill("#input", "input value")
+        assertEquals("input value", page.inputValue("#input"))
+        val handle = page.querySelector("#input")
+        assertNotNull(handle)
+        assertEquals("input value", handle.inputValue())
+
+        try {
+            page.inputValue("#inner")
+            fail("inputValue should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Node is not an HTMLInputElement or HTMLTextAreaElement"), e.message)
+        }
+        val handle2 = page.querySelector("#inner")
+        assertNotNull(handle2)
+        try {
+            handle2.inputValue()
+            fail("inputValue should throw")
+        } catch (e: PlaywrightException) {
+            assertTrue(e.message!!.contains("Node is not an HTMLInputElement or HTMLTextAreaElement"), e.message)
+        }
     }
 }

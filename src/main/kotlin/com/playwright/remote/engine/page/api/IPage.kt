@@ -30,7 +30,7 @@ import com.playwright.remote.engine.worker.api.IWorker
 import java.nio.file.Path
 import java.util.regex.Pattern
 
-interface IPage {
+interface IPage : AutoCloseable {
     /**
      * Emitted when the page closes.
      */
