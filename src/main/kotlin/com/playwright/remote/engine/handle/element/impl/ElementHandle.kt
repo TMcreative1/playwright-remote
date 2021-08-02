@@ -107,7 +107,7 @@ class ElementHandle(parent: ChannelOwner, type: String, guid: String, initialize
     }
 
     override fun hover(options: HoverOptions?) {
-        val params = gson().toJsonTree(options).asJsonObject
+        val params = gson().toJsonTree(options ?: HoverOptions {}).asJsonObject
         sendMessage("hover", params)
     }
 
