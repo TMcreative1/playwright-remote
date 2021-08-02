@@ -239,6 +239,13 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         return json["value"].asString
     }
 
+    override fun inputValue(selector: String, options: InputValueOptions?): String {
+        val params = gson().toJsonTree(options ?: InputValueOptions {}).asJsonObject
+        params.addProperty("selector", selector)
+        val json = sendMessage("inputValue", params)!!.asJsonObject
+        return json["value"].asString
+    }
+
     override fun isChecked(selector: String, options: IsCheckedOptions?): Boolean {
         val params = gson().toJsonTree(options ?: IsCheckedOptions {}).asJsonObject
         params.addProperty("selector", selector)
@@ -430,7 +437,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
 
     override fun waitForLoadState(state: LoadState?, options: WaitForLoadStateOptions?) {
         val waits = arrayListOf<IWait<Void?>>()
-        waits.add(WaitLoadState(state?: LoadState.LOAD, internalListeners, loadStates))
+        waits.add(WaitLoadState(state ?: LoadState.LOAD, internalListeners, loadStates))
         waits.add((page as Page).createWaitForCloseHelper())
         waits.add((page as Page).createWaitTimeout((options ?: WaitForLoadStateOptions {}).timeout))
         runUtil(WaitRace(waits)) {}

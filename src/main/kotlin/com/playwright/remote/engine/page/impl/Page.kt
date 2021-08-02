@@ -493,6 +493,10 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return mainFrame.innerText(selector, options)
     }
 
+    override fun inputValue(selector: String, options: InputValueOptions?): String {
+        return mainFrame.inputValue(selector, options)
+    }
+
     override fun isChecked(selector: String, options: IsCheckedOptions?): Boolean {
         return mainFrame.isChecked(selector, options)
     }
