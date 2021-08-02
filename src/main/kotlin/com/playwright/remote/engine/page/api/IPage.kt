@@ -30,7 +30,7 @@ import com.playwright.remote.engine.worker.api.IWorker
 import java.nio.file.Path
 import java.util.regex.Pattern
 
-interface IPage {
+interface IPage : AutoCloseable {
     /**
      * Emitted when the page closes.
      */
@@ -479,7 +479,7 @@ interface IPage {
      * <p> <strong>NOTE:</strong> if {@code runBeforeUnload} is passed as true, a {@code beforeunload} dialog might be summoned and should be handled manually via
      * {@link Page#onDialog Page.onDialog()} event.
      */
-    fun close() {
+    override fun close() {
         close(null)
     }
 
