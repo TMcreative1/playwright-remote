@@ -10,6 +10,17 @@ data class NewPageOptions @JvmOverloads constructor(
      */
     var acceptDownloads: Boolean? = null,
     /**
+     * When using {@link Page#goto Page.goto()}, {@link Page#route Page.route()}, {@link Page#waitForURL Page.waitForURL()},
+     * {@link Page#waitForRequest Page.waitForRequest()}, or {@link Page#waitForResponse Page.waitForResponse()} it takes the
+     * base URL in consideration by using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/URL/URL">{@code URL()}</a>
+     * constructor for building the corresponding URL. Examples:
+     * <ul>
+     * <li> baseURL: {@code http://localhost:3000} and navigating to {@code /bar.html} results in {@code http://localhost:3000/bar.html}</li>
+     * <li> baseURL: {@code http://localhost:3000/foo/} and navigating to {@code ./bar.html} results in {@code http://localhost:3000/foo/bar.html}</li>
+     * </ul>
+     */
+    var baseUrl: String? = null,
+    /**
      * Toggles bypassing page's Content-Security-Policy.
      */
     var bypassCSP: Boolean? = null,

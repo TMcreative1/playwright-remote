@@ -4,6 +4,11 @@ import com.playwright.remote.engine.options.api.IBuilder
 
 data class SelectOptionOptions @JvmOverloads constructor(
     /**
+     * Whether to bypass the <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks. Defaults to
+     * {@code false}.
+     */
+    var force: Boolean? = null,
+    /**
      * Actions that initiate navigations are waiting for these navigations to happen and for pages to start loading. You can
      * opt out of waiting via setting this flag. You would only need this option in the exceptional cases such as navigating to
      * inaccessible pages. Defaults to {@code false}.
