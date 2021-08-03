@@ -18,10 +18,7 @@ import com.playwright.remote.engine.callback.api.IBindingCallback.ISource
 import com.playwright.remote.engine.callback.api.IFunctionCallback
 import com.playwright.remote.engine.console.api.IConsoleMessage
 import com.playwright.remote.engine.dialog.api.IDialog
-import com.playwright.remote.engine.download.api.IArtifact
 import com.playwright.remote.engine.download.api.IDownload
-import com.playwright.remote.engine.download.impl.Artifact
-import com.playwright.remote.engine.download.impl.Download
 import com.playwright.remote.engine.filechooser.api.IFileChooser
 import com.playwright.remote.engine.filechooser.impl.FileChooser
 import com.playwright.remote.engine.frame.api.IFrame
@@ -770,18 +767,15 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun video(): IVideo? {
-        // Note: we are creating Video object lazily, because we do not know
-        // BrowserContextOptions when constructing the page - it is assigned
-        // too late during launchPersistentContext.
+        if (video != null) {
+            return video
+        }
         if ((browserContext as BrowserContext).videosDir == null) {
             return null
         }
-        return forceVideo()
-    }
-
-    private fun forceVideo(): IVideo? {
-        if (video == null) {
-            video = Video(this)
+        video = Video(this)
+        if (initializer.has("videoRelativePath")) {
+            video!!.setRelativePath(initializer["videoRelativePath"].asString)
         }
         return video
     }
@@ -954,9 +948,8 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
                 listeners.notify(CONSOLE, message)
             }
             "download" -> {
-                val artifactGuid = params["artifact"].asJsonObject["guid"].asString
-                val artifact = messageProcessor.getExistingObject<IArtifact>(artifactGuid)
-                val download = Download(artifact, params)
+                val guid = params["download"].asJsonObject["guid"].asString
+                val download = messageProcessor.getExistingObject<IDownload>(guid)
                 listeners.notify(DOWNLOAD, download)
             }
             "fileChooser" -> {
@@ -1046,9 +1039,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
                 }
             }
             "video" -> {
-                val artifactGuid = params["artifact"].asJsonObject["guid"].asString
-                val artifact = messageProcessor.getExistingObject<Artifact>(artifactGuid)
-                forceVideo()?.setArtifact(artifact)
+                video()!!.setRelativePath(params["relativePath"].asString)
             }
             "pageError" -> {
                 val error = fromJson(params["error"].asJsonObject, SerializedError::class.java)
