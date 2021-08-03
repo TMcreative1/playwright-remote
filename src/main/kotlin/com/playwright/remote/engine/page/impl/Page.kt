@@ -47,7 +47,6 @@ import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
 import com.playwright.remote.engine.route.request.api.IRequest
-import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.api.IResponse
 import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import com.playwright.remote.engine.touchscreen.api.ITouchScreen
@@ -448,7 +447,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun frameByUrl(url: String): IFrame? {
-        return frameFor(UrlMatcher(url))
+        return frameFor(UrlMatcher((browserContext as BrowserContext).baseUrl, url))
     }
 
     override fun frameByUrl(url: Pattern): IFrame? {
@@ -592,7 +591,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun route(url: String, handler: (IRoute) -> Unit) {
-        route(UrlMatcher(url), handler)
+        route(UrlMatcher((browserContext as BrowserContext).baseUrl, url), handler)
     }
 
     override fun route(url: Pattern, handler: (IRoute) -> Unit) {
@@ -758,7 +757,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun unroute(url: String, handler: ((IRoute) -> Unit)?) {
-        unroute(UrlMatcher(url), handler)
+        unroute(UrlMatcher((browserContext as BrowserContext).baseUrl, url), handler)
     }
 
     override fun unroute(url: Pattern, handler: ((IRoute) -> Unit)?) {
@@ -840,7 +839,14 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         options: WaitForRequestOptions?,
         callback: () -> Unit
     ): IRequest? {
-        return waitForRequest(toRequestPredicate(UrlMatcher(urlOrPredicate ?: "")), options, callback)
+        return waitForRequest(
+            toRequestPredicate(
+                UrlMatcher(
+                    (browserContext as BrowserContext).baseUrl,
+                    urlOrPredicate ?: ""
+                )
+            ), options, callback
+        )
     }
 
     override fun waitForRequest(
@@ -868,7 +874,14 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         options: WaitForResponseOptions?,
         callback: () -> Unit
     ): IResponse? {
-        return waitForResponse(toResponsePredicate(UrlMatcher(urlOrPredicate ?: "")), options, callback)
+        return waitForResponse(
+            toResponsePredicate(
+                UrlMatcher(
+                    (browserContext as BrowserContext).baseUrl,
+                    urlOrPredicate ?: ""
+                )
+            ), options, callback
+        )
     }
 
     override fun waitForResponse(
@@ -900,7 +913,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun waitForURL(url: String, options: WaitForURLOptions?) {
-        waitForUrl(UrlMatcher(url), options)
+        waitForUrl(UrlMatcher((browserContext as BrowserContext).baseUrl, url), options)
     }
 
     override fun waitForURL(url: Pattern, options: WaitForURLOptions?) {

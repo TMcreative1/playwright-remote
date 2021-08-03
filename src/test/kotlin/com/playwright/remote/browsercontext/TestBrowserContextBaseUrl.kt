@@ -13,7 +13,7 @@ class TestBrowserContextBaseUrl : BaseTest() {
 
     @Test
     fun `check to construct a new url when a base url in browser new context is passed to page goto`() {
-        browser.newContext(NewContextOptions { it.baseUrl = httpServer.prefixWithDomain }).use {
+        browser.newContext(NewContextOptions { it.baseURL = httpServer.prefixWithDomain }).use {
             val pg = it.newPage()
             val response = pg.navigate("/empty.html")
             assertNotNull(response)
@@ -23,7 +23,7 @@ class TestBrowserContextBaseUrl : BaseTest() {
 
     @Test
     fun `check to construct a new url when a base url in browser new page is passed to page goto`() {
-        browser.newPage(NewPageOptions { it.baseUrl = httpServer.prefixWithDomain }).use {
+        browser.newPage(NewPageOptions { it.baseURL = httpServer.prefixWithDomain }).use {
             val response = it.navigate("/empty.html")
             assertNotNull(response)
             assertEquals(httpServer.emptyPage, response.url())
@@ -32,16 +32,16 @@ class TestBrowserContextBaseUrl : BaseTest() {
 
     @Test
     fun `check to construct the url correctly when a base url without a trailing slash in browser new page is passed to page goto`() {
-        browser.newPage(NewPageOptions { it.baseUrl = "${httpServer.prefixWithDomain}/url-construction" }).use {
-            assertEquals("${httpServer.prefixWithDomain}/mypage.html", page.navigate("mypage.html")!!.url())
-            assertEquals("${httpServer.prefixWithDomain}/mypage.html", page.navigate("./mypage.html")!!.url())
-            assertEquals("${httpServer.prefixWithDomain}/mypage.html", page.navigate("/mypage.html")!!.url())
+        browser.newPage(NewPageOptions { it.baseURL = "${httpServer.prefixWithDomain}/url-construction" }).use {
+            assertEquals("${httpServer.prefixWithDomain}/mypage.html", it.navigate("mypage.html")!!.url())
+            assertEquals("${httpServer.prefixWithDomain}/mypage.html", it.navigate("./mypage.html")!!.url())
+            assertEquals("${httpServer.prefixWithDomain}/mypage.html", it.navigate("/mypage.html")!!.url())
         }
     }
 
     @Test
     fun `check to not construct a new url when valid url are passed`() {
-        browser.newPage(NewPageOptions { it.baseUrl = "http://microsoft.com" }).use {
+        browser.newPage(NewPageOptions { it.baseURL = "http://microsoft.com" }).use {
             val response = it.navigate(httpServer.emptyPage)
             assertNotNull(response)
             assertEquals(httpServer.emptyPage, response.url())
@@ -56,7 +56,7 @@ class TestBrowserContextBaseUrl : BaseTest() {
 
     @Test
     fun `check to be able to match a url relative to it's given url without url matcher`() {
-        browser.newPage(NewPageOptions { it.baseUrl = "${httpServer.prefixWithDomain}/foobar/" }).use { pg ->
+        browser.newPage(NewPageOptions { it.baseURL = "${httpServer.prefixWithDomain}/foobar/" }).use { pg ->
             pg.navigate("/incorrect/index.html")
             pg.waitForURL("/incorrect/index.html")
             assertEquals("${httpServer.prefixWithDomain}/incorrect/index.html", pg.url())

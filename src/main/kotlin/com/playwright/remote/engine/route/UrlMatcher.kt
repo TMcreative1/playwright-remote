@@ -2,6 +2,8 @@ package com.playwright.remote.engine.route
 
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.utils.Utils.Companion.globToRegex
+import java.net.MalformedURLException
+import java.net.URL
 import java.util.*
 import java.util.regex.Pattern
 import java.util.regex.Pattern.compile
@@ -17,12 +19,23 @@ class UrlMatcher(private val rawSource: Any = "", private val predicate: Predica
 
         @JvmStatic
         @Suppress("UNCHECKED_CAST")
-        fun forOneOf(obj: Any?): UrlMatcher = when (obj) {
+        fun forOneOf(baseUrl: URL?, obj: Any?): UrlMatcher = when (obj) {
             null -> any()
-            is String -> UrlMatcher(obj)
+            is String -> UrlMatcher(baseUrl, obj)
             is Pattern -> UrlMatcher(obj)
             is Function<*> -> UrlMatcher(obj as Predicate)
             else -> throw PlaywrightException("Url must be String, Pattern or Predicate, found: ${obj.javaClass.name}")
+        }
+
+        private fun resolveUrl(baseUrl: URL?, spec: String): String {
+            if (baseUrl == null) {
+                return spec
+            }
+            return try {
+                URL(baseUrl, spec).toString()
+            } catch (e: MalformedURLException) {
+                spec
+            }
         }
     }
 
@@ -33,6 +46,11 @@ class UrlMatcher(private val rawSource: Any = "", private val predicate: Predica
     constructor(url: String) : this(
         url,
         toPredicate(compile(globToRegex(url))).also { str -> url == "" || url.equals(str) })
+
+    constructor(baseUrl: URL?, url: String) : this(
+        url,
+        toPredicate(compile(globToRegex(resolveUrl(baseUrl, url)))).also { str -> url == "" || url.equals(str) }
+    )
 
     fun test(value: String) = predicate == null || predicate.invoke(value)
 

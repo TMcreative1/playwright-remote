@@ -9,6 +9,7 @@ import com.playwright.remote.core.enums.WaitUntilState.LOAD
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.domain.file.FilePayload
 import com.playwright.remote.domain.serialize.SerializedError.SerializedValue
+import com.playwright.remote.engine.browser.impl.BrowserContext
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.handle.element.api.IElementHandle
 import com.playwright.remote.engine.handle.js.api.IJSHandle
@@ -459,7 +460,7 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         val waits = arrayListOf<IWait<IResponse?>>()
         waits.add(
             WaitNavigation(
-                matcher ?: UrlMatcher.forOneOf(opt.url),
+                matcher ?: UrlMatcher.forOneOf((page?.context() as BrowserContext).baseUrl, opt.url),
                 LoadState.valueOf(opt.waitUntil!!.name),
                 internalListeners,
                 messageProcessor,
@@ -486,6 +487,10 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
                 return null
             }
         }) {}
+    }
+
+    override fun waitForURL(url: String, options: WaitForURLOptions?) {
+        waitForURL(UrlMatcher((page?.context() as BrowserContext).baseUrl, url), options)
     }
 
     override fun waitForURL(matcher: UrlMatcher, options: WaitForURLOptions?) {
