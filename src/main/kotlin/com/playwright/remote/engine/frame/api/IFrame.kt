@@ -1956,8 +1956,7 @@ interface IFrame {
      *
      * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
      */
-    fun waitForURL(url: String, options: WaitForURLOptions?) =
-        waitForURL(UrlMatcher(url), options)
+    fun waitForURL(url: String, options: WaitForURLOptions?)
 
     /**
      * Waits for the frame to navigate to the given URL.

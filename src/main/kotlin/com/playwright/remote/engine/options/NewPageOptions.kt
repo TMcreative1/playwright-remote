@@ -19,7 +19,7 @@ data class NewPageOptions @JvmOverloads constructor(
      * <li> baseURL: {@code http://localhost:3000/foo/} and navigating to {@code ./bar.html} results in {@code http://localhost:3000/foo/bar.html}</li>
      * </ul>
      */
-    var baseUrl: String? = null,
+    var baseURL: String? = null,
     /**
      * Toggles bypassing page's Content-Security-Policy.
      */

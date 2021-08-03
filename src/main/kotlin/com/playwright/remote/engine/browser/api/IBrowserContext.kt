@@ -12,6 +12,9 @@ import java.nio.file.Path
 import java.util.regex.Pattern
 
 interface IBrowserContext : AutoCloseable {
+
+    fun setBaseUrl(spec: String)
+
     /**
      * Emitted when Browser context gets closed. This might happen because of one of the following:
      * <ul>
