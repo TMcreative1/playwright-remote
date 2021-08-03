@@ -12,7 +12,7 @@ class Selectors(parent: ChannelOwner, type: String, guid: String, initializer: J
     override fun register(name: String, script: String, options: RegisterOptions?) {
         val params = gson().toJsonTree(options ?: RegisterOptions {}).asJsonObject
         params.addProperty("name", name)
-        params.addProperty("sourse", script)
+        params.addProperty("source", script)
         sendMessage("register", params)
     }
 }
