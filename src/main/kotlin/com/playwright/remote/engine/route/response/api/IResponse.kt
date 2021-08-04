@@ -1,5 +1,7 @@
 package com.playwright.remote.engine.route.response.api
 
+import com.playwright.remote.domain.response.SecurityDetails
+import com.playwright.remote.domain.response.ServerAddress
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.route.request.api.IRequest
 
@@ -36,6 +38,16 @@ interface IResponse {
      * Returns the matching {@code Request} object.
      */
     fun request(): IRequest
+
+    /**
+     * Returns SSL and other security information.
+     */
+    fun securityDetails(): SecurityDetails?
+
+    /**
+     * Returns the IP address and port of the server.
+     */
+    fun serverAddress(): ServerAddress?
 
     /**
      * Contains the status code of the response (e.g., 200 for a success).

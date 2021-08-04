@@ -5,6 +5,12 @@ import java.nio.file.Path
 
 interface IArtifact {
     /**
+     * Cancels a download. Will not fail if the download is already finished or canceled. Upon successful cancellations,
+     * {@code download.failure()} would resolve to {@code "canceled"}.
+     */
+    fun cancel()
+
+    /**
      * Returns readable stream for current download or {@code null} if download failed.
      */
     fun createReadStream(): InputStream?

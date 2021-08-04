@@ -14,6 +14,11 @@ class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: Js
     guid,
     initializer
 ), IArtifact {
+
+    override fun cancel() {
+        sendMessage("cancel")
+    }
+
     override fun createReadStream(): InputStream? {
         val result = sendMessage("stream")!!.asJsonObject
         if (!result.has("stream")) {
