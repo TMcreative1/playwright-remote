@@ -141,7 +141,7 @@ class TestDownload : BaseTest() {
             download.saveAs(userPath)
             fail("saveAs should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Download already deleted. Save before deleting."))
+            assertTrue(e.message!!.contains("Target page, context or browser has been closed"))
         }
         pg.close()
     }
