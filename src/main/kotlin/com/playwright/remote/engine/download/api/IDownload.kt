@@ -1,5 +1,7 @@
 package com.playwright.remote.engine.download.api
 
+import com.playwright.remote.engine.page.api.IPage
+
 interface IDownload : IArtifact {
 
     /**
@@ -15,4 +17,9 @@ interface IDownload : IArtifact {
      * Returns downloaded url.
      */
     fun url(): String
+
+    /**
+     * Get the page that the download belongs to.
+     */
+    fun page(): IPage
 }

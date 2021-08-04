@@ -982,7 +982,7 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
             "download" -> {
                 val artifactGuid = params["artifact"].asJsonObject["guid"].asString
                 val artifact = messageProcessor.getExistingObject<IArtifact>(artifactGuid)
-                val download = Download(artifact, params)
+                val download = Download(this, artifact, params)
                 listeners.notify(DOWNLOAD, download)
             }
             "fileChooser" -> {
