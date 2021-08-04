@@ -453,7 +453,7 @@ class TestPageEvaluate : BaseTest() {
 
     @Test
     fun `check to transfer 100mb of data from page to node js`() {
-        val result = page.evaluate("() => Array(100* 1024 * 1024 + 1).join('a')")
+        val result = page.evaluate("() => Array(100 * 1024 * 1024 + 1).join('a')")
         result as String
         assertEquals(100 * 1024 * 1024, result.length)
         result.forEachIndexed { index, char ->
