@@ -190,6 +190,7 @@ class TestWebSocket : BaseTest() {
             page.evaluate(jsScript, webSocketServer.port)
         }
         assertNotNull(ws)
+        ws.waitForFrameReceived { }
         try {
             ws.waitForFrameSent { page.evaluate("window.ws.close()") }
             fail("waitForFrameSent method should throw")
