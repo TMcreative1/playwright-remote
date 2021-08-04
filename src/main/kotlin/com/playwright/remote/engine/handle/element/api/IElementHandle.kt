@@ -6,6 +6,7 @@ import com.playwright.remote.domain.file.FilePayload
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.handle.js.api.IJSHandle
 import com.playwright.remote.engine.options.CheckOptions
+import com.playwright.remote.engine.options.InputValueOptions
 import com.playwright.remote.engine.options.SelectOption
 import com.playwright.remote.engine.options.element.*
 import java.nio.file.Path
@@ -416,6 +417,19 @@ interface IElementHandle : IJSHandle {
      * Returns the {@code element.innerText}.
      */
     fun innerText(): String
+
+    /**
+     * Returns {@code input.value} for {@code <input>} or {@code <textarea>} element. Throws for non-input elements.
+     */
+    fun inputValue(): String {
+        return inputValue(null)
+    }
+
+    /**
+     * Returns {@code input.value} for {@code <input>} or {@code <textarea>} element. Throws for non-input elements.
+     */
+    fun inputValue(options: InputValueOptions?): String
+
 
     /**
      * Returns whether the element is checked. Throws if the element is not a checkbox or radio input.

@@ -12,6 +12,9 @@ import java.nio.file.Path
 import java.util.regex.Pattern
 
 interface IBrowserContext : AutoCloseable {
+
+    fun setBaseUrl(spec: String)
+
     /**
      * Emitted when Browser context gets closed. This might happen because of one of the following:
      * <ul>
@@ -491,7 +494,9 @@ interface IBrowserContext : AutoCloseable {
      *
      * <p> <strong>NOTE:</strong> Enabling routing disables http cache.
      *
-     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing. When a {@code baseURL} via the context
+     * options was provided and the passed URL is a path, it gets merged via the <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/URL/URL">{@code new URL()}</a> constructor.
      * @param handler handler function to route the request.
      */
     fun route(url: String, handler: (IRoute) -> Unit)
@@ -523,7 +528,9 @@ interface IBrowserContext : AutoCloseable {
      *
      * <p> <strong>NOTE:</strong> Enabling routing disables http cache.
      *
-     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing. When a {@code baseURL} via the context
+     * options was provided and the passed URL is a path, it gets merged via the <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/URL/URL">{@code new URL()}</a> constructor.
      * @param handler handler function to route the request.
      */
     fun route(url: Pattern, handler: (IRoute) -> Unit)
@@ -555,7 +562,9 @@ interface IBrowserContext : AutoCloseable {
      *
      * <p> <strong>NOTE:</strong> Enabling routing disables http cache.
      *
-     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing.
+     * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while routing. When a {@code baseURL} via the context
+     * options was provided and the passed URL is a path, it gets merged via the <a
+     * href="https://developer.mozilla.org/en-US/docs/Web/API/URL/URL">{@code new URL()}</a> constructor.
      * @param handler handler function to route the request.
      */
     fun route(url: (String) -> Boolean, handler: (IRoute) -> Unit)

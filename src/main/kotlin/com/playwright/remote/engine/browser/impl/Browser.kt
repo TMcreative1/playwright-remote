@@ -57,6 +57,9 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         if (opt.recordVideoDir != null) {
             context.videosDir = opt.recordVideoDir
         }
+        if (opt.baseURL != null) {
+            context.setBaseUrl(opt.baseURL!!)
+        }
         contexts.add(context)
         return context
     }

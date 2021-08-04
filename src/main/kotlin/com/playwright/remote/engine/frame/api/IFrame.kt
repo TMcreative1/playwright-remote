@@ -793,6 +793,24 @@ interface IFrame {
     fun innerText(selector: String, options: InnerTextOptions?): String
 
     /**
+     * Returns {@code input.value} for the selected {@code <input>} or {@code <textarea>} element. Throws for non-input elements.
+     *
+     * @param selector A selector to search for an element. If there are multiple elements satisfying the selector, the first will be used. See
+     * <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun inputValue(selector: String): String {
+        return inputValue(selector, null)
+    }
+
+    /**
+     * Returns {@code input.value} for the selected {@code <input>} or {@code <textarea>} element. Throws for non-input elements.
+     *
+     * @param selector A selector to search for an element. If there are multiple elements satisfying the selector, the first will be used. See
+     * <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     */
+    fun inputValue(selector: String, options: InputValueOptions?): String
+
+    /**
      * Returns whether the element is checked. Throws if the element is not a checkbox or radio input.
      *
      * @param selector A selector to search for element. If there are multiple elements satisfying the selector, the first will be used. See <a
@@ -1938,8 +1956,7 @@ interface IFrame {
      *
      * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
      */
-    fun waitForURL(url: String, options: WaitForURLOptions?) =
-        waitForURL(UrlMatcher(url), options)
+    fun waitForURL(url: String, options: WaitForURLOptions?)
 
     /**
      * Waits for the frame to navigate to the given URL.

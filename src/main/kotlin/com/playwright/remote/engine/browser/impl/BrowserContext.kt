@@ -34,6 +34,8 @@ import com.playwright.remote.engine.waits.impl.WaitEvent
 import com.playwright.remote.engine.waits.impl.WaitRace
 import com.playwright.remote.utils.Utils.Companion.writeToFile
 import okio.IOException
+import java.net.MalformedURLException
+import java.net.URL
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files.readAllBytes
 import java.nio.file.Path
@@ -50,6 +52,15 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     val timeoutSettings = TimeoutSettings()
     val routes = Router()
     val bindings = hashMapOf<String, IBindingCallback>()
+    var baseUrl: URL? = null
+
+    override fun setBaseUrl(spec: String) {
+        baseUrl = try {
+            URL(spec)
+        } catch (e: MalformedURLException) {
+            null
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun onClose(handler: (IBrowserContext) -> Unit) {
@@ -215,7 +226,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     }
 
     override fun route(url: String, handler: (IRoute) -> Unit) =
-        route(UrlMatcher(url), handler)
+        route(UrlMatcher(baseUrl, url), handler)
 
     override fun route(url: Pattern, handler: (IRoute) -> Unit) =
         route(UrlMatcher(url), handler)
@@ -283,7 +294,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     }
 
     override fun unRoute(url: String, handler: ((IRoute) -> Unit)?) {
-        unRoute(UrlMatcher(url), handler)
+        unRoute(UrlMatcher(baseUrl, url), handler)
     }
 
     override fun unRoute(url: Pattern, handler: ((IRoute) -> Unit)?) {
