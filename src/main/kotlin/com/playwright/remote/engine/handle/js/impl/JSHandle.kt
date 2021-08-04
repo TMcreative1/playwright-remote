@@ -69,4 +69,8 @@ open class JSHandle(parent: ChannelOwner, type: String, guid: String, initialize
         }
         super.handleEvent(event, params)
     }
+
+    override fun toString(): String {
+        return preview
+    }
 }
