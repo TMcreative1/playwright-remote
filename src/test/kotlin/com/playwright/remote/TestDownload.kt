@@ -5,7 +5,6 @@ import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.options.NewPageOptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -27,20 +26,12 @@ class TestDownload : BaseTest() {
                 wr.write("Hello world")
             }
         }
-        httpServer.setRoute("/downloadWithFilename") {
-            it.responseHeaders.add("Content-Type", "application/octet-stream")
-            it.responseHeaders.add("Content-Disposition", "attachment; filename=file.txt")
-            it.sendResponseHeaders(200, 0)
-            OutputStreamWriter(it.responseBody).use { wr ->
-                wr.write("Hello world")
-            }
-        }
         httpServer.setRoute("/downloadWithDelay") {
             it.responseHeaders.add("Content-Type", "application/octet-stream")
             it.responseHeaders.add("Content-Disposition", "attachment; filename=file.txt")
             it.sendResponseHeaders(200, 0)
             OutputStreamWriter(it.responseBody).use { wr ->
-                wr.write(arrayOfNulls<String>(100 * 1024).joinToString(separator = "a"))
+                wr.write(Array(100 * 1024 * 1024) { "a" }.joinToString(separator = ""))
                 wr.write("foo")
                 wr.flush()
             }
@@ -158,7 +149,6 @@ class TestDownload : BaseTest() {
     }
 
     @Test
-    @DisabledIfSystemProperty(named = "browser", matches = "^\$|webkit")
     fun `check to be able to cancel pending downloads`() {
         browser.newPage(NewPageOptions { it.acceptDownloads = true }).use { pg ->
             pg.setContent("<a href='${httpServer.prefixWithDomain}/downloadWithDelay'>download</a>")
