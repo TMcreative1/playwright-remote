@@ -151,7 +151,7 @@ class TestDownload : BaseTest() {
     @Test
     fun `check to be able to cancel pending downloads`() {
         browser.newPage(NewPageOptions { it.acceptDownloads = true }).use { pg ->
-            pg.setContent("<a href='${httpServer.prefixWithDomain}/downloadWithDelay' download=\"file\">download</a>")
+            pg.setContent("<a href='${httpServer.prefixWithDomain}/downloadWithDelay'>download</a>")
             val download = pg.waitForDownload { pg.click("a") }
             assertNotNull(download)
             download.cancel()
