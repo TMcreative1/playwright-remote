@@ -1,6 +1,5 @@
 package com.playwright.remote.engine.video.api
 
-import com.playwright.remote.engine.download.impl.Artifact
 import java.nio.file.Path
 
 /**
@@ -11,17 +10,10 @@ import java.nio.file.Path
  */
 interface IVideo {
     /**
-     * Deletes the video file. Will wait for the video to finish if necessary.
+     * Returns the file system path this video will be recorded to. The video is guaranteed to be written to the filesystem
+     * upon closing the browser context.
      */
-    fun delete()
+    fun path(): Path?
 
-    /**
-     * Saves the video to a user-specified path. It is safe to call this method while the video is still in progress, or after
-     * the page has closed. This method waits until the page is closed and the video is fully saved.
-     *
-     * @param path Path where the video should be saved.
-     */
-    fun saveAs(path: Path)
-
-    fun setArtifact(artifact: Artifact)
+    fun setRelativePath(path: String)
 }

@@ -1,6 +1,31 @@
 package com.playwright.remote.engine.download.api
 
-interface IDownload : IArtifact {
+import java.io.InputStream
+import java.nio.file.Path
+
+interface IDownload {
+
+    /**
+     * Returns readable stream for current download or {@code null} if download failed.
+     */
+    fun createReadStream(): InputStream?
+
+    /**
+     * Deletes the downloaded file.
+     */
+    fun delete()
+
+    /**
+     * Returns download error if any.
+     */
+    fun failure(): String?
+
+    /**
+     * Saves the download to a user-specified path.
+     *
+     * @param path Path where the download should be saved.
+     */
+    fun saveAs(path: Path)
 
     /**
      * Returns suggested filename for this download. It is typically computed by the browser from the <a
