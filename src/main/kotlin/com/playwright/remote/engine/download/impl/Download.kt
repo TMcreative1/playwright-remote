@@ -3,10 +3,12 @@ package com.playwright.remote.engine.download.impl
 import com.google.gson.JsonObject
 import com.playwright.remote.engine.download.api.IArtifact
 import com.playwright.remote.engine.download.api.IDownload
+import com.playwright.remote.engine.page.api.IPage
 import java.io.InputStream
 import java.nio.file.Path
 
 class Download(
+    private val page: IPage,
     private val artifact: IArtifact,
     private val initializer: JsonObject
 ) : IDownload {
@@ -37,5 +39,9 @@ class Download(
 
     override fun url(): String {
         return initializer["url"].asString
+    }
+
+    override fun page(): IPage {
+        return page
     }
 }
