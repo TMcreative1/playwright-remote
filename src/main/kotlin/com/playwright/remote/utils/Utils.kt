@@ -100,7 +100,7 @@ class Utils {
                     var length: Int
                     do {
                         length = inputStream.read(buf)
-                        if (length > 0) {
+                        if (length <= 0) {
                             break
                         }
                         it.write(buf, 0, length)
