@@ -9,10 +9,7 @@ import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-import kotlin.test.fail
+import kotlin.test.*
 
 class TestDownload : BaseTest() {
 
@@ -156,6 +153,23 @@ class TestDownload : BaseTest() {
             assertNotNull(download)
             download.cancel()
             assertEquals("canceled", download.failure())
+        }
+    }
+
+    @Test
+    fun `check to not fail explicitly to cancel a download even of that is already finished`() {
+        browser.newPage(NewPageOptions { it.acceptDownloads = true }).use {
+            it.setContent("<a href='${httpServer.prefixWithDomain}/download'>download</a>")
+            val download = it.waitForDownload { it.click("a") }
+            assertNotNull(download)
+
+            val userPath = Files.createTempFile("download-", ".txt")
+            download.saveAs(userPath)
+            assertTrue(Files.exists(userPath))
+            val bytes = Files.readAllBytes(userPath)
+            assertEquals("Hello world", String(bytes, StandardCharsets.UTF_8))
+            download.cancel()
+            assertNull(download.failure())
         }
     }
 }
