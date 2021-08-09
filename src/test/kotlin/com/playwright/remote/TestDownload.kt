@@ -23,6 +23,14 @@ class TestDownload : BaseTest() {
                 wr.write("Hello world")
             }
         }
+        httpServer.setRoute("/downloadWithFilename") {
+            it.responseHeaders.add("Content-Type", "application/octet-stream")
+            it.responseHeaders.add("Content-Disposition", "attachment; filename=file.txt")
+            it.sendResponseHeaders(200, 0)
+            OutputStreamWriter(it.responseBody).use { wr ->
+                wr.write("Hello world")
+            }
+        }
         httpServer.setRoute("/downloadWithDelay") {
             it.responseHeaders.add("Content-Type", "application/octet-stream")
             it.responseHeaders.add("Content-Disposition", "attachment; filename=file.txt")
