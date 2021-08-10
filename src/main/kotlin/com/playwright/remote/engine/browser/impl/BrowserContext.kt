@@ -3,8 +3,7 @@ package com.playwright.remote.engine.browser.impl
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.EventType
-import com.playwright.remote.core.enums.EventType.CLOSE
-import com.playwright.remote.core.enums.EventType.PAGE
+import com.playwright.remote.core.enums.EventType.*
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
@@ -23,6 +22,7 @@ import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
+import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import com.playwright.remote.engine.waits.TimeoutSettings
 import com.playwright.remote.engine.waits.api.IWait
