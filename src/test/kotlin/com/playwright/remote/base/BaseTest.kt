@@ -16,12 +16,15 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
-import java.security.SecureRandom
+import java.util.concurrent.atomic.AtomicInteger
 
 
 open class BaseTest {
 
     companion object {
+
+        private val httpPort = AtomicInteger(9000)
+        private val httpsPort = AtomicInteger(4000)
 
         @JvmStatic
         lateinit var httpServer: Server
@@ -100,15 +103,8 @@ open class BaseTest {
     }
 
     private fun createHttpServers() {
-        httpServer = Server.createHttp(getRandomPort())
-        httpsServer = Server.createHttps(getRandomPort())
-    }
-
-    private fun getRandomPort(): Int {
-        val random = SecureRandom()
-        random.setSeed(random.generateSeed(30))
-
-        return random.nextInt(9000) + 1000
+        httpServer = Server.createHttp(httpPort.getAndIncrement())
+        httpsServer = Server.createHttps(httpsPort.getAndIncrement())
     }
 
     private fun destroyBrowser() {
