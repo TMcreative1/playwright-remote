@@ -99,8 +99,8 @@ open class BaseTest {
     }
 
     private fun createHttpServers() {
-        httpServer = Server.createHttp(8083)
-        httpsServer = Server.createHttps(8443)
+        httpServer = Server.createHttp((1000..9999).random())
+        httpsServer = Server.createHttps((1000..9999).random())
     }
 
     private fun destroyBrowser() {
