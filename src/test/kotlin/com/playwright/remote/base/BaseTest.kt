@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import java.security.SecureRandom
 
 
 open class BaseTest {
@@ -99,8 +100,15 @@ open class BaseTest {
     }
 
     private fun createHttpServers() {
-        httpServer = Server.createHttp((1000..9999).random())
-        httpsServer = Server.createHttps((1000..9999).random())
+        httpServer = Server.createHttp(getRandomPort())
+        httpsServer = Server.createHttps(getRandomPort())
+    }
+
+    private fun getRandomPort(): Int {
+        val random = SecureRandom()
+        random.setSeed(random.generateSeed(30))
+
+        return random.nextInt(9000) + 1000
     }
 
     private fun destroyBrowser() {
