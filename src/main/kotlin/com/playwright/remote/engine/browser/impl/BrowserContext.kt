@@ -22,6 +22,7 @@ import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
+import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import com.playwright.remote.engine.waits.TimeoutSettings
 import com.playwright.remote.engine.waits.api.IWait

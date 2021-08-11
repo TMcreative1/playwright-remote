@@ -16,11 +16,15 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import java.util.concurrent.atomic.AtomicInteger
 
 
 open class BaseTest {
 
     companion object {
+
+        private val httpPort = AtomicInteger(9000)
+        private val httpsPort = AtomicInteger(4000)
 
         @JvmStatic
         lateinit var httpServer: Server
@@ -98,15 +102,15 @@ open class BaseTest {
         page = browserContext.newPage()
     }
 
+    private fun createHttpServers() {
+        httpServer = Server.createHttp(httpPort.getAndIncrement())
+        httpsServer = Server.createHttps(httpsPort.getAndIncrement())
+    }
+
     private fun destroyBrowser() {
         page.close()
         browserContext.close()
         browser.close()
-    }
-
-    private fun createHttpServers() {
-        httpServer = Server.createHttp(8080)
-        httpsServer = Server.createHttps(8443)
     }
 
     private fun stopHttpServers() {
