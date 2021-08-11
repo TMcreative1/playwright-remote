@@ -65,7 +65,11 @@ class TestWorker : BaseTest() {
             page.evaluate("() => new Worker(URL.createObjectURL(new Blob(['console.log(1,2,3,this)'], {type: 'application/javascript'})))")
         }
         assertNotNull(log)
-        assertEquals("1 2 3 JSHandle@object", log.text())
+        if (isFirefox()) {
+            assertEquals("1 2 3 JSHandle@object", log.text())
+        } else {
+            assertEquals("1 2 3 DedicatedWorkerGlobalScope", log.text())
+        }
         assertEquals(4, log.args().size)
         assertEquals("null", log.args()[3].getProperty("origin").jsonValue())
     }
