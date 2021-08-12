@@ -90,6 +90,10 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         return initializer["name"].asString
     }
 
+    override fun contexts(): List<IBrowserContext> {
+        return contexts.toList()
+    }
+
     private fun getStorageState(options: NewContextOptions?): JsonObject? {
         if (options?.storageStatePath != null) {
             try {
