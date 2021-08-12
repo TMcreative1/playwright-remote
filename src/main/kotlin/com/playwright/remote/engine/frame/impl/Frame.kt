@@ -296,8 +296,8 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         val params = JsonObject()
         params.addProperty("selector", selector)
         val json = sendMessage("querySelector", params)
-        val element = json!!.asJsonObject["element"].asJsonObject ?: return null
-        return messageProcessor.getExistingObject(element["guid"].asString)
+        val element = json!!.asJsonObject["element"] ?: return null
+        return messageProcessor.getExistingObject(element.asJsonObject["guid"].asString)
     }
 
     override fun querySelectorAll(selector: String): List<IElementHandle>? {
