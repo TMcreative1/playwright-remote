@@ -25,38 +25,71 @@ open class BaseTest {
 
         private val httpPort = AtomicInteger(9000)
         private val httpsPort = AtomicInteger(4000)
+        private val browserThreadLocal = ThreadLocal<IBrowser>()
+        private val browserContextThreadLocal = ThreadLocal<IBrowserContext>()
+        private val pageThreadLocal = ThreadLocal<IPage>()
+        private val httpServerThreadLocal = ThreadLocal<Server>()
+        private val httpsServerThreadLocal = ThreadLocal<Server>()
+        private val serverProviderThreadLocal = ThreadLocal<IServerProvider>()
+        private val wsUrlThreadLocal = ThreadLocal<String>()
 
         @JvmStatic
-        lateinit var httpServer: Server
+        var httpServer: Server
+            get() = httpServerThreadLocal.get()
+            set(value) = httpServerThreadLocal.set(value)
 
         @JvmStatic
-        lateinit var httpsServer: Server
+        var httpsServer: Server
+            get() = httpsServerThreadLocal.get()
+            set(value) = httpsServerThreadLocal.set(value)
 
         @JvmStatic
-        lateinit var wsUrl: String
+        var wsUrl: String
+            get() = wsUrlThreadLocal.get()
+            set(value) = wsUrlThreadLocal.set(value)
 
         @JvmStatic
-        lateinit var browserContext: IBrowserContext
+        var browser: IBrowser
+            get() = browserThreadLocal.get()
+            set(value) = browserThreadLocal.set(value)
 
         @JvmStatic
-        lateinit var browser: IBrowser
+        var browserContext: IBrowserContext
+            get() = browserContextThreadLocal.get()
+            set(value) = browserContextThreadLocal.set(value)
 
         @JvmStatic
-        lateinit var page: IPage
+        var page: IPage
+            get() = pageThreadLocal.get()
+            set(value) = pageThreadLocal.set(value)
 
         @JvmStatic
-        private lateinit var server: IServerProvider
+        private var server: IServerProvider
+            get() = serverProviderThreadLocal.get()
+            set(value) = serverProviderThreadLocal.set(value)
 
         @JvmStatic
         @BeforeAll
         fun beforeAll() {
             launchBrowserServer()
+            createHttpServers()
         }
 
         @JvmStatic
         @AfterAll
         fun afterAll() {
             stopServerBrowserServer()
+            stopHttpServers()
+        }
+
+        private fun createHttpServers() {
+            httpServer = Server.createHttp(httpPort.getAndIncrement())
+            httpsServer = Server.createHttps(httpsPort.getAndIncrement())
+        }
+
+        private fun stopHttpServers() {
+            httpServer.stop()
+            httpsServer.stop()
         }
 
         private fun launchBrowserServer() {
@@ -86,14 +119,14 @@ open class BaseTest {
 
     @BeforeEach
     private fun beforeEach() {
+        httpServer.reset()
+        httpsServer.reset()
         createBrowser()
-        createHttpServers()
     }
 
     @AfterEach
     private fun afterEach() {
         destroyBrowser()
-        stopHttpServers()
     }
 
     private fun createBrowser() {
@@ -102,21 +135,12 @@ open class BaseTest {
         page = browserContext.newPage()
     }
 
-    private fun createHttpServers() {
-        httpServer = Server.createHttp(httpPort.getAndIncrement())
-        httpsServer = Server.createHttps(httpsPort.getAndIncrement())
-    }
-
     private fun destroyBrowser() {
         page.close()
         browserContext.close()
         browser.close()
     }
 
-    private fun stopHttpServers() {
-        httpServer.stop()
-        httpsServer.stop()
-    }
 
     protected fun attachFrame(page: IPage, name: String, url: String): IFrame? {
         val handle = page.evaluateHandle(
