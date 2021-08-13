@@ -12,18 +12,24 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.*
 
 class TestWebSocket : BaseTest() {
 
     companion object {
+        private val webSocketPort = AtomicInteger(3000)
+        private val webSocketServerThreadLocal = ThreadLocal<WebSocketServer>()
+
         @JvmStatic
-        lateinit var webSocketServer: WebSocketServer
+        var webSocketServer: WebSocketServer
+            get() = webSocketServerThreadLocal.get()
+            set(value) = webSocketServerThreadLocal.set(value)
 
         @JvmStatic
         @BeforeAll
         fun startWebSocketServer() {
-            webSocketServer = WebSocketServer("localhost", 8099)
+            webSocketServer = WebSocketServer("localhost", webSocketPort.getAndIncrement())
             webSocketServer.start()
         }
 
