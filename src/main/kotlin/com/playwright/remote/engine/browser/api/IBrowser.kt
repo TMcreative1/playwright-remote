@@ -22,4 +22,6 @@ interface IBrowser : AutoCloseable {
     fun newPage(options: NewPageOptions?, device: DeviceDescriptors?): IPage
 
     fun name(): String
+
+    fun contexts(): List<IBrowserContext>
 }
