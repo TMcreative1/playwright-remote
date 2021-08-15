@@ -33,7 +33,6 @@ class ServerProvider : IServerProvider {
         logger.logInfo("Playwright server is stopping")
         process.runCatching {
             destroy()
-            waitFor()
         }.getOrThrow()
         logger.logInfo("Playwright server was stopped")
     }
