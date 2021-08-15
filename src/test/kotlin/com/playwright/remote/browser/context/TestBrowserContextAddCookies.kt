@@ -239,7 +239,7 @@ class TestBrowserContextAddCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": false,
-                "sameSite": "None"
+                "sameSite": "${if (isChromium()) "LAX" else "NONE"}"
               }
         ]"""
         assertJsonEquals(expectedValue, cookies)
@@ -264,7 +264,7 @@ class TestBrowserContextAddCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": false,
-                "sameSite": "None"
+                "sameSite": "${if (isChromium()) "LAX" else "NONE"}"
               }
         ]"""
         assertJsonEquals(expectedValue, cookies)
@@ -359,7 +359,7 @@ class TestBrowserContextAddCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": true,
-                "sameSite": "None"
+                "sameSite": "${if (isChromium()) "LAX" else "NONE"}"
               }
         ]"""
         assertJsonEquals(expectedValue, browserContext.cookies(url))
@@ -403,7 +403,7 @@ class TestBrowserContextAddCookies : BaseTest() {
         page.evaluate(jsScript, "${httpServer.prefixWithIP}/grid.html")
         page.frames()[1].evaluate("document.cookie = 'username=John Doe'")
         page.waitForTimeout(2000.0)
-        val allowsThirdParty = isFirefox() || isChromium()
+        val allowsThirdParty = isFirefox()
         val cookies = browserContext.cookies("${httpServer.prefixWithIP}/grid.html")
         if (allowsThirdParty) {
             val expectedValue = """[
@@ -415,7 +415,7 @@ class TestBrowserContextAddCookies : BaseTest() {
                     "expires": -1.0,
                     "httpOnly": false,
                     "secure": false,
-                    "sameSite": "None"
+                    "sameSite": "NONE"
                   }
             ]"""
             assertJsonEquals(expectedValue, cookies)
