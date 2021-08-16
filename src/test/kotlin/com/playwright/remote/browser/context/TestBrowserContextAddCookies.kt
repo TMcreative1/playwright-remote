@@ -415,7 +415,7 @@ class TestBrowserContextAddCookies : BaseTest() {
                     "expires": -1.0,
                     "httpOnly": false,
                     "secure": false,
-                    "sameSite": "NONE"
+                    "sameSite": "None"
                   }
             ]"""
             assertJsonEquals(expectedValue, cookies)
