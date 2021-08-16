@@ -219,7 +219,7 @@ interface IBrowserContext : AutoCloseable {
      * @param urls Optional list of URLs.
      */
     @Suppress("CAST_NEVER_SUCCEEDS")
-    fun cookies(): List<Cookie> = cookies(null as String)
+    fun cookies(): List<Cookie> = cookies(null)
 
     /**
      * If no URLs are specified, this method returns all cookies. If URLs are specified, only cookies that affect those URLs
@@ -235,7 +235,7 @@ interface IBrowserContext : AutoCloseable {
      *
      * @param urls Optional list of URLs.
      */
-    fun cookies(urls: List<String>?): List<Cookie>
+    fun cookies(urls: List<String>): List<Cookie>
 
     /**
      * The method adds a function called {@code name} on the {@code window} object of every frame in every page in the context. When
