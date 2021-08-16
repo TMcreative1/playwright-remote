@@ -239,7 +239,7 @@ class TestBrowserContextAddCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": false,
-                "sameSite": "${if (isChromium()) "LAX" else "None"}"
+                "sameSite": "${if (isChromium()) "Lax" else "None"}"
               }
         ]"""
         assertJsonEquals(expectedValue, cookies)
@@ -264,7 +264,7 @@ class TestBrowserContextAddCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": false,
-                "sameSite": "${if (isChromium()) "LAX" else "None"}"
+                "sameSite": "${if (isChromium()) "Lax" else "None"}"
               }
         ]"""
         assertJsonEquals(expectedValue, cookies)
@@ -359,7 +359,7 @@ class TestBrowserContextAddCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": true,
-                "sameSite": "${if (isChromium()) "LAX" else "None"}"
+                "sameSite": "${if (isChromium()) "Lax" else "None"}"
               }
         ]"""
         assertJsonEquals(expectedValue, browserContext.cookies(url))
