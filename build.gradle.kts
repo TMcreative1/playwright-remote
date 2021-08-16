@@ -7,7 +7,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
 val archs = listOf("mac", "linux", "win32", "win32_x64")
-val playwrightVersion = "1.14.0-next-1628276501000"
+val playwrightVersion = "1.14.0-1628878084000"
 
 plugins {
     kotlin("jvm") version "1.5.20-M1"
