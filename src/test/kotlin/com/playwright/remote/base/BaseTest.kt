@@ -177,4 +177,11 @@ open class BaseTest {
         val actualJson = JsonParser.parseString(IParser.toJson(actual))
         assertEquals(JsonParser.parseString(expected), actualJson)
     }
+
+    protected fun verifyViewport(currentPage: IPage, width: Int, height: Int) {
+        assertEquals(width, currentPage.viewportSize().width)
+        assertEquals(height, currentPage.viewportSize().height)
+        assertEquals(width, currentPage.evaluate("window.innerWidth"))
+        assertEquals(height, currentPage.evaluate("window.innerHeight"))
+    }
 }
