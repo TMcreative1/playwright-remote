@@ -136,7 +136,7 @@ class TestBrowserContextLocale : BaseTest() {
         }
         val defaultLocale: String
         browser.newContext().use { defaultLocale = contextLocale(it) }
-        val localeOverride = if ("ru-RU" == defaultLocale) "de-DE" else "ru_RU"
+        val localeOverride = if ("ru-RU" == defaultLocale) "de-DE" else "ru-RU"
 
         browser.newContext(NewContextOptions { it.locale = localeOverride }).use {
             assertEquals(localeOverride, contextLocale(it))
