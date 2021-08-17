@@ -1,4 +1,4 @@
-package com.playwright.remote.browser.context
+package com.playwright.remote.browser.context.cookies
 
 import com.playwright.remote.base.BaseTest
 import com.playwright.remote.core.exceptions.PlaywrightException
