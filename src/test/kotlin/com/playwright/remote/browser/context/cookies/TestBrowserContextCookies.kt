@@ -30,14 +30,14 @@ class TestBrowserContextCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": false,
-                "sameSite": "None"
+                "sameSite": ${if (isChromium()) "Lax" else "None"}
               }
         ]"""
         assertJsonEquals(expectedValue, cookies)
     }
 
     @Test
-    fun `check ti get a non session cookie`() {
+    fun `check to get a non session cookie`() {
         page.navigate(httpServer.emptyPage)
         val dollar = "$"
         val jsScript = """() => {
@@ -58,7 +58,11 @@ class TestBrowserContextCookies : BaseTest() {
         assertEquals(timestamp.toDouble(), cookie.expires)
         assertEquals(false, cookie.httpOnly)
         assertEquals(false, cookie.secure)
-        assertEquals(SameSiteAttribute.NONE, cookie.sameSite)
+        if (isChromium()) {
+            assertEquals(SameSiteAttribute.LAX, cookie.sameSite)
+        } else {
+            assertEquals(SameSiteAttribute.NONE, cookie.sameSite)
+        }
     }
 
     @Test
@@ -123,7 +127,7 @@ class TestBrowserContextCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": false,
-                "sameSite": "None"
+                "sameSite": ${if (isChromium()) "Lax" else "None"}
               },
               {
                 "name": "username",
@@ -133,7 +137,7 @@ class TestBrowserContextCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": false,
-                "sameSite": "None"
+                "sameSite": ${if (isChromium()) "Lax" else "None"}
               }
         ]"""
         assertJsonEquals(expectedValue, cookies.sortedBy { it.name })
@@ -168,7 +172,7 @@ class TestBrowserContextCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": true,
-                "sameSite": "None"
+                "sameSite": ${if (isChromium()) "Lax" else "None"}
               },
               {
                 "name": "doggo",
@@ -178,7 +182,7 @@ class TestBrowserContextCookies : BaseTest() {
                 "expires": -1.0,
                 "httpOnly": false,
                 "secure": true,
-                "sameSite": "None"
+                "sameSite": ${if (isChromium()) "Lax" else "None"}
               }
         ]"""
         assertJsonEquals(expectedValue, cookies.sortedBy { it.name })
@@ -211,6 +215,10 @@ class TestBrowserContextCookies : BaseTest() {
         val documentCookie = page.evaluate("document.cookie.split('; ').sort().join('; ')")
         assertEquals("one=uno; three=tres; two=dos", documentCookie)
         val list = browserContext.cookies().map { it.sameSite }.sortedBy { it!!.ordinal }
-        assertEquals(listOf(SameSiteAttribute.STRICT, SameSiteAttribute.LAX, SameSiteAttribute.NONE), list)
+        if (isChromium()) {
+            assertEquals(listOf(SameSiteAttribute.STRICT, SameSiteAttribute.LAX), list)
+        } else {
+            assertEquals(listOf(SameSiteAttribute.STRICT, SameSiteAttribute.LAX, SameSiteAttribute.NONE), list)
+        }
     }
 }
