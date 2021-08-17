@@ -213,11 +213,12 @@ class TestBrowserContextCookies : BaseTest() {
         ))
         page.navigate(httpServer.emptyPage)
         val documentCookie = page.evaluate("document.cookie.split('; ').sort().join('; ')")
-        assertEquals("one=uno; three=tres; two=dos", documentCookie)
         val list = browserContext.cookies().map { it.sameSite }.sortedBy { it!!.ordinal }
         if (isChromium()) {
+            assertEquals("one=uno; two=dos", documentCookie)
             assertEquals(listOf(SameSiteAttribute.STRICT, SameSiteAttribute.LAX), list)
         } else {
+            assertEquals("one=uno; three=tres; two=dos", documentCookie)
             assertEquals(listOf(SameSiteAttribute.STRICT, SameSiteAttribute.LAX, SameSiteAttribute.NONE), list)
         }
     }
