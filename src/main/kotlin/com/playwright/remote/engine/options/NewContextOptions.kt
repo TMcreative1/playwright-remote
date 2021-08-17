@@ -3,6 +3,7 @@ package com.playwright.remote.engine.options
 import com.playwright.remote.engine.options.api.IBuilder
 import com.playwright.remote.engine.options.enum.ColorScheme
 import java.nio.file.Path
+import java.util.*
 
 data class NewContextOptions @JvmOverloads constructor(
     /**
@@ -123,14 +124,27 @@ data class NewContextOptions @JvmOverloads constructor(
      * Specific user agent to use in this context.
      */
     var userAgent: String? = null,
-    /**
-     * Sets a consistent viewport for each page. Defaults to an 1280x720 viewport. {@code null} disables the default viewport.
-     */
-    var viewportSize: ViewportSize? = null,
 
     @Transient private val builder: IBuilder<NewContextOptions>
 ) {
+    /**
+     * Sets a consistent viewport for each page. Defaults to an 1280x720 viewport. {@code null} disables the default viewport.
+     */
+    var viewportSize: ViewportSize? = null
+        set(value) {
+            field = value
+            _viewportSize = Optional.ofNullable(value)
+        }
+
+    @Transient
+    private var _viewportSize: Optional<ViewportSize>? = null
+
     init {
         builder.build(this)
     }
+
+    fun isPresentViewPort(): Boolean =
+        if (_viewportSize != null) _viewportSize!!.isPresent else false
+
+    fun isViewPortNotNull(): Boolean = _viewportSize != null
 }

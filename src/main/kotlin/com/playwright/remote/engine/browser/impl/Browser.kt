@@ -147,13 +147,15 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
     }
 
     private fun addViewPortSize(params: JsonObject, options: NewContextOptions?) {
-        if (options?.viewportSize != null) {
-            val size = params["viewportSize"]
-            params.remove("viewportSize")
-            params.add("viewport", size)
-        } else {
-            params.remove("viewportSize")
-            params.addProperty("noDefaultViewport", true)
+        if (options!!.isViewPortNotNull()) {
+            if (options.isPresentViewPort()) {
+                val size = params["viewportSize"]
+                params.remove("viewportSize")
+                params.add("viewport", size)
+            } else {
+                params.remove("viewportSize")
+                params.addProperty("noDefaultViewport", true)
+            }
         }
     }
 
