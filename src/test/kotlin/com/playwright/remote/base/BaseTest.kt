@@ -1,5 +1,6 @@
 package com.playwright.remote.base
 
+import com.google.gson.JsonParser
 import com.playwright.remote.base.server.Server
 import com.playwright.remote.core.enums.BrowserType
 import com.playwright.remote.core.enums.BrowserType.valueOf
@@ -9,6 +10,7 @@ import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.page.api.IPage
+import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.engine.server.api.IServerProvider
 import com.playwright.remote.engine.server.impl.ServerProvider
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.assertEquals
 
 
 open class BaseTest {
@@ -168,5 +171,17 @@ open class BaseTest {
 
     protected fun isLinux(): Boolean {
         return getCurrentPlatform() == LINUX
+    }
+
+    protected fun assertJsonEquals(expected: String, actual: Any) {
+        val actualJson = JsonParser.parseString(IParser.toJson(actual))
+        assertEquals(JsonParser.parseString(expected), actualJson)
+    }
+
+    protected fun verifyViewport(currentPage: IPage, width: Int, height: Int) {
+        assertEquals(width, currentPage.viewportSize().width)
+        assertEquals(height, currentPage.viewportSize().height)
+        assertEquals(width, currentPage.evaluate("window.innerWidth"))
+        assertEquals(height, currentPage.evaluate("window.innerHeight"))
     }
 }
