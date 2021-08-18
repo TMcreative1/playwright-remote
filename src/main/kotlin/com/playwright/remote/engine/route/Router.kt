@@ -10,7 +10,7 @@ class Router {
         val handler: (IRoute) -> Unit
     )
 
-    fun add(matcher: UrlMatcher, handler: (IRoute) -> Unit) = routes.add(RouteInfo(matcher, handler))
+    fun add(matcher: UrlMatcher, handler: (IRoute) -> Unit) = routes.add(0, RouteInfo(matcher, handler))
 
     fun remove(matcher: UrlMatcher, handler: ((IRoute) -> Unit)?) {
         routes = routes.filter {

@@ -108,7 +108,7 @@ class TestBrowserContextStorageState : BaseTest() {
                   'expires':-1,
                   'httpOnly':false,
                   'secure':false,
-                  'sameSite':'None'
+                  'sameSite':${if (isChromium()) "Lax" else "None"}
                 }],
               'origins':[
                 {

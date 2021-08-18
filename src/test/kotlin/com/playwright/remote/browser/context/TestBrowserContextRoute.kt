@@ -41,11 +41,11 @@ class TestBrowserContextRoute : BaseTest() {
         browser.newContext().use {
             val pg = it.newPage()
             val intercepted = arrayListOf<Int>()
-            val handler1: (IRoute) -> Unit = { route ->
+
+            it.route("**/*") { route ->
                 intercepted.add(1)
                 route.resume()
             }
-            it.route("**/empty.html", handler1)
             it.route("**/empty.html") { route ->
                 intercepted.add(2)
                 route.resume()
@@ -58,19 +58,19 @@ class TestBrowserContextRoute : BaseTest() {
                 intercepted.add(4)
                 route.resume()
             }
-            it.route("**/*", handler)
+            it.route("**/empty.html", handler)
             pg.navigate(httpServer.emptyPage)
-            assertEquals(listOf(1), intercepted)
+            assertEquals(listOf(4), intercepted)
 
             intercepted.clear()
-            it.unRoute("**/empty.html", handler1)
+            it.unRoute("**/empty.html", handler)
             pg.navigate(httpServer.emptyPage)
-            assertEquals(listOf(2), intercepted)
+            assertEquals(listOf(3), intercepted)
 
             intercepted.clear()
             it.unRoute("**/empty.html")
             pg.navigate(httpServer.emptyPage)
-            assertEquals(listOf(4), intercepted)
+            assertEquals(listOf(1), intercepted)
         }
     }
 
