@@ -22,7 +22,6 @@ import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.route.Router
 import com.playwright.remote.engine.route.UrlMatcher
 import com.playwright.remote.engine.route.api.IRoute
-import com.playwright.remote.engine.route.request.api.IRequest
 import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import com.playwright.remote.engine.waits.TimeoutSettings
 import com.playwright.remote.engine.waits.api.IWait
@@ -232,7 +231,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
 
     override fun storageState(options: StorageStateOptions?): String {
         val json = sendMessage("storageState")
-        val storageState = json!!.asString
+        val storageState = json.toString()
         if (options?.path != null) {
             writeToFile(storageState.toByteArray(UTF_8), options.path!!)
         }

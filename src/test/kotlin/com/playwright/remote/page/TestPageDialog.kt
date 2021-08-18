@@ -117,4 +117,18 @@ class TestPageDialog : BaseTest() {
         page.click("div")
         assertEquals(true, page.evaluate("window._clicked"))
     }
+
+    @Test
+    fun `check to accept prompt once`() {
+        val callCounter = arrayListOf(0)
+        page.onceDialog {
+            ++callCounter[0]
+            assertEquals("prompt", it.type())
+            assertEquals("Question?", it.message())
+            it.accept("Answer!")
+        }
+        assertEquals("Answer!", page.evaluate("prompt('Question?')"))
+        assertNull(page.evaluate("prompt('Question?')"))
+        assertEquals(1, callCounter[0])
+    }
 }
