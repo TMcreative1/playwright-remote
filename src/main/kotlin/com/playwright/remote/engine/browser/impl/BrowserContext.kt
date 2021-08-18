@@ -286,7 +286,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
 
     override fun storageState(options: StorageStateOptions?): String {
         val json = sendMessage("storageState")
-        val storageState = json!!.asString
+        val storageState = json.toString()
         if (options?.path != null) {
             writeToFile(storageState.toByteArray(UTF_8), options.path!!)
         }

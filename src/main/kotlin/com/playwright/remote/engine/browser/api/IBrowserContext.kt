@@ -221,7 +221,6 @@ interface IBrowserContext : AutoCloseable {
      *
      * @param urls Optional list of URLs.
      */
-    @Suppress("CAST_NEVER_SUCCEEDS")
     fun cookies(): List<Cookie> = cookies(null)
 
     /**
