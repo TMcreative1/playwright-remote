@@ -1,0 +1,13 @@
+div:not(.mouse-helper) {
+    margin: 0;
+    padding: 2em;
+}
+
+#source {
+    color: blue;
+    border: 1px solid black;
+}
+
+#target {
+    border: 1px solid black;
+}
