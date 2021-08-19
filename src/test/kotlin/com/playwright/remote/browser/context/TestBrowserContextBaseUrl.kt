@@ -1,4 +1,4 @@
-package com.playwright.remote.browsercontext
+package com.playwright.remote.browser.context
 
 import com.playwright.remote.base.BaseTest
 import com.playwright.remote.engine.options.FulfillOptions

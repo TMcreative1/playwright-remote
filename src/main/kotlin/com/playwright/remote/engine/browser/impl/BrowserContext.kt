@@ -188,7 +188,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     override fun cookies(url: String?): List<Cookie> =
         cookies(if (url != null) listOf(url) else emptyList())
 
-    override fun cookies(urls: List<String>?): List<Cookie> {
+    override fun cookies(urls: List<String>): List<Cookie> {
         val params = JsonObject()
         params.add("urls", gson().toJsonTree(urls ?: emptyList<String>()))
         val json = sendMessage("cookies", params)!!.asJsonObject
@@ -286,7 +286,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
 
     override fun storageState(options: StorageStateOptions?): String {
         val json = sendMessage("storageState")
-        val storageState = json!!.asString
+        val storageState = json.toString()
         if (options?.path != null) {
             writeToFile(storageState.toByteArray(UTF_8), options.path!!)
         }

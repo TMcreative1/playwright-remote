@@ -60,17 +60,17 @@ class TestPageRoute : BaseTest() {
             it.resume()
         }
         page.navigate(httpServer.emptyPage)
-        assertEquals(arrayListOf(1), intercepted)
+        assertEquals(arrayListOf(4), intercepted)
+
+        intercepted.clear()
+        page.unroute("**/*")
+        page.navigate(httpServer.emptyPage)
+        assertEquals(arrayListOf(3), intercepted)
 
         intercepted.clear()
         page.unroute("**/empty.html", handler1)
         page.navigate(httpServer.emptyPage)
-        assertEquals(arrayListOf(2), intercepted)
-
-        intercepted.clear()
-        page.unroute("**/empty.html")
-        page.navigate(httpServer.emptyPage)
-        assertEquals(arrayListOf(4), intercepted)
+        assertEquals(arrayListOf(3), intercepted)
     }
 
     @Test
