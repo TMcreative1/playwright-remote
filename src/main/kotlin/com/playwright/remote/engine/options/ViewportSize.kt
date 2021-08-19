@@ -16,4 +16,14 @@ data class ViewportSize @JvmOverloads constructor(
     init {
         builder.build(this)
     }
+
+    override fun equals(other: Any?): Boolean = (other is ViewportSize)
+            && width == other.width
+            && height == other.height
+
+    override fun hashCode(): Int {
+        var result = if (width != null) width.hashCode() else 0
+        result = 31 * result + if (height != null) height.hashCode() else 0
+        return result
+    }
 }
