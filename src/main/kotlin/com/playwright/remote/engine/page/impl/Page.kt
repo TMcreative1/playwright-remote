@@ -909,14 +909,15 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun onceDialog(handler: (IDialog) -> Unit) {
-        val consumer: (IDialog) -> Unit = {
-            handler(it)
-        }
-        try {
-            onDialog(consumer)
-        } finally {
-            offDialog(consumer)
-        }
+        onDialog(object : (IDialog) -> Unit {
+            override fun invoke(p1: IDialog) {
+                try {
+                    handler(p1)
+                } finally {
+                    offDialog(this)
+                }
+            }
+        })
     }
 
     override fun handleEvent(event: String, params: JsonObject) {
