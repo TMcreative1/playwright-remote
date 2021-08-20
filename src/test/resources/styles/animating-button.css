@@ -1,0 +1,13 @@
+body, html {
+    margin: 0;
+    padding: 0;
+}
+
+@keyframes move {
+    from {
+        margin-left: 0;
+    }
+    to {
+        margin-left: 100px;
+    }
+}
