@@ -1,4 +1,4 @@
-package com.playwright.remote
+package com.playwright.remote.network
 
 import com.google.gson.Gson
 import com.playwright.remote.base.BaseTest
