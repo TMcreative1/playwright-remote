@@ -97,6 +97,10 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         return contexts.toList()
     }
 
+    override fun version(): String {
+        return initializer["version"].asString
+    }
+
     private fun getStorageState(options: NewContextOptions?): JsonObject? {
         if (options?.storageStatePath != null) {
             try {
