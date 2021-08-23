@@ -993,7 +993,7 @@ interface IFrame {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun querySelector(selector: String): IElementHandle?
+    fun querySelector(selector: String?): IElementHandle?
 
     /**
      * Returns the ElementHandles pointing to the frame elements.
@@ -1005,7 +1005,7 @@ interface IFrame {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun querySelectorAll(selector: String): List<IElementHandle>?
+    fun querySelectorAll(selector: String?): List<IElementHandle>?
 
     /**
      * This method waits for an element matching {@code selector}, waits for <a
