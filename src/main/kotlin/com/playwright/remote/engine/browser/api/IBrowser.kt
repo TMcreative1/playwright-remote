@@ -24,4 +24,9 @@ interface IBrowser : AutoCloseable {
     fun name(): String
 
     fun contexts(): List<IBrowserContext>
+
+    /**
+     * Returns the browser version.
+     */
+    fun version(): String
 }
