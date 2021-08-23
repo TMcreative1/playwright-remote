@@ -1792,7 +1792,7 @@ interface IPage : AutoCloseable {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun querySelector(selector: String): IElementHandle?
+    fun querySelector(selector: String?): IElementHandle?
 
     /**
      * The method finds all elements matching the specified selector within the page. If no elements match the selector, the
@@ -1803,7 +1803,7 @@ interface IPage : AutoCloseable {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun querySelectorAll(selector: String): List<IElementHandle>?
+    fun querySelectorAll(selector: String?): List<IElementHandle>?
 
     /**
      * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the response of the
