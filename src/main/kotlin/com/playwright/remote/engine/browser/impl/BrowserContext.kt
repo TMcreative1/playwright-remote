@@ -135,7 +135,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
 
     override fun cookies(urls: List<String>): List<Cookie> {
         val params = JsonObject()
-        params.add("urls", gson().toJsonTree(urls ?: emptyList<String>()))
+        params.add("urls", gson().toJsonTree(urls))
         val json = sendMessage("cookies", params)!!.asJsonObject
         val cookies = IParser.fromJson(json["cookies"].asJsonArray, Array<Cookie>::class.java)
         return cookies.toList()
