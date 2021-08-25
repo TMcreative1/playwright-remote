@@ -123,6 +123,7 @@ class TestElementHandleBoundingBox : BaseTest() {
     }
 
     @Test
+    @Suppress("UNCHECKED_CAST")
     fun `check correct work when inline box child is outside of viewport`() {
         val content = """<style>
             |   i {
