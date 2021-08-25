@@ -80,7 +80,7 @@ class TestNetworkRequest : BaseTest() {
 
     @Test
     fun `check to get the same headers as the server`() {
-        Assumptions.assumeFalse(isWindows() && isWebkit())
+        Assumptions.assumeFalse((isWindows() && isWebkit()) || isChromium())
         val serverRequest = httpServer.futureRequest("/empty.html")
         httpServer.setRoute("/empty.html") {
             it.sendResponseHeaders(200, 0)

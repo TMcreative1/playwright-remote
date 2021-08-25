@@ -8,6 +8,7 @@ import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 class ServerProvider : IServerProvider {
+
     private lateinit var process: Process
     private val logger = CustomLogger()
 
