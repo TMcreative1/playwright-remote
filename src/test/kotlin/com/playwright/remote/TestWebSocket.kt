@@ -7,8 +7,8 @@ import com.playwright.remote.engine.options.wait.WaitForFrameReceivedOptions
 import com.playwright.remote.engine.options.wait.WaitForFrameSentOptions
 import com.playwright.remote.engine.websocket.api.IWebSocket
 import com.playwright.remote.engine.websocket.api.IWebSocketFrame
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.Instant
@@ -26,18 +26,17 @@ class TestWebSocket : BaseTest() {
             get() = webSocketServerThreadLocal.get()
             set(value) = webSocketServerThreadLocal.set(value)
 
-        @JvmStatic
-        @BeforeAll
-        fun startWebSocketServer() {
-            webSocketServer = WebSocketServer("localhost", webSocketPort.getAndIncrement())
-            webSocketServer.start()
-        }
+    }
 
-        @JvmStatic
-        @AfterAll
-        fun stopWebSocketServer() {
-            webSocketServer.stop()
-        }
+    @BeforeEach
+    fun startWebSocketServer() {
+        webSocketServer = WebSocketServer("localhost", webSocketPort.getAndIncrement())
+        webSocketServer.start()
+    }
+
+    @AfterEach
+    fun stopWebSocketServer() {
+        webSocketServer.stop()
     }
 
     private fun waitForCondition(condition: Array<Boolean>) {
