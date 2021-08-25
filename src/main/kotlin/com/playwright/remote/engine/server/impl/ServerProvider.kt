@@ -7,6 +7,7 @@ import com.playwright.remote.engine.server.api.IServerProvider
 import java.nio.file.Paths
 
 class ServerProvider : IServerProvider {
+
     private lateinit var process: Process
     private val logger = CustomLogger()
 
@@ -33,6 +34,7 @@ class ServerProvider : IServerProvider {
         logger.logInfo("Playwright server is stopping")
         process.runCatching {
             destroy()
+            waitFor()
         }.getOrThrow()
         logger.logInfo("Playwright server was stopped")
     }
