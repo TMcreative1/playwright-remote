@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ win-64, ubuntu-64 ]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
         browser: [ chromium, webkit, firefox ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -34,9 +34,6 @@ jobs:
       - name: Get access to gradlew
         run: chmod +x gradlew
 
-      - name: Check files
-        run: ls
-      
       - name: Download drivers
         run: ./gradlew downloadAndUnzip
 
@@ -45,19 +42,16 @@ jobs:
         run: |
           cd drivers/linux/package
           npm install
-
       - name: Install driver for macos-latest
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           cd drivers/mac/package
           npm install
-
       - name: Install driver for windows-latest
-        if: ${{ matrix.os == 'win-64' }}
+        if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          cd drivers/win32_x64/package
+          cd drivers/win32/package
           npm install
-
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
         run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
 
