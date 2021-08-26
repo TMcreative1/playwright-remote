@@ -35,7 +35,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Check files
-      - run: ls
+        run: ls
       
       - name: Download drivers
         run: ./gradlew downloadAndUnzip
