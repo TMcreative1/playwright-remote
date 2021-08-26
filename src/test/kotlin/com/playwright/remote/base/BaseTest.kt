@@ -1,6 +1,7 @@
 package com.playwright.remote.base
 
 import com.google.gson.JsonParser
+import com.playwright.remote.base.extension.ServerProviderExtension
 import com.playwright.remote.base.server.Server
 import com.playwright.remote.core.enums.BrowserType
 import com.playwright.remote.core.enums.BrowserType.valueOf
@@ -11,17 +12,16 @@ import com.playwright.remote.engine.browser.api.IBrowserContext
 import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser
-import com.playwright.remote.engine.server.api.IServerProvider
-import com.playwright.remote.engine.server.impl.ServerProvider
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.extension.ExtendWith
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 
-
+@ExtendWith(ServerProviderExtension::class)
 open class BaseTest {
 
     companion object {
@@ -33,7 +33,6 @@ open class BaseTest {
         private val pageThreadLocal = ThreadLocal<IPage>()
         private val httpServerThreadLocal = ThreadLocal<Server>()
         private val httpsServerThreadLocal = ThreadLocal<Server>()
-        private val serverProviderThreadLocal = ThreadLocal<IServerProvider>()
         private val wsUrlThreadLocal = ThreadLocal<String>()
 
         @JvmStatic
@@ -67,21 +66,15 @@ open class BaseTest {
             set(value) = pageThreadLocal.set(value)
 
         @JvmStatic
-        private var server: IServerProvider
-            get() = serverProviderThreadLocal.get()
-            set(value) = serverProviderThreadLocal.set(value)
-
-        @JvmStatic
         @BeforeAll
         fun beforeAll() {
-            launchBrowserServer()
+            wsUrl = System.getProperty("wsUrl")
             createHttpServers()
         }
 
         @JvmStatic
         @AfterAll
         fun afterAll() {
-            stopServerBrowserServer()
             stopHttpServers()
         }
 
@@ -93,18 +86,6 @@ open class BaseTest {
         private fun stopHttpServers() {
             httpServer.stop()
             httpsServer.stop()
-        }
-
-        private fun launchBrowserServer() {
-            server = ServerProvider()
-            wsUrl = server.launchServer(
-                getCurrentPlatform(),
-                getBrowserType()
-            )!!
-        }
-
-        private fun stopServerBrowserServer() {
-            server.stopServer()
         }
 
         private fun getBrowserType(): BrowserType =
