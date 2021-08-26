@@ -27,7 +27,7 @@ jobs:
           node-version: 14.x
 
       - name: Install Media Pack
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.os == 'win-64' }}
         shell: powershell
         run: Install-WindowsFeature Server-Media-Foundation
 
@@ -50,9 +50,9 @@ jobs:
           npm install
 
       - name: Install driver for windows-latest
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.os == 'win-64' }}
         run: |
-          cd drivers/win32/package
+          cd drivers/win64/package
           npm install
 
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
