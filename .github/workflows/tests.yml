@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ win-64 ]
+        os: [ win-64, ubuntu-64 ]
         browser: [ chromium, webkit, firefox ]
     runs-on: ${{ matrix.os }}
     steps:
