@@ -54,7 +54,7 @@ tasks.test {
     }
     dependsOn("downloadAndUnzip")
     systemProperty("browser", System.getProperty("browser"))
-    maxHeapSize = "4096m"
+    maxHeapSize = "6144m"
 }
 
 task<DefaultTask>("downloadAndUnzip") {

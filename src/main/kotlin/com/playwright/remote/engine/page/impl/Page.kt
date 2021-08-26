@@ -558,11 +558,11 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         mainFrame.press(selector, key, options)
     }
 
-    override fun querySelector(selector: String): IElementHandle? {
+    override fun querySelector(selector: String?): IElementHandle? {
         return mainFrame.querySelector(selector)
     }
 
-    override fun querySelectorAll(selector: String): List<IElementHandle>? {
+    override fun querySelectorAll(selector: String?): List<IElementHandle>? {
         return mainFrame.querySelectorAll(selector)
     }
 
