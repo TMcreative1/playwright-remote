@@ -52,7 +52,7 @@ jobs:
       - name: Install driver for windows-latest
         if: ${{ matrix.os == 'win-64' }}
         run: |
-          cd drivers/win64/package
+          cd drivers/win32_x64/package
           npm install
 
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
