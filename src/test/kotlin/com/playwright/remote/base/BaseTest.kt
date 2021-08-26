@@ -13,6 +13,7 @@ import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
+import okio.IOException
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -84,10 +85,12 @@ open class BaseTest {
         }
 
         private fun isPortFree(port: Int): Boolean {
-            ServerSocket(port).runCatching {
-                close()
-                return true
-            }.getOrElse { return false }
+            return try {
+                ServerSocket(port).use { }
+                true
+            } catch (e: IOException) {
+                false
+            }
         }
 
         private fun getFreePort(): Int {
