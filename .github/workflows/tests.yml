@@ -27,7 +27,7 @@ jobs:
           node-version: 14.x
 
       - name: Install Media Pack
-        if: ${{ matrix.os == 'win-64' }}
+        if: ${{ matrix.os == 'windows-latest' }}
         shell: powershell
         run: Install-WindowsFeature Server-Media-Foundation
 
