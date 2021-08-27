@@ -12,7 +12,7 @@ jacoco {
     reportsDirectory.set(layout.buildDirectory.dir("jacocoReportDir"))
 }
 
-group = "io.github"
+group = "io.github.tmcreative1"
 val artifactBaseName = "playwright.remote"
 version = "1.0-SNAPSHOT"
 
