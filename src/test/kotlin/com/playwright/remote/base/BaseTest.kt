@@ -13,11 +13,13 @@ import com.playwright.remote.engine.frame.api.IFrame
 import com.playwright.remote.engine.page.api.IPage
 import com.playwright.remote.engine.parser.IParser
 import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
+import okio.IOException
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
+import java.net.ServerSocket
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 
@@ -26,8 +28,7 @@ open class BaseTest {
 
     companion object {
 
-        private val httpPort = AtomicInteger(9000)
-        private val httpsPort = AtomicInteger(4000)
+        private val port = AtomicInteger(9000)
         private val browserThreadLocal = ThreadLocal<IBrowser>()
         private val browserContextThreadLocal = ThreadLocal<IBrowserContext>()
         private val pageThreadLocal = ThreadLocal<IPage>()
@@ -79,8 +80,27 @@ open class BaseTest {
         }
 
         private fun createHttpServers() {
-            httpServer = Server.createHttp(httpPort.getAndIncrement())
-            httpsServer = Server.createHttps(httpsPort.getAndIncrement())
+            httpServer = Server.createHttp(getFreePort())
+            httpsServer = Server.createHttps(getFreePort())
+        }
+
+        private fun isPortFree(port: Int): Boolean {
+            return try {
+                ServerSocket(port).use { }
+                true
+            } catch (e: IOException) {
+                false
+            }
+        }
+
+        private fun getFreePort(): Int {
+            for (attempt in 1..100) {
+                val port = port.getAndIncrement()
+                if (isPortFree(port)) {
+                    return port
+                }
+            }
+            throw RuntimeException("Cannot find free port")
         }
 
         private fun stopHttpServers() {
