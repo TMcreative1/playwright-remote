@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val archs = listOf("mac", "linux", "win32", "win32_x64")
+val playwrightVersion = "1.10.0"
 
 plugins {
     kotlin("jvm") version "1.5.20-M1"

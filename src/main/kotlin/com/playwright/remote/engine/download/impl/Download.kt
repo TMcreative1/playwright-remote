@@ -1,30 +1,44 @@
 package com.playwright.remote.engine.download.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.download.api.IArtifact
 import com.playwright.remote.engine.download.api.IDownload
+import com.playwright.remote.engine.download.stream.api.IStream
+import com.playwright.remote.engine.processor.ChannelOwner
 import java.io.InputStream
 import java.nio.file.Path
 
-class Download(
-    private val artifact: IArtifact,
-    private val initializer: JsonObject
-) : IDownload {
+class Download(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
+    parent,
+    type,
+    guid,
+    initializer
+), IDownload {
 
     override fun createReadStream(): InputStream? {
-        return artifact.createReadStream()
+        val result = sendMessage("stream")!!.asJsonObject
+        if (!result.has("stream")) {
+            return null
+        }
+        val stream = messageProcessor.getExistingObject<IStream>(result["stream"].asJsonObject["guid"].asString)
+        return stream.stream()
     }
 
     override fun delete() {
-        artifact.delete()
+        sendMessage("delete")
     }
 
     override fun failure(): String? {
-        return artifact.failure()
+        val result = sendMessage("failure")!!.asJsonObject
+        if (result.has("error")) {
+            return result["error"].asString
+        }
+        return null
     }
 
     override fun saveAs(path: Path) {
-        artifact.saveAs(path)
+        val params = JsonObject()
+        params.addProperty("path", path.toString())
+        sendMessage("saveAs", params)
     }
 
     override fun suggestedFilename(): String {

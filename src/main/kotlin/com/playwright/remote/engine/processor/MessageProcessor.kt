@@ -16,7 +16,7 @@ import com.playwright.remote.engine.browser.impl.Selectors
 import com.playwright.remote.engine.callback.impl.BindingCall
 import com.playwright.remote.engine.console.impl.ConsoleMessage
 import com.playwright.remote.engine.dialog.impl.Dialog
-import com.playwright.remote.engine.download.impl.Artifact
+import com.playwright.remote.engine.download.impl.Download
 import com.playwright.remote.engine.download.stream.impl.Stream
 import com.playwright.remote.engine.frame.impl.Frame
 import com.playwright.remote.engine.handle.element.impl.ElementHandle
@@ -35,6 +35,7 @@ import com.playwright.remote.engine.worker.impl.Worker
 
 class MessageProcessor(private val transport: ITransport) {
     private val logger = CustomLogger()
+
     private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")
 
     private val objects = hashMapOf<String, ChannelOwner>()
@@ -110,12 +111,12 @@ class MessageProcessor(private val transport: ITransport) {
             ?: throw PlaywrightException("Cannot find parent object $parentGuid to create $guid")
         val initializer = params["initializer"].asJsonObject
         when (type) {
-            ARTIFACT.type -> Artifact(parent, type, guid, initializer)
             BINDING_CALL.type -> BindingCall(parent, type, guid, initializer)
             BROWSER.type -> Browser(parent, type, guid, initializer)
             BROWSER_CONTEXT.type -> BrowserContext(parent, type, guid, initializer)
             CONSOLE_MESSAGE.type -> ConsoleMessage(parent, type, guid, initializer)
             DIALOG.type -> Dialog(parent, type, guid, initializer)
+            DOWNLOAD.type -> Download(parent, type, guid, initializer)
             ELEMENT_HANDLE.type -> ElementHandle(parent, type, guid, initializer)
             FRAME.type -> Frame(parent, type, guid, initializer)
             JS_HANDLE.type -> JSHandle(parent, type, guid, initializer)
