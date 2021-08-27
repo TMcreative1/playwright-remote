@@ -42,16 +42,19 @@ jobs:
         run: |
           cd drivers/linux/package
           npm install
+
       - name: Install driver for macos-latest
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           cd drivers/mac/package
           npm install
+
       - name: Install driver for windows-latest
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           cd drivers/win32/package
           npm install
+
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
         run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
 
