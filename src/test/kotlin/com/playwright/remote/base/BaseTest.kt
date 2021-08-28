@@ -19,6 +19,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
+import java.net.PortUnreachableException
 import java.net.ServerSocket
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
@@ -100,7 +101,7 @@ open class BaseTest {
                     return port
                 }
             }
-            throw RuntimeException("Cannot find free port")
+            throw PortUnreachableException("Cannot find free port")
         }
 
         private fun stopHttpServers() {
