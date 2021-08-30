@@ -7,6 +7,7 @@ import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.utils.Utils.Companion.writeToFile
 import java.io.InputStream
 import java.nio.file.Path
+import kotlin.io.path.deleteExisting
 
 class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
     parent,
@@ -14,6 +15,7 @@ class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: Js
     guid,
     initializer
 ), IArtifact {
+    var videoPath: Path? = null
     override fun createReadStream(): InputStream? {
         val result = sendMessage("stream")!!.asJsonObject
         if (!result.has("stream")) {
@@ -25,6 +27,9 @@ class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: Js
 
     override fun delete() {
         sendMessage("delete")
+        if (videoPath != null) {
+            videoPath!!.deleteExisting()
+        }
     }
 
     override fun failure(): String? {
@@ -38,6 +43,7 @@ class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: Js
     override fun saveAs(path: Path) {
         val jsonObject = sendMessage("saveAsStream")!!.asJsonObject
         val stream = messageProcessor.getExistingObject<IStream>(jsonObject["stream"].asJsonObject["guid"].asString)
+        videoPath = path
         writeToFile(stream.stream(), path)
     }
 }
