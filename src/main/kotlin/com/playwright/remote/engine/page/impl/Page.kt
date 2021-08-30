@@ -779,9 +779,6 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun video(): IVideo? {
-        // Note: we are creating Video object lazily, because we do not know
-        // BrowserContextOptions when constructing the page - it is assigned
-        // too late during launchPersistentContext.
         if ((browserContext as BrowserContext).videosDir == null) {
             return null
         }
