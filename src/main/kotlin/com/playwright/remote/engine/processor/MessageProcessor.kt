@@ -55,7 +55,7 @@ class MessageProcessor(private val transport: ITransport) {
         objects.remove(guid)
     }
 
-    fun waitFoSelectors(): ChannelOwner? = getObjectByType(SELECTORS)
+    fun waitForSelectors(): ChannelOwner? = getObjectByType(SELECTORS)
 
     fun waitForLaunchedBrowser(): ChannelOwner? = getObjectByType(BROWSER)
 
