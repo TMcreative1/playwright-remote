@@ -7,6 +7,8 @@ import com.playwright.remote.core.enums.EventType.DISCONNECTED
 import com.playwright.remote.core.exceptions.PlaywrightException
 import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.api.IBrowserContext
+import com.playwright.remote.engine.browser.selector.api.ISharedSelectors
+import com.playwright.remote.engine.browser.selector.impl.SharedSelectors
 import com.playwright.remote.engine.listener.ListenerCollection
 import com.playwright.remote.engine.listener.UniversalConsumer
 import com.playwright.remote.engine.options.NewContextOptions
@@ -23,6 +25,7 @@ import java.nio.file.Files
 
 class Browser(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBrowser {
+    private val sharedSelectors = SharedSelectors()
 
     val contexts = hashSetOf<IBrowserContext>()
     private val listeners = ListenerCollection<EventType>()
@@ -96,6 +99,10 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
 
     override fun version(): String {
         return initializer["version"].asString
+    }
+
+    override fun selectors(): ISharedSelectors {
+        return sharedSelectors
     }
 
     private fun getStorageState(options: NewContextOptions?): JsonObject? {
