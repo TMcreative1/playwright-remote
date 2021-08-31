@@ -1,6 +1,7 @@
 package com.playwright.remote.engine.browser.api
 
 import com.playwright.remote.core.enums.DeviceDescriptors
+import com.playwright.remote.engine.browser.selector.api.ISharedSelectors
 import com.playwright.remote.engine.options.NewContextOptions
 import com.playwright.remote.engine.options.NewPageOptions
 import com.playwright.remote.engine.page.api.IPage
@@ -29,4 +30,10 @@ interface IBrowser : AutoCloseable {
      * Returns the browser version.
      */
     fun version(): String
+
+    /**
+     * Selectors can be used to install custom selector engines. See <a
+     * href="https://playwright.dev/java/docs/selectors/">Working with selectors</a> for more information.
+     */
+    fun selectors(): ISharedSelectors
 }

@@ -4,6 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.playwright.remote.core.enums.MethodType.CREATE
 import com.playwright.remote.core.enums.MethodType.DISPOSE
+import com.playwright.remote.core.enums.ObjectType
 import com.playwright.remote.core.enums.ObjectType.*
 import com.playwright.remote.core.exceptions.DriverException
 import com.playwright.remote.core.exceptions.PlaywrightException
@@ -13,6 +14,7 @@ import com.playwright.remote.engine.android.impl.Android
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
 import com.playwright.remote.engine.browser.impl.BrowserType
+import com.playwright.remote.engine.browser.selector.impl.Selectors
 import com.playwright.remote.engine.callback.impl.BindingCall
 import com.playwright.remote.engine.console.impl.ConsoleMessage
 import com.playwright.remote.engine.dialog.impl.Dialog
@@ -30,7 +32,6 @@ import com.playwright.remote.engine.playwright.impl.Playwright
 import com.playwright.remote.engine.route.impl.Route
 import com.playwright.remote.engine.route.request.impl.Request
 import com.playwright.remote.engine.route.response.impl.Response
-import com.playwright.remote.engine.selector.impl.Selectors
 import com.playwright.remote.engine.transport.ITransport
 import com.playwright.remote.engine.waits.impl.WaitResult
 import com.playwright.remote.engine.websocket.impl.WebSocket
@@ -54,18 +55,15 @@ class MessageProcessor(private val transport: ITransport) {
         objects.remove(guid)
     }
 
-    fun waitForObjectByGuid(guid: String): ChannelOwner? {
-        while (!objects.containsKey(guid)) {
-            processMessage()
-        }
-        return objects[guid]
-    }
+    fun waitForSelectors(): ChannelOwner? = getObjectByType(SELECTORS)
 
-    fun waitForLaunchedBrowser(): ChannelOwner? {
+    fun waitForLaunchedBrowser(): ChannelOwner? = getObjectByType(BROWSER)
+
+    private fun getObjectByType(obj: ObjectType): ChannelOwner? {
         var guid = ""
         while (guid.isEmpty()) {
             processMessage()
-            guid = objects.values.filter { it.type == BROWSER.type }.map { it.guid }.firstOrNull() ?: ""
+            guid = objects.values.filter { it.type == obj.type }.map { it.guid }.firstOrNull() ?: ""
         }
         return objects[guid]
     }
