@@ -12,7 +12,7 @@ import com.playwright.remote.domain.message.Message
 import com.playwright.remote.engine.browser.RemoteBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
-import com.playwright.remote.engine.browser.impl.Selectors
+import com.playwright.remote.engine.browser.selector.impl.Selectors
 import com.playwright.remote.engine.callback.impl.BindingCall
 import com.playwright.remote.engine.console.impl.ConsoleMessage
 import com.playwright.remote.engine.dialog.impl.Dialog

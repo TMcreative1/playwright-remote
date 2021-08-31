@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import com.playwright.remote.engine.browser.api.IBrowser
 import com.playwright.remote.engine.browser.impl.Browser
 import com.playwright.remote.engine.browser.impl.BrowserContext
+import com.playwright.remote.engine.browser.selector.api.ISelectors
 import com.playwright.remote.engine.download.stream.api.IStream
 import com.playwright.remote.engine.processor.ChannelOwner
 import com.playwright.remote.engine.processor.MessageProcessor
@@ -17,6 +18,9 @@ class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initialize
     private fun browser(): IBrowser =
         messageProcessor.getExistingObject(initializer["browser"].asJsonObject["guid"].asString)
 
+    private fun selectors(): ISelectors =
+        messageProcessor.getExistingObject(initializer["selectors"].asJsonObject["guid"].asString)
+
     companion object {
         @JvmStatic
         fun connectWs(wsEndpoint: String): IBrowser {
@@ -24,11 +28,14 @@ class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initialize
             val messageProcessor = MessageProcessor(webSocketTransport)
             val remoteBrowser = messageProcessor.waitForObjectByGuid("remoteBrowser") as RemoteBrowser
             val browser = remoteBrowser.browser() as Browser
+            val selectors = remoteBrowser.selectors()
+            browser.selectors().addChannel(selectors)
 
             val connectionCloseListener: (WebSocketTransport) -> Unit = { browser.notifyRemoteClosed() }
             webSocketTransport.onClose(connectionCloseListener)
 
             browser.onDisconnected {
+                browser.selectors().removeChannel(selectors)
                 webSocketTransport.offClose(connectionCloseListener)
                 webSocketTransport.closeConnection()
             }
