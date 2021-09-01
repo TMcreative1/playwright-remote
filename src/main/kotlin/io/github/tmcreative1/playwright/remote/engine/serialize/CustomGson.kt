@@ -1,15 +1,15 @@
-package com.playwright.remote.engine.serialize
+package io.github.tmcreative1.playwright.remote.engine.serialize
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import com.playwright.remote.core.enums.*
-import com.playwright.remote.engine.handle.js.impl.JSHandle
-import com.playwright.remote.engine.options.enum.ColorScheme
-import com.playwright.remote.engine.options.enum.MouseButton
-import com.playwright.remote.engine.serialize.adapters.ColorSchemeAdapter
-import com.playwright.remote.engine.serialize.adapters.SameSiteAttributeAdapter
-import com.playwright.remote.engine.serialize.serializers.*
+import io.github.tmcreative1.playwright.remote.engine.serialize.adapters.ColorSchemeAdapter
+import io.github.tmcreative1.playwright.remote.engine.serialize.adapters.SameSiteAttributeAdapter
+import io.github.tmcreative1.playwright.remote.engine.serialize.serializers.*
+import io.github.tmcreative1.playwright.remote.core.enums.*
+import io.github.tmcreative1.playwright.remote.engine.handle.js.impl.JSHandle
+import io.github.tmcreative1.playwright.remote.engine.options.enum.ColorScheme
+import io.github.tmcreative1.playwright.remote.engine.options.enum.MouseButton
 import java.nio.file.Path
 import java.util.*
 

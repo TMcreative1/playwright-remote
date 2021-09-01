@@ -1,11 +1,11 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.core.exceptions.TimeoutException
-import com.playwright.remote.domain.file.FilePayload
-import com.playwright.remote.engine.filechooser.api.IFileChooser
-import com.playwright.remote.engine.options.wait.WaitForFileChooserOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForFileChooserOptions
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.core.exceptions.TimeoutException
+import io.github.tmcreative1.playwright.remote.domain.file.FilePayload
+import io.github.tmcreative1.playwright.remote.engine.filechooser.api.IFileChooser
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import java.time.Duration

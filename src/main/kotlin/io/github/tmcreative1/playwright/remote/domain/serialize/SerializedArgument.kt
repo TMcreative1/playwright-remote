@@ -1,7 +1,7 @@
-package com.playwright.remote.domain.serialize
+package io.github.tmcreative1.playwright.remote.domain.serialize
 
-import com.playwright.remote.domain.serialize.SerializedError.SerializedValue
-import com.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.domain.serialize.SerializedError.SerializedValue
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 
 data class SerializedArgument @JvmOverloads constructor(
     var value: SerializedValue? = null,

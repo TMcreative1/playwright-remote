@@ -1,13 +1,13 @@
-package com.playwright.remote.engine.serialize.serializers
+package io.github.tmcreative1.playwright.remote.engine.serialize.serializers
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import com.google.gson.reflect.TypeToken
-import com.playwright.remote.core.enums.Media
-import com.playwright.remote.engine.options.ViewportSize
-import com.playwright.remote.engine.options.enum.ColorScheme
+import io.github.tmcreative1.playwright.remote.engine.options.ViewportSize
+import io.github.tmcreative1.playwright.remote.core.enums.Media
+import io.github.tmcreative1.playwright.remote.engine.options.enum.ColorScheme
 import java.lang.reflect.Type
 import java.util.*
 

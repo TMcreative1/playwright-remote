@@ -1,12 +1,12 @@
-package com.playwright.remote.engine.websocket
+package io.github.tmcreative1.playwright.remote.engine.websocket
 
-import com.playwright.remote.core.enums.EventType
-import com.playwright.remote.core.enums.EventType.CLOSE
-import com.playwright.remote.core.exceptions.WebSocketException
-import com.playwright.remote.engine.listener.ListenerCollection
-import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.logger.CustomLogger
-import com.playwright.remote.engine.transport.ITransport
+import io.github.tmcreative1.playwright.remote.engine.transport.ITransport
+import io.github.tmcreative1.playwright.remote.core.enums.EventType
+import io.github.tmcreative1.playwright.remote.core.enums.EventType.CLOSE
+import io.github.tmcreative1.playwright.remote.core.exceptions.WebSocketException
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
+import io.github.tmcreative1.playwright.remote.engine.logger.CustomLogger
 import okhttp3.*
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.ConcurrentHashMap

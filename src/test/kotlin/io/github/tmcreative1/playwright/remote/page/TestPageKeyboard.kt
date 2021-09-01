@@ -1,7 +1,7 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
 import jdk.jfr.Description
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test

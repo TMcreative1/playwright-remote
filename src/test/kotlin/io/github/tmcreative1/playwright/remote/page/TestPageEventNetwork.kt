@@ -1,10 +1,10 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.Platform
-import com.playwright.remote.engine.route.request.api.IRequest
-import com.playwright.remote.engine.route.response.api.IResponse
-import com.playwright.remote.utils.PlatformUtils
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
+import io.github.tmcreative1.playwright.remote.core.enums.Platform
+import io.github.tmcreative1.playwright.remote.utils.PlatformUtils
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

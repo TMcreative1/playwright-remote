@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.download.api
+package io.github.tmcreative1.playwright.remote.engine.download.api
 
 import java.io.InputStream
 import java.nio.file.Path

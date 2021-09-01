@@ -1,7 +1,6 @@
-package com.playwright.remote.core.enums
+package io.github.tmcreative1.playwright.remote.core.enums
 
 enum class ObjectType(val type: String) {
-    ARTIFACT("Artifact"),
     BINDING_CALL("BindingCall"),
     BROWSER("Browser"),
     BROWSER_CONTEXT("BrowserContext"),

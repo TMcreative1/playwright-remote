@@ -1,10 +1,11 @@
-package com.playwright.remote.engine.browser.api
+package io.github.tmcreative1.playwright.remote.engine.browser.api
 
-import com.playwright.remote.core.enums.DeviceDescriptors
-import com.playwright.remote.engine.browser.selector.api.ISharedSelectors
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.options.NewPageOptions
-import com.playwright.remote.engine.page.api.IPage
+
+import io.github.tmcreative1.playwright.remote.core.enums.DeviceDescriptors
+import io.github.tmcreative1.playwright.remote.engine.browser.selector.api.ISharedSelectors
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.options.NewPageOptions
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
 
 interface IBrowser : AutoCloseable {
 

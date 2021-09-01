@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.options.wait
+package io.github.tmcreative1.playwright.remote.engine.options.wait
 
-import com.playwright.remote.engine.options.api.IBuilder
-import com.playwright.remote.engine.worker.api.IWorker
+import io.github.tmcreative1.playwright.remote.engine.worker.api.IWorker
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 
 typealias WorkerPredicate = (IWorker) -> Boolean
 

@@ -1,12 +1,12 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
 import com.google.gson.JsonObject
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.LoadState
-import com.playwright.remote.engine.browser.api.IBrowserContext
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.parser.IParser
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserContext
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -1,9 +1,9 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.LoadState
-import com.playwright.remote.core.exceptions.TimeoutException
-import com.playwright.remote.engine.options.NavigateOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.NavigateOptions
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState
+import io.github.tmcreative1.playwright.remote.core.exceptions.TimeoutException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

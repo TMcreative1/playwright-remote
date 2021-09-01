@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.route.response.api
+package io.github.tmcreative1.playwright.remote.engine.route.response.api
 
-import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
 
 /**
  * {@code Response} class represents responses which are received by page.

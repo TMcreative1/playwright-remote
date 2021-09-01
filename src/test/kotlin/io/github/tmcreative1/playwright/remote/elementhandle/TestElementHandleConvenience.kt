@@ -1,7 +1,7 @@
-package com.playwright.remote.elementhandle
+package io.github.tmcreative1.playwright.remote.elementhandle
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
 import org.junit.jupiter.api.Test
 import kotlin.test.*
 

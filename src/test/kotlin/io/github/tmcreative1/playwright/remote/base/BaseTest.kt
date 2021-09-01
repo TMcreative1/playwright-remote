@@ -1,18 +1,18 @@
-package com.playwright.remote.base
+package io.github.tmcreative1.playwright.remote.base
 
 import com.google.gson.JsonParser
-import com.playwright.remote.base.extension.ServerProviderExtension
-import com.playwright.remote.base.server.Server
-import com.playwright.remote.core.enums.BrowserType
-import com.playwright.remote.core.enums.BrowserType.valueOf
-import com.playwright.remote.core.enums.Platform.*
-import com.playwright.remote.engine.browser.RemoteBrowser
-import com.playwright.remote.engine.browser.api.IBrowser
-import com.playwright.remote.engine.browser.api.IBrowserContext
-import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.parser.IParser
-import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
+import io.github.tmcreative1.playwright.remote.base.extension.ServerProviderExtension
+import io.github.tmcreative1.playwright.remote.base.server.Server
+import io.github.tmcreative1.playwright.remote.core.enums.BrowserType
+import io.github.tmcreative1.playwright.remote.core.enums.BrowserType.valueOf
+import io.github.tmcreative1.playwright.remote.core.enums.Platform.*
+import io.github.tmcreative1.playwright.remote.engine.browser.RemoteBrowser
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowser
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserContext
+import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.toJson
+import io.github.tmcreative1.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
 import okio.IOException
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -176,7 +176,7 @@ open class BaseTest {
     }
 
     protected fun assertJsonEquals(expected: String, actual: Any) {
-        val actualJson = JsonParser.parseString(IParser.toJson(actual))
+        val actualJson = JsonParser.parseString(toJson(actual))
         assertEquals(JsonParser.parseString(expected), actualJson)
     }
 

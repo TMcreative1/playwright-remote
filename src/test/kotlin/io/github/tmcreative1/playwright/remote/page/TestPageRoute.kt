@@ -1,18 +1,17 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.options.Cookie
-import com.playwright.remote.engine.options.FulfillOptions
-import com.playwright.remote.engine.options.ResumeOptions
-import com.playwright.remote.engine.route.api.IRoute
-import com.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.Cookie
+import io.github.tmcreative1.playwright.remote.engine.options.FulfillOptions
+import io.github.tmcreative1.playwright.remote.engine.options.ResumeOptions
+import io.github.tmcreative1.playwright.remote.engine.route.api.IRoute
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import java.io.OutputStreamWriter
 import java.util.*
 import java.util.regex.Pattern
-import kotlin.collections.HashMap
 import kotlin.test.*
 
 class TestPageRoute : BaseTest() {

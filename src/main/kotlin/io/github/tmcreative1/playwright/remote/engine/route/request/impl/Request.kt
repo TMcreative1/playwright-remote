@@ -1,15 +1,21 @@
-package com.playwright.remote.engine.route.request.impl
+package io.github.tmcreative1.playwright.remote.engine.route.request.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.route.request.Timing
-import com.playwright.remote.engine.route.request.api.IRequest
-import com.playwright.remote.engine.route.response.api.IResponse
+
+import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.route.request.Timing
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class Request : ChannelOwner, IRequest {
+class Request(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
+    parent,
+    type,
+    guid,
+    initializer
+), IRequest {
     private var postData: ByteArray? = null
     private var redirectedFrom: IRequest? = null
     private var redirectedTo: IRequest? = null
@@ -17,12 +23,7 @@ class Request : ChannelOwner, IRequest {
     var failure: String = ""
     var timing: Timing = Timing {}
 
-    constructor(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : super(
-        parent,
-        type,
-        guid,
-        initializer
-    ) {
+    init {
         if (initializer.has("redirectedFrom")) {
             redirectedFrom =
                 messageProcessor.getExistingObject(initializer["redirectedFrom"].asJsonObject["guid"].asString)
@@ -32,7 +33,6 @@ class Request : ChannelOwner, IRequest {
             val item = element.asJsonObject
             headers[item["name"].asString.lowercase()] = item["value"].asString
         }
-
         if (initializer.has("postData")) {
             postData = Base64.getDecoder().decode(initializer["postData"].asString)
         }

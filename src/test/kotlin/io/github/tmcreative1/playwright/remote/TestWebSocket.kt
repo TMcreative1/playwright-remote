@@ -1,12 +1,12 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.base.server.WebSocketServer
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.options.wait.WaitForFrameReceivedOptions
-import com.playwright.remote.engine.options.wait.WaitForFrameSentOptions
-import com.playwright.remote.engine.websocket.api.IWebSocket
-import com.playwright.remote.engine.websocket.api.IWebSocketFrame
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.base.server.WebSocketServer
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForFrameReceivedOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForFrameSentOptions
+import io.github.tmcreative1.playwright.remote.engine.websocket.api.IWebSocket
+import io.github.tmcreative1.playwright.remote.engine.websocket.api.IWebSocketFrame
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

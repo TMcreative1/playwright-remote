@@ -1,4 +1,4 @@
-package com.playwright.remote.base.server
+package io.github.tmcreative1.playwright.remote.base.server
 
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake

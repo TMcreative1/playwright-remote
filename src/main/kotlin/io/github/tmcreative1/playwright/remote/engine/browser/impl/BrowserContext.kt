@@ -1,34 +1,34 @@
-package com.playwright.remote.engine.browser.impl
+package io.github.tmcreative1.playwright.remote.engine.browser.impl
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.playwright.remote.core.enums.EventType
-import com.playwright.remote.core.enums.EventType.*
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.browser.api.IBrowser
-import com.playwright.remote.engine.browser.api.IBrowserContext
-import com.playwright.remote.engine.callback.api.IBindingCall
-import com.playwright.remote.engine.callback.api.IBindingCallback
-import com.playwright.remote.engine.callback.api.IBindingCallback.ISource
-import com.playwright.remote.engine.callback.api.IFunctionCallback
-import com.playwright.remote.engine.listener.ListenerCollection
-import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.options.*
-import com.playwright.remote.engine.options.wait.WaitForPageOptions
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.page.impl.Page
-import com.playwright.remote.engine.parser.IParser
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.route.Router
-import com.playwright.remote.engine.route.UrlMatcher
-import com.playwright.remote.engine.route.api.IRoute
-import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
-import com.playwright.remote.engine.waits.TimeoutSettings
-import com.playwright.remote.engine.waits.api.IWait
-import com.playwright.remote.engine.waits.impl.WaitContextClose
-import com.playwright.remote.engine.waits.impl.WaitEvent
-import com.playwright.remote.engine.waits.impl.WaitRace
-import com.playwright.remote.utils.Utils.Companion.writeToFile
+import io.github.tmcreative1.playwright.remote.core.enums.EventType
+import io.github.tmcreative1.playwright.remote.core.enums.EventType.*
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowser
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserContext
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCall
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback.ISource
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IFunctionCallback
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
+import io.github.tmcreative1.playwright.remote.engine.options.*
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForPageOptions
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.page.impl.Page
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.fromJson
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.route.Router
+import io.github.tmcreative1.playwright.remote.engine.route.UrlMatcher
+import io.github.tmcreative1.playwright.remote.engine.route.api.IRoute
+import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import io.github.tmcreative1.playwright.remote.engine.waits.TimeoutSettings
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitContextClose
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitEvent
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitRace
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.writeToFile
 import okio.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files.readAllBytes
@@ -137,7 +137,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         val params = JsonObject()
         params.add("urls", gson().toJsonTree(urls))
         val json = sendMessage("cookies", params)!!.asJsonObject
-        val cookies = IParser.fromJson(json["cookies"].asJsonArray, Array<Cookie>::class.java)
+        val cookies = fromJson(json["cookies"].asJsonArray, Array<Cookie>::class.java)
         return cookies.toList()
     }
 

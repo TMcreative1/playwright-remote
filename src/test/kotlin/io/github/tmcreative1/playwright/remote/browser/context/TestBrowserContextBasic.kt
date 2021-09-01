@@ -1,10 +1,10 @@
-package com.playwright.remote.browser.context
+package io.github.tmcreative1.playwright.remote.browser.context
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.options.ViewportSize
-import com.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.options.ViewportSize
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
 import org.junit.jupiter.api.Test
 import java.io.OutputStreamWriter
 import kotlin.test.assertEquals

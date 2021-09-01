@@ -1,8 +1,9 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.engine.options.Clip
-import com.playwright.remote.engine.options.ScreenshotOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.Clip
+import io.github.tmcreative1.playwright.remote.engine.options.ScreenshotOptions
+
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO

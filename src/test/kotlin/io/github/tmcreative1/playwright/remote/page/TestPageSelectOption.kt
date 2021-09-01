@@ -1,10 +1,10 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.options.SelectOption
-import com.playwright.remote.engine.options.element.SelectOptionOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.SelectOption
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
+import io.github.tmcreative1.playwright.remote.engine.options.element.SelectOptionOptions
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

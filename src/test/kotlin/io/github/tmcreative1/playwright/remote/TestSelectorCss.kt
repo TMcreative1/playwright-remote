@@ -1,8 +1,8 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

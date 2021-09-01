@@ -1,9 +1,9 @@
-package com.playwright.remote.browser.context
+package io.github.tmcreative1.playwright.remote.browser.context
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.LoadState
-import com.playwright.remote.engine.browser.api.IBrowserContext
-import com.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserContext
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

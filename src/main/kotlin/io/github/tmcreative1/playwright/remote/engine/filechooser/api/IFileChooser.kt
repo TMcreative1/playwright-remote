@@ -1,9 +1,9 @@
-package com.playwright.remote.engine.filechooser.api
+package io.github.tmcreative1.playwright.remote.engine.filechooser.api
 
-import com.playwright.remote.domain.file.FilePayload
-import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.options.SetFilesOptions
-import com.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.domain.file.FilePayload
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
+import io.github.tmcreative1.playwright.remote.engine.options.SetFilesOptions
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
 import java.nio.file.Path
 
 interface IFileChooser {

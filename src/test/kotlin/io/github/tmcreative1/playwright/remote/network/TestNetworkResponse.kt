@@ -1,7 +1,7 @@
-package com.playwright.remote.network
+package io.github.tmcreative1.playwright.remote.network
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Test
 import java.io.OutputStreamWriter

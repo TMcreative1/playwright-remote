@@ -1,8 +1,8 @@
-package com.playwright.remote.browser.context.cookies
+package io.github.tmcreative1.playwright.remote.browser.context.cookies
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.SameSiteAttribute
-import com.playwright.remote.engine.options.Cookie
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.Cookie
+import io.github.tmcreative1.playwright.remote.core.enums.SameSiteAttribute
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

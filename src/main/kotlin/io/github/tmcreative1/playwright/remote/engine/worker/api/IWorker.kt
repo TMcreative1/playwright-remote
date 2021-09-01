@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.worker.api
+package io.github.tmcreative1.playwright.remote.engine.worker.api
 
-import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.options.wait.WaitForCloseOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForCloseOptions
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
 
 interface IWorker {
     /**

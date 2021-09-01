@@ -1,5 +1,3 @@
-package com.playwright.remote.core.exceptions
+package io.github.tmcreative1.playwright.remote.core.exceptions
 
-class PlatformException : RuntimeException {
-    constructor(message: String) : super(message)
-}
+class PlatformException(message: String) : RuntimeException(message)

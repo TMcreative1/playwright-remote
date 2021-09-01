@@ -1,7 +1,7 @@
-package com.playwright.remote.network
+package io.github.tmcreative1.playwright.remote.network
 
 import com.google.gson.Gson
-import com.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.base.BaseTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.*

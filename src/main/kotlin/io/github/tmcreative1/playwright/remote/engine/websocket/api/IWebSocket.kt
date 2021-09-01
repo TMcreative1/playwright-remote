@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.websocket.api
+package io.github.tmcreative1.playwright.remote.engine.websocket.api
 
-import com.playwright.remote.engine.options.wait.WaitForFrameReceivedOptions
-import com.playwright.remote.engine.options.wait.WaitForFrameSentOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForFrameReceivedOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForFrameSentOptions
 
 interface IWebSocket {
     /**

@@ -1,15 +1,16 @@
-package com.playwright.remote.engine.browser
+package io.github.tmcreative1.playwright.remote.engine.browser
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.browser.api.IBrowser
-import com.playwright.remote.engine.browser.impl.Browser
-import com.playwright.remote.engine.browser.impl.BrowserContext
-import com.playwright.remote.engine.browser.selector.api.ISelectors
-import com.playwright.remote.engine.download.stream.api.IStream
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.processor.MessageProcessor
-import com.playwright.remote.engine.websocket.WebSocketTransport
-import com.playwright.remote.utils.Utils.Companion.writeToFile
+
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowser
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.Browser
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.BrowserContext
+import io.github.tmcreative1.playwright.remote.engine.browser.selector.api.ISelectors
+import io.github.tmcreative1.playwright.remote.engine.download.stream.api.IStream
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.processor.MessageProcessor
+import io.github.tmcreative1.playwright.remote.engine.websocket.WebSocketTransport
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.writeToFile
 import java.nio.file.Paths
 
 class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :

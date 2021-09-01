@@ -1,8 +1,8 @@
-package com.playwright.remote.engine.processor
+package io.github.tmcreative1.playwright.remote.engine.processor
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
 
 open class ChannelOwner(
     val messageProcessor: MessageProcessor,

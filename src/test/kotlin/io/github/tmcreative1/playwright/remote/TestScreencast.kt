@@ -1,9 +1,9 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.options.RecordVideoSize
-import com.playwright.remote.engine.options.ViewportSize
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.options.RecordVideoSize
+import io.github.tmcreative1.playwright.remote.engine.options.ViewportSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files

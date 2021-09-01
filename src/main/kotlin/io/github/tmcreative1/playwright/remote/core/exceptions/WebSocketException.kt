@@ -1,6 +1,4 @@
-package com.playwright.remote.core.exceptions
-
-import java.lang.RuntimeException
+package io.github.tmcreative1.playwright.remote.core.exceptions
 
 class WebSocketException : RuntimeException {
 

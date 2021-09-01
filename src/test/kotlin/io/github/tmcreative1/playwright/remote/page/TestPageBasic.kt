@@ -1,12 +1,14 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.console.api.IConsoleMessage
-import com.playwright.remote.engine.frame.impl.Frame
-import com.playwright.remote.engine.options.CloseOptions
-import com.playwright.remote.engine.options.NewPageOptions
-import com.playwright.remote.engine.options.ScreenshotOptions
+
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.console.api.IConsoleMessage
+import io.github.tmcreative1.playwright.remote.engine.frame.impl.Frame
+import io.github.tmcreative1.playwright.remote.engine.options.CloseOptions
+import io.github.tmcreative1.playwright.remote.engine.options.NewPageOptions
+import io.github.tmcreative1.playwright.remote.engine.options.ScreenshotOptions
+
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.util.regex.Pattern

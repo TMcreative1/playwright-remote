@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.logger
+package io.github.tmcreative1.playwright.remote.engine.logger
 
 class CustomLogger {
     companion object {

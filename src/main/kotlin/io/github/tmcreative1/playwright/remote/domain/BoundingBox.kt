@@ -1,4 +1,4 @@
-package com.playwright.remote.domain
+package io.github.tmcreative1.playwright.remote.domain
 
 data class BoundingBox(
     /**
