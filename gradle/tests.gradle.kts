@@ -27,5 +27,6 @@ tasks {
         dependsOn("downloadAndUnzip")
         systemProperty("browser", System.getProperty("browser"))
         maxHeapSize = "4096m"
+        finalizedBy("jacocoTestReport")
     }
 }
