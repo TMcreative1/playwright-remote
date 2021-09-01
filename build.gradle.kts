@@ -4,20 +4,17 @@ plugins {
     kotlin("jvm") version "1.5.20-M1"
     application
     jacoco
-}
-
-jacoco {
-    toolVersion = "0.8.7"
-    reportsDirectory.set(layout.buildDirectory.dir("jacocoReportDir"))
+    `maven-publish`
 }
 
 group = "io.github.tmcreative1"
-val artifactBaseName = "playwright.remote"
-version = "1.0-SNAPSHOT"
+version = "1.10-SNAPSHOT"
 
 apply(from = "${rootProject.file("gradle/dependencies.gradle.kts")}")
+apply(from = "${rootProject.file("gradle/coverage.gradle.kts")}")
 apply(from = "${rootProject.file("gradle/tests.gradle.kts")}")
 apply(from = "${rootProject.file("gradle/tasks.gradle.kts")}")
+apply(from = "${rootProject.file("gradle/publish.gradle.kts")}")
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
