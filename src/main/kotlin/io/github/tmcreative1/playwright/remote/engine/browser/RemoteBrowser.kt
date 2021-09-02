@@ -1,0 +1,59 @@
+package io.github.tmcreative1.playwright.remote.engine.browser
+
+import com.google.gson.JsonObject
+
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowser
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.Browser
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.BrowserContext
+import io.github.tmcreative1.playwright.remote.engine.browser.selector.api.ISelectors
+import io.github.tmcreative1.playwright.remote.engine.download.stream.api.IStream
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.processor.MessageProcessor
+import io.github.tmcreative1.playwright.remote.engine.websocket.WebSocketTransport
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.writeToFile
+import java.nio.file.Paths
+
+class RemoteBrowser(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
+    ChannelOwner(parent, type, guid, initializer) {
+
+    private fun browser(): IBrowser =
+        messageProcessor.getExistingObject(initializer["browser"].asJsonObject["guid"].asString)
+
+    private fun selectors(): ISelectors =
+        messageProcessor.getExistingObject(initializer["selectors"].asJsonObject["guid"].asString)
+
+    companion object {
+        @JvmStatic
+        fun connectWs(wsEndpoint: String): IBrowser {
+            val webSocketTransport = WebSocketTransport(wsEndpoint)
+            val messageProcessor = MessageProcessor(webSocketTransport)
+            val remoteBrowser = messageProcessor.waitForObjectByGuid("remoteBrowser") as RemoteBrowser
+            val browser = remoteBrowser.browser() as Browser
+            val selectors = remoteBrowser.selectors()
+            browser.selectors().addChannel(selectors)
+
+            val connectionCloseListener: (WebSocketTransport) -> Unit = { browser.notifyRemoteClosed() }
+            webSocketTransport.onClose(connectionCloseListener)
+
+            browser.onDisconnected {
+                browser.selectors().removeChannel(selectors)
+                webSocketTransport.offClose(connectionCloseListener)
+                webSocketTransport.closeConnection()
+            }
+
+            return browser
+        }
+    }
+
+    override fun handleEvent(event: String, params: JsonObject) {
+        when (event) {
+            "video" -> {
+                val stream = messageProcessor.getExistingObject<IStream>(params["stream"].asJsonObject["guid"].asString)
+                val inputStream = stream.stream()
+                val context =
+                    messageProcessor.getExistingObject<BrowserContext>(params["context"].asJsonObject["guid"].asString)
+                writeToFile(inputStream, Paths.get("${context.videosDir}/${params["relativePath"].asString}"))
+            }
+        }
+    }
+}
