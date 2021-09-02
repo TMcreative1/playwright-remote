@@ -1,0 +1,41 @@
+package io.github.tmcreative1.playwright.remote.engine.waits.impl
+
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.core.exceptions.TimeoutException
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
+
+class WaitResult<T> : IWait<T?> {
+
+    private var result: T? = null
+    private var exception: RuntimeException? = null
+    private var isFinished: Boolean = false
+
+    fun complete(_result: T) {
+        if (isFinished) {
+            return
+        }
+        result = _result
+        isFinished = true
+    }
+
+    fun completeWithException(_exception: RuntimeException) {
+        if (isFinished) {
+            return
+        }
+        exception = _exception
+        isFinished = true
+    }
+
+    override fun isFinished(): Boolean {
+        return isFinished
+    }
+
+    override fun get(): T? = when (exception) {
+        is TimeoutException -> throw TimeoutException(exception?.message, exception)
+        is PlaywrightException -> throw PlaywrightException(exception?.message, exception)
+        else -> result
+    }
+
+    override fun dispose() {
+    }
+}
