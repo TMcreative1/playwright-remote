@@ -8,6 +8,12 @@ configure<PublishingExtension> {
         create<MavenPublication>("mavenJava") {
             groupId = "${project.group}"
             artifactId = "${project.name}"
+            from(components["java"])
+            versionMapping {
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
 
             pom {
                 name.set("${project.name}")
