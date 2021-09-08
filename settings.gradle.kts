@@ -1,1 +1,1 @@
-rootProject.name = "playwright-client-kotlin"
+rootProject.name = "playwright-remote"

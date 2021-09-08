@@ -53,7 +53,7 @@ class TestSelectorRegister : BaseTest() {
 
     @Test
     fun `check correct work with path`() {
-        browser.selectors().register("foo", Paths.get("src/test/resources/scripts/section-selector-engine.js"))
+        browser.selectors().register("foo", Paths.get("src/test/resources/section-selector-engine.txt"))
         page.setContent("<section></section>")
         assertEquals("SECTION", page.evalOnSelector("foo=whatever", "e => e.nodeName"))
     }
