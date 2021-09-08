@@ -8,6 +8,12 @@ configure<PublishingExtension> {
         create<MavenPublication>("mavenJava") {
             groupId = "${project.group}"
             artifactId = "${project.name}"
+            from(components["java"])
+            versionMapping {
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
 
             pom {
                 name.set("${project.name}")
@@ -39,8 +45,8 @@ configure<PublishingExtension> {
     }
     repositories {
         maven {
-            val releasesUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            val snapshotsUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+            val releasesUrl = uri("https://s01.oss.sonatype.org/content/repositories/releases/")
+            val snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             url = if ("${project.version}".endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
             if (project.hasProperty("sonatypeUsername")) {
                 credentials {
