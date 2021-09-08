@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.selector.api
+package com.playwright.remote.engine.browser.selector.api
 
 import com.playwright.remote.engine.options.RegisterOptions
 
@@ -69,5 +69,5 @@ interface ISelectors {
      * contain {@code [a-zA-Z0-9_]} characters.
      * @param script Script that evaluates to a selector engine instance.
      */
-    fun register(name: String, script: String, options: RegisterOptions?)
+    fun register(name: String, script: String, options: RegisterOptions? = null)
 }
