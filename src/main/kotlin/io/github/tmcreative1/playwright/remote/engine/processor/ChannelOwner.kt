@@ -50,7 +50,7 @@ open class ChannelOwner(
         objects.clear()
     }
 
-    fun <T> runUtil(wait: IWait<T>, code: () -> Unit): T? {
+    internal fun <T> runUtil(wait: IWait<T>, code: () -> Unit): T? {
         try {
             code()
             while (!wait.isFinished()) {
