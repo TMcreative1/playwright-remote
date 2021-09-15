@@ -869,6 +869,16 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return runUtil(WaitRace(waits), callback)
     }
 
+    override fun waitForRequestFinished(options: WaitForRequestFinishedOptions?, callback: () -> Unit): IRequest? {
+        val opt = options ?: WaitForRequestFinishedOptions {}
+        val waits = arrayListOf<IWait<IRequest>>()
+        val predicate = opt.predicate
+        waits.add(WaitEvent(listeners, REQUESTFINISHED, { request -> predicate == null || predicate(request) }))
+        waits.add(createWaitForCloseHelper())
+        waits.add(createWaitTimeout(opt.timeout))
+        return runUtil(WaitRace(waits), callback)
+    }
+
     override fun waitForResponse(
         urlOrPredicate: String?,
         options: WaitForResponseOptions?,
