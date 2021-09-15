@@ -952,6 +952,10 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         })
     }
 
+    override fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?) {
+        mainFrame.dragAndDrop(source, target, options)
+    }
+
     override fun handleEvent(event: String, params: JsonObject) {
         when (event) {
             "dialog" -> {

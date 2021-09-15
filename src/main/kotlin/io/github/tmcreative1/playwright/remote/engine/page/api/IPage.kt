@@ -3565,4 +3565,8 @@ interface IPage : AutoCloseable {
      *                dialog, and actions like click will never finish.
      */
     fun onceDialog(handler: (IDialog) -> Unit)
+
+    fun dragAndDrop(source: String, target: String) = dragAndDrop(source, target, null)
+
+    fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?)
 }

@@ -2018,4 +2018,8 @@ interface IFrame {
      * @param url A glob pattern, regex pattern or predicate receiving [URL] to match while waiting for the navigation.
      */
     fun waitForURL(matcher: UrlMatcher, options: WaitForURLOptions?)
+
+    fun dragAndDrop(source: String, target: String) = dragAndDrop(source, target, null)
+
+    fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?)
 }

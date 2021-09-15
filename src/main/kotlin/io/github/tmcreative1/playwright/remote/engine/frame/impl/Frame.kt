@@ -505,6 +505,13 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         waitForNavigation(convert(opt, WaitForNavigationOptions::class.java), matcher) {}
     }
 
+    override fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?) {
+        val params = gson().toJsonTree(options ?: DragAndDropOptions {}).asJsonObject
+        params.addProperty("source", source)
+        params.addProperty("target", target)
+        sendMessage("dragAndDrop", params)
+    }
+
     override fun handleEvent(event: String, params: JsonObject) {
         when (event) {
             "loadstate" -> {
