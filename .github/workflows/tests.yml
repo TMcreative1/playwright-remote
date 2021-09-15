@@ -1,7 +1,7 @@
-name: Run Tests for main branch
+name: Run Tests for release-1.14 branch
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ release-1.14 ]
   workflow_dispatch:
 jobs:
   build:
