@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.options
+package io.github.tmcreative1.playwright.remote.engine.options
 
 data class Position(
     var x: Double,

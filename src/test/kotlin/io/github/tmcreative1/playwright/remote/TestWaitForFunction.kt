@@ -1,9 +1,9 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.core.exceptions.TimeoutException
-import com.playwright.remote.engine.options.wait.WaitForFunctionOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.core.exceptions.TimeoutException
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForFunctionOptions
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.Instant

@@ -1,9 +1,9 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.options.wait.WaitForRequestOptions
-import com.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForRequestOptions
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
 import org.junit.jupiter.api.Test
 import java.util.regex.Pattern
 import kotlin.test.assertEquals

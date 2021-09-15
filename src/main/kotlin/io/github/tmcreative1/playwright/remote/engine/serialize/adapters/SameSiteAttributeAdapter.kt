@@ -1,11 +1,11 @@
-package com.playwright.remote.engine.serialize.adapters
+package io.github.tmcreative1.playwright.remote.engine.serialize.adapters
 
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import com.playwright.remote.core.enums.SameSiteAttribute
-import com.playwright.remote.core.enums.SameSiteAttribute.*
-import com.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.core.enums.SameSiteAttribute
+import io.github.tmcreative1.playwright.remote.core.enums.SameSiteAttribute.*
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
 
 class SameSiteAttributeAdapter : TypeAdapter<SameSiteAttribute>() {
     override fun write(out: JsonWriter?, value: SameSiteAttribute?) {

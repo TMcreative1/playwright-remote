@@ -17,7 +17,7 @@ configure<PublishingExtension> {
 
             pom {
                 name.set("${project.name}")
-                description.set("Java library to automate Chromium, Firefox and WebKit with a single API. This is the main package that provides Playwright remote client")
+                description.set("Kotlin library to automate Chromium, Firefox and WebKit with a single API. This is the main package that provides Playwright remote client")
                 url.set("https://github.com/TMcreative1/playwright-remote")
                 licenses {
                     license {

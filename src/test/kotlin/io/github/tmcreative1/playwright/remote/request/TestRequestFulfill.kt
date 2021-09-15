@@ -1,7 +1,7 @@
-package com.playwright.remote.request
+package io.github.tmcreative1.playwright.remote.request
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.engine.options.FulfillOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.FulfillOptions
 import okio.IOException
 import org.junit.jupiter.api.Test
 import java.nio.file.Files

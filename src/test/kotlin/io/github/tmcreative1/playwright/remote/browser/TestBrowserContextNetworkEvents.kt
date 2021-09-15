@@ -1,7 +1,7 @@
-package com.playwright.remote.browser
+package io.github.tmcreative1.playwright.remote.browser
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

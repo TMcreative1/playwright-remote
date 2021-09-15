@@ -1,4 +1,4 @@
-package com.playwright.remote.core.enums
+package io.github.tmcreative1.playwright.remote.core.enums
 
 enum class Platform(val platformType: String, val nodeProcess: String) {
     WINDOWS32("win32", "node.exe"),

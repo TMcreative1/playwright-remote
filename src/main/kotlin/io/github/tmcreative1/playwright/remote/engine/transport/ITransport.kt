@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.transport
+package io.github.tmcreative1.playwright.remote.engine.transport
 
 import java.util.concurrent.TimeUnit
 

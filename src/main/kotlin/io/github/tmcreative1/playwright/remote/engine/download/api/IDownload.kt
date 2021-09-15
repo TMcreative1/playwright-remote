@@ -1,6 +1,6 @@
-package com.playwright.remote.engine.download.api
+package io.github.tmcreative1.playwright.remote.engine.download.api
 
-import com.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
 
 interface IDownload : IArtifact {
 

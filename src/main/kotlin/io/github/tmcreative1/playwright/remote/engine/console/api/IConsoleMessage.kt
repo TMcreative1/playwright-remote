@@ -1,6 +1,6 @@
-package com.playwright.remote.engine.console.api
+package io.github.tmcreative1.playwright.remote.engine.console.api
 
-import com.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
 
 /**
  * {@code ConsoleMessage} objects are dispatched by page via the {@link Page#onConsole Page.onConsole()} event.

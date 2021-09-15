@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.playwright.remote.base.server
+package io.github.tmcreative1.playwright.remote.base.server
 
 import com.sun.net.httpserver.*
 import java.io.*
