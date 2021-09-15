@@ -7,6 +7,7 @@ import io.github.tmcreative1.playwright.remote.core.enums.EventType.*
 import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
 import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowser
 import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserContext
+import io.github.tmcreative1.playwright.remote.engine.browser.api.ITracing
 import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCall
 import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback
 import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback.ISource
@@ -44,11 +45,12 @@ import java.util.regex.Pattern
 class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBrowserContext {
     private val browser = if (parent is IBrowser) parent as Browser else null
+    private val listeners = ListenerCollection<EventType>()
+    private var isClosedOrClosing: Boolean = false
+    private val tracing = Tracing(this, messageProcessor)
     var ownerPage: IPage? = null
     var videosDir: Path? = null
     val pages = arrayListOf<IPage>()
-    private val listeners = ListenerCollection<EventType>()
-    private var isClosedOrClosing: Boolean = false
     val timeoutSettings = TimeoutSettings()
     val routes = Router()
     val bindings = hashMapOf<String, IBindingCallback>()
@@ -308,6 +310,8 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     override fun pause() {
         sendMessage("pause")
     }
+
+    override fun tracing(): ITracing = tracing
 
     private fun unRoute(matcher: UrlMatcher, handler: ((IRoute) -> Unit)?) {
         routes.remove(matcher, handler)

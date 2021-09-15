@@ -700,4 +700,6 @@ interface IBrowserContext : AutoCloseable {
     fun unRoute(url: (String) -> Boolean, handler: ((IRoute) -> Unit)?)
 
     fun pause()
+
+    fun tracing(): ITracing
 }
