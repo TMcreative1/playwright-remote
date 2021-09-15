@@ -16,6 +16,7 @@ class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: Js
     initializer
 ), IArtifact {
     var videoPath: Path? = null
+
     override fun cancel() {
         sendMessage("cancel")
     }

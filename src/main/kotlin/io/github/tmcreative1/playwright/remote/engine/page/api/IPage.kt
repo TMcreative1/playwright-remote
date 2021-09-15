@@ -3168,6 +3168,24 @@ interface IPage : AutoCloseable {
     ): IRequest?
 
     /**
+     * Performs action and waits for a {@code Request} to finish loading. If predicate is provided, it passes {@code Request} value into
+     * the {@code predicate} function and waits for {@code predicate(request)} to return a truthy value. Will throw an error if the page is
+     * closed before the {@link Page#onRequestFinished Page.onRequestFinished()} event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForRequestFinished(callback: () -> Unit): IRequest? = waitForRequestFinished(null, callback)
+
+    /**
+     * Performs action and waits for a {@code Request} to finish loading. If predicate is provided, it passes {@code Request} value into
+     * the {@code predicate} function and waits for {@code predicate(request)} to return a truthy value. Will throw an error if the page is
+     * closed before the {@link Page#onRequestFinished Page.onRequestFinished()} event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForRequestFinished(options: WaitForRequestFinishedOptions?, callback: () -> Unit): IRequest?
+
+    /**
      * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
      * event</a> for more details about events.
      * <pre>{@code
@@ -3565,4 +3583,8 @@ interface IPage : AutoCloseable {
      *                dialog, and actions like click will never finish.
      */
     fun onceDialog(handler: (IDialog) -> Unit)
+
+    fun dragAndDrop(source: String, target: String) = dragAndDrop(source, target, null)
+
+    fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?)
 }

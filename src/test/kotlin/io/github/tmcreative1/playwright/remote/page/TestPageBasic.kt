@@ -250,4 +250,11 @@ class TestPageBasic : BaseTest() {
         newPage.waitForClose { page.evaluate("() => window['newPage'].close()") }
         assertTrue(newPage.isClosed())
     }
+
+    @Test
+    fun `check correct work of drag and drop`() {
+        page.navigate("${httpServer.prefixWithDomain}/drag-n-drop.html")
+        page.dragAndDrop("#source", "#target")
+        assertEquals(true, page.evalOnSelector("#target","target => target.contains(document.querySelector('#source'))"))
+    }
 }

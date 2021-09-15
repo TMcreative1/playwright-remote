@@ -13,6 +13,7 @@ import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollectio
 import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
 import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
 import io.github.tmcreative1.playwright.remote.engine.options.NewPageOptions
+import io.github.tmcreative1.playwright.remote.engine.options.StartTracingOptions
 import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
 import io.github.tmcreative1.playwright.remote.engine.page.impl.Page
 import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.convert
@@ -22,6 +23,7 @@ import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Compa
 import okio.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.util.*
 
 class Browser(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBrowser {
@@ -106,6 +108,21 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
 
     override fun selectors(): ISharedSelectors {
         return sharedSelectors
+    }
+
+    override fun startTracing(page: IPage?, options: StartTracingOptions?) {
+        val params = gson().toJsonTree(options ?: StartTracingOptions {}).asJsonObject
+        if (page != null) {
+            val jsonPage = JsonObject()
+            jsonPage.addProperty("guid", (page as Page).guid)
+            params.add("page", jsonPage)
+        }
+        sendMessage("startTracing", params)
+    }
+
+    override fun stopTracing(): ByteArray {
+        val json = sendMessage("stopTracing")!!.asJsonObject
+        return Base64.getDecoder().decode(json["binary"].asString)
     }
 
     private fun getStorageState(options: NewContextOptions?): JsonObject? {
