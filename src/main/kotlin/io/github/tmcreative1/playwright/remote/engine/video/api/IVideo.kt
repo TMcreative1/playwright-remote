@@ -1,6 +1,6 @@
-package com.playwright.remote.engine.video.api
+package io.github.tmcreative1.playwright.remote.engine.video.api
 
-import com.playwright.remote.engine.download.impl.Artifact
+import io.github.tmcreative1.playwright.remote.engine.download.impl.Artifact
 import java.nio.file.Path
 
 /**

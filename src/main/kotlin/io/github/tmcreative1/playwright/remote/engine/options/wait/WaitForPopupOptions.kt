@@ -1,6 +1,6 @@
-package com.playwright.remote.engine.options.wait
+package io.github.tmcreative1.playwright.remote.engine.options.wait
 
-import com.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 
 data class WaitForPopupOptions @JvmOverloads constructor(
     /**

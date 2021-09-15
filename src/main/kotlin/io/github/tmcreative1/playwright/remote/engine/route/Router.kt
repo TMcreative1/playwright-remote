@@ -1,6 +1,6 @@
-package com.playwright.remote.engine.route
+package io.github.tmcreative1.playwright.remote.engine.route
 
-import com.playwright.remote.engine.route.api.IRoute
+import io.github.tmcreative1.playwright.remote.engine.route.api.IRoute
 
 class Router {
     private var routes = arrayListOf<RouteInfo>()

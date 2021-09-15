@@ -1,9 +1,9 @@
-package com.playwright.remote.engine.console.impl
+package io.github.tmcreative1.playwright.remote.engine.console.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.console.api.IConsoleMessage
-import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.console.api.IConsoleMessage
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
 
 class ConsoleMessage(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IConsoleMessage {

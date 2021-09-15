@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.serialize.serializers
+package io.github.tmcreative1.playwright.remote.engine.serialize.serializers
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive

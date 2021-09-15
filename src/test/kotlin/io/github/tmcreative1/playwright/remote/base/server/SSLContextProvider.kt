@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.playwright.remote.base.server
+package io.github.tmcreative1.playwright.remote.base.server
 
 import java.io.FileInputStream
 import java.security.KeyStore

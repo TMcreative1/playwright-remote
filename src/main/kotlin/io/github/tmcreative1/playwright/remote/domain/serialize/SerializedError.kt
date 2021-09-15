@@ -1,6 +1,6 @@
-package com.playwright.remote.domain.serialize
+package io.github.tmcreative1.playwright.remote.domain.serialize
 
-import com.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 
 data class SerializedError @JvmOverloads constructor(
     var error: Error? = null,

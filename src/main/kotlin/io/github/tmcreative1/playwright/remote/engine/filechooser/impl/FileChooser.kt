@@ -1,13 +1,13 @@
-package com.playwright.remote.engine.filechooser.impl
+package io.github.tmcreative1.playwright.remote.engine.filechooser.impl
 
-import com.playwright.remote.domain.file.FilePayload
-import com.playwright.remote.engine.filechooser.api.IFileChooser
-import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.options.SetFilesOptions
-import com.playwright.remote.engine.options.element.SetInputFilesOptions
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.parser.IParser.Companion.convert
-import com.playwright.remote.utils.Utils.Companion.toFilePayloads
+import io.github.tmcreative1.playwright.remote.domain.file.FilePayload
+import io.github.tmcreative1.playwright.remote.engine.filechooser.api.IFileChooser
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
+import io.github.tmcreative1.playwright.remote.engine.options.SetFilesOptions
+import io.github.tmcreative1.playwright.remote.engine.options.element.SetInputFilesOptions
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.convert
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.toFilePayloads
 import java.nio.file.Path
 
 class FileChooser(

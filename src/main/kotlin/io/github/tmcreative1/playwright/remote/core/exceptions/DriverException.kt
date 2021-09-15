@@ -1,5 +1,5 @@
-package com.playwright.remote.core.exceptions
+package io.github.tmcreative1.playwright.remote.core.exceptions
 
-import com.playwright.remote.domain.serialize.SerializedError
+import io.github.tmcreative1.playwright.remote.domain.serialize.SerializedError
 
 class DriverException(error: SerializedError.Error) : PlaywrightException(error.toString())

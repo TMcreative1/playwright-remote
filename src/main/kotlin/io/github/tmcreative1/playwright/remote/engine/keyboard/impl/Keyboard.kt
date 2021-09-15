@@ -1,11 +1,11 @@
-package com.playwright.remote.engine.keyboard.impl
+package io.github.tmcreative1.playwright.remote.engine.keyboard.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.keyboard.api.IKeyboard
-import com.playwright.remote.engine.options.PressOptions
-import com.playwright.remote.engine.options.TypeOptions
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import io.github.tmcreative1.playwright.remote.engine.keyboard.api.IKeyboard
+import io.github.tmcreative1.playwright.remote.engine.options.PressOptions
+import io.github.tmcreative1.playwright.remote.engine.options.TypeOptions
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Companion.gson
 
 class Keyboard(val page: ChannelOwner) : IKeyboard {
 

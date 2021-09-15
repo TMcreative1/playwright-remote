@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.waits.impl
+package io.github.tmcreative1.playwright.remote.engine.waits.impl
 
-import com.playwright.remote.core.exceptions.TimeoutException
-import com.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.core.exceptions.TimeoutException
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
 
 open class WaitTimeout<T>(millis: Double) : IWait<T> {
     private val deadline: Long = System.nanoTime() + millis.toLong() * 1_000_000

@@ -1,7 +1,7 @@
-package com.playwright.remote.core.enums
+package io.github.tmcreative1.playwright.remote.core.enums
 
-import com.playwright.remote.engine.options.ScreenSize
-import com.playwright.remote.engine.options.ViewportSize
+import io.github.tmcreative1.playwright.remote.engine.options.ScreenSize
+import io.github.tmcreative1.playwright.remote.engine.options.ViewportSize
 
 enum class DeviceDescriptors(
     val userAgent: String,

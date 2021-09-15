@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.websocket.api
+package io.github.tmcreative1.playwright.remote.engine.websocket.api
 
 interface IWebSocketFrame {
     /**

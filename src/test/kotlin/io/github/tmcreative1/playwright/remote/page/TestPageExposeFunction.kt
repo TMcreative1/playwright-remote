@@ -1,12 +1,12 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.WaitUntilState
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.callback.api.IBindingCallback
-import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.options.ExposeBindingOptions
-import com.playwright.remote.engine.options.wait.WaitForNavigationOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.enums.WaitUntilState
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.engine.options.ExposeBindingOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForNavigationOptions
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
