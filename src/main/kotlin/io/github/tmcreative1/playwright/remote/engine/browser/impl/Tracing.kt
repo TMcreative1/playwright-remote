@@ -17,10 +17,10 @@ class Tracing(private val context: IBrowserContext, private val messageProcessor
     }
 
     override fun stop(options: StopTracingOptions?) {
-        (context as BrowserContext).sendMessage("tracingStop")
         if (options?.path != null) {
             export(options.path!!)
         }
+        (context as BrowserContext).sendMessage("tracingStop")
     }
 
     private fun export(path: Path) {
