@@ -10,6 +10,7 @@ import io.github.tmcreative1.playwright.remote.engine.dialog.api.IDialog
 import io.github.tmcreative1.playwright.remote.engine.download.api.IDownload
 import io.github.tmcreative1.playwright.remote.engine.filechooser.api.IFileChooser
 import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.frame.locator.api.ILocator
 import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
 import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
 import io.github.tmcreative1.playwright.remote.engine.keyboard.api.IKeyboard
@@ -784,7 +785,34 @@ interface IPage : AutoCloseable {
      * as a function. Otherwise, evaluated as an expression.
      * @param arg Optional argument to pass to {@code expression}.
      */
-    fun evalOnSelector(selector: String, expression: String, arg: Any?): Any
+    fun evalOnSelector(selector: String, expression: String, arg: Any?): Any {
+        return evalOnSelector(selector, expression, arg, null)
+    }
+
+    /**
+     * The method finds an element matching the specified selector within the page and passes it as a first argument to
+     * {@code expression}. If no elements match the selector, the method throws an error. Returns the value of {@code expression}.
+     *
+     * <p> If {@code expression} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Page#evalOnSelector Page.evalOnSelector()} would wait for the promise to resolve and return its value.
+     *
+     * <p> Examples:
+     * <pre>{@code
+     * String searchValue = (String) page.evalOnSelector("#search", "el => el.value");
+     * String preloadHref = (String) page.evalOnSelector("link[rel=preload]", "el => el.href");
+     * String html = (String) page.evalOnSelector(".main-container", "(e, suffix) => e.outerHTML + suffix", "hello");
+     * }</pre>
+     *
+     * <p> Shortcut for main frame's {@link Frame#evalOnSelector Frame.evalOnSelector()}.
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     * @param arg Optional argument to pass to {@code expression}.
+     */
+    fun evalOnSelector(selector: String, expression: String, arg: Any?, options: EvalOnSelectorOptions?): Any
 
     /**
      * The method finds all elements matching the specified selector within the page and passes an array of matched elements as
@@ -3587,4 +3615,18 @@ interface IPage : AutoCloseable {
     fun dragAndDrop(source: String, target: String) = dragAndDrop(source, target, null)
 
     fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?)
+
+    /**
+     * The method returns an element locator that can be used to perform actions on the page. Locator is resolved to the
+     * element immediately before performing an action, so a series of actions on the same locator can in fact be performed on
+     * different DOM elements. That would happen if the DOM structure between those actions has changed.
+     *
+     * <p> Note that locator always implies visibility, so it will always be locating visible elements.
+     *
+     * <p> Shortcut for main frame's {@link Frame#locator Frame.locator()}.
+     *
+     * @param selector A selector to use when resolving DOM element. See <a href="https://playwright.dev/java/docs/selectors/">working with
+     * selectors</a> for more details.
+     */
+    fun locator(selector: String): ILocator
 }

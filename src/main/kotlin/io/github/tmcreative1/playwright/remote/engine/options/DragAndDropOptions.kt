@@ -15,6 +15,21 @@ data class DragAndDropOptions @JvmOverloads constructor(
      */
     var noWaitAfter: Boolean? = null,
     /**
+     * Clicks on the source element at this point relative to the top-left corner of the element's padding box. If not
+     * specified, some visible point of the element is used.
+     */
+    var sourcePosition: Position? = null,
+    /**
+     * When true, the call requires selector to resolve to a single element. If given selector resolves to more then one
+     * element, the call throws an exception.
+     */
+    var strict: Boolean? = null,
+    /**
+     * Drops on the target element at this point relative to the top-left corner of the element's padding box. If not
+     * specified, some visible point of the element is used.
+     */
+    var targetPosition: Position? = null,
+    /**
      * Maximum time in milliseconds, defaults to 30 seconds, pass {@code 0} to disable timeout. The default value can be changed by
      * using the {@link BrowserContext#setDefaultTimeout BrowserContext.setDefaultTimeout()} or {@link Page#setDefaultTimeout
      * Page.setDefaultTimeout()} methods.

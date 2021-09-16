@@ -11,6 +11,8 @@ import io.github.tmcreative1.playwright.remote.domain.file.FilePayload
 import io.github.tmcreative1.playwright.remote.domain.serialize.SerializedError.SerializedValue
 import io.github.tmcreative1.playwright.remote.engine.browser.impl.BrowserContext
 import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.frame.locator.api.ILocator
+import io.github.tmcreative1.playwright.remote.engine.frame.locator.impl.Locator
 import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
 import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
 import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
@@ -153,14 +155,20 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         sendMessage("dispatchEvent", params)
     }
 
-    override fun evalOnSelector(selector: String, expression: String, arg: Any?): Any =
-        evalOnSelector(selector, expression, arg, "evalOnSelector")
+    override fun evalOnSelector(selector: String, expression: String, arg: Any?, options: EvalOnSelectorOptions?): Any =
+        evalOnSelector(selector, expression, arg, "evalOnSelector", options)
 
     override fun evalOnSelectorAll(selector: String, expression: String, arg: Any?): Any =
-        evalOnSelector(selector, expression, arg, "evalOnSelectorAll")
+        evalOnSelector(selector, expression, arg, "evalOnSelectorAll", null)
 
-    private fun evalOnSelector(selector: String, expression: String, arg: Any?, method: String): Any {
-        val params = JsonObject()
+    private fun evalOnSelector(
+        selector: String,
+        expression: String,
+        arg: Any?,
+        method: String,
+        options: EvalOnSelectorOptions?
+    ): Any {
+        val params = if (options == null) JsonObject() else gson().toJsonTree(options).asJsonObject
         params.addProperty("selector", selector)
         params.addProperty("expression", expression)
         params.add("arg", gson().toJsonTree(serializeArgument(arg)))
@@ -300,8 +308,8 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         sendMessage("press", params)
     }
 
-    override fun querySelector(selector: String?): IElementHandle? {
-        val params = JsonObject()
+    override fun querySelector(selector: String?, options: QuerySelectorOptions?): IElementHandle? {
+        val params = gson().toJsonTree(options ?: QuerySelectorOptions {}).asJsonObject
         params.addProperty("selector", selector)
         val json = sendMessage("querySelector", params)
         val element = json!!.asJsonObject["element"] ?: return null
@@ -510,6 +518,10 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         params.addProperty("source", source)
         params.addProperty("target", target)
         sendMessage("dragAndDrop", params)
+    }
+
+    override fun locator(selector: String): ILocator {
+        return Locator(this, selector)
     }
 
     override fun handleEvent(event: String, params: JsonObject) {

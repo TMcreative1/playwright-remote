@@ -2,6 +2,7 @@ package io.github.tmcreative1.playwright.remote.engine.frame.api
 
 import io.github.tmcreative1.playwright.remote.core.enums.LoadState
 import io.github.tmcreative1.playwright.remote.domain.file.FilePayload
+import io.github.tmcreative1.playwright.remote.engine.frame.locator.api.ILocator
 import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
 import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
 import io.github.tmcreative1.playwright.remote.engine.options.*
@@ -401,8 +402,36 @@ interface IFrame {
      * details.
      * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
      * as a function. Otherwise, evaluated as an expression.
+     * @param arg Optional argument to pass to {@code expression}.
      */
-    fun evalOnSelector(selector: String, expression: String, arg: Any?): Any
+    fun evalOnSelector(selector: String, expression: String, arg: Any?): Any =
+        evalOnSelector(selector, expression, arg, null)
+
+    /**
+     * Returns the return value of {@code expression}.
+     *
+     * <p> The method finds an element matching the specified selector within the frame and passes it as a first argument to
+     * {@code expression}. See <a href="https://playwright.dev/java/docs/selectors/">Working with selectors</a> for more details. If
+     * no elements match the selector, the method throws an error.
+     *
+     * <p> If {@code expression} returns a <a
+     * href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise'>Promise</a>, then {@link
+     * Frame#evalOnSelector Frame.evalOnSelector()} would wait for the promise to resolve and return its value.
+     *
+     * <p> Examples:
+     * <pre>{@code
+     * String searchValue = (String) frame.evalOnSelector("#search", "el => el.value");
+     * String preloadHref = (String) frame.evalOnSelector("link[rel=preload]", "el => el.href");
+     * String html = (String) frame.evalOnSelector(".main-container", "(e, suffix) => e.outerHTML + suffix", "hello");
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
+     * as a function. Otherwise, evaluated as an expression.
+     * @param arg Optional argument to pass to {@code expression}.
+     */
+    fun evalOnSelector(selector: String, expression: String, arg: Any?, options: EvalOnSelectorOptions?): Any
 
     /**
      * Returns the return value of {@code expression}.
@@ -993,7 +1022,20 @@ interface IFrame {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun querySelector(selector: String?): IElementHandle?
+    fun querySelector(selector: String?): IElementHandle? =
+        querySelector(selector, null)
+
+    /**
+     * Returns the ElementHandle pointing to the frame element.
+     *
+     * <p> The method finds an element matching the specified selector within the frame. See <a
+     * href="https://playwright.dev/java/docs/selectors/">Working with selectors</a> for more details. If no elements match the
+     * selector, returns {@code null}.
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     */
+    fun querySelector(selector: String?, options: QuerySelectorOptions?): IElementHandle?
 
     /**
      * Returns the ElementHandles pointing to the frame elements.
@@ -2022,4 +2064,16 @@ interface IFrame {
     fun dragAndDrop(source: String, target: String) = dragAndDrop(source, target, null)
 
     fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?)
+
+    /**
+     * The method returns an element locator that can be used to perform actions in the frame. Locator is resolved to the
+     * element immediately before performing an action, so a series of actions on the same locator can in fact be performed on
+     * different DOM elements. That would happen if the DOM structure between those actions has changed.
+     *
+     * <p> Note that locator always implies visibility, so it will always be locating visible elements.
+     *
+     * @param selector A selector to use when resolving DOM element. See <a href="https://playwright.dev/java/docs/selectors/">working with
+     * selectors</a> for more details.
+     */
+    fun locator(selector: String): ILocator
 }

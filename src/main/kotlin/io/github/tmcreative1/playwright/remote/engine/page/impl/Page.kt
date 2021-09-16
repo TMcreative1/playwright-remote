@@ -26,6 +26,7 @@ import io.github.tmcreative1.playwright.remote.engine.filechooser.api.IFileChoos
 import io.github.tmcreative1.playwright.remote.engine.filechooser.impl.FileChooser
 import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
 import io.github.tmcreative1.playwright.remote.engine.frame.impl.Frame
+import io.github.tmcreative1.playwright.remote.engine.frame.locator.api.ILocator
 import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
 import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
 import io.github.tmcreative1.playwright.remote.engine.keyboard.api.IKeyboard
@@ -392,8 +393,8 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         sendMessage("emulateMedia", params)
     }
 
-    override fun evalOnSelector(selector: String, expression: String, arg: Any?): Any {
-        return mainFrame.evalOnSelector(selector, expression, arg)
+    override fun evalOnSelector(selector: String, expression: String, arg: Any?, options: EvalOnSelectorOptions?): Any {
+        return mainFrame.evalOnSelector(selector, expression, arg, options)
     }
 
     override fun evalOnSelectorAll(selector: String, expression: String, arg: Any?): Any {
@@ -964,6 +965,10 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
 
     override fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?) {
         mainFrame.dragAndDrop(source, target, options)
+    }
+
+    override fun locator(selector: String): ILocator {
+        return mainFrame.locator(selector)
     }
 
     override fun handleEvent(event: String, params: JsonObject) {
