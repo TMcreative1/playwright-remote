@@ -14,7 +14,6 @@ import io.github.tmcreative1.playwright.remote.engine.options.element.Screenshot
 import io.github.tmcreative1.playwright.remote.engine.options.element.TypeOptions
 import io.github.tmcreative1.playwright.remote.engine.parser.IParser
 import java.nio.file.Path
-import java.util.function.BiFunction
 
 class Locator(private val frame: IFrame, private val selector: String) : ILocator {
 
@@ -29,7 +28,7 @@ class Locator(private val frame: IFrame, private val selector: String) : ILocato
     }
 
     override fun boundingBox(options: BoundingBoxOptions?): BoundingBox {
-        return withElement(options) { b, _ -> b.boundingBox()!! }
+        return withElement(options) { b, _ -> b?.boundingBox()!! }
     }
 
     override fun check(options: CheckOptions?) {
@@ -72,16 +71,16 @@ class Locator(private val frame: IFrame, private val selector: String) : ILocato
     }
 
 
-    override fun evaluate(expression: String, arg: Any?, options: EvaluateOptions?): Any {
-        return withElement(options) { h, _ -> h.evaluate(expression, arg) }
+    override fun evaluate(expression: String, arg: Any?, options: EvaluateOptions?): Any? {
+        return withElement(options) { h, _ -> h?.evaluate(expression, arg) }
     }
 
     override fun evaluateAll(expression: String, arg: Any?): Any {
         return frame.evalOnSelectorAll(selector, expression, arg)
     }
 
-    override fun evaluateHandle(expression: String, arg: Any?, options: EvaluateHandleOptions?): IJSHandle {
-        return withElement(options) { h, _ -> h.evaluateHandle(expression, arg) }
+    override fun evaluateHandle(expression: String, arg: Any?, options: EvaluateHandleOptions?): IJSHandle? {
+        return withElement(options) { h, _ -> h?.evaluateHandle(expression, arg) }
     }
 
     override fun fill(value: String, options: FillOptions?) {
@@ -184,13 +183,13 @@ class Locator(private val frame: IFrame, private val selector: String) : ILocato
         frame.press(selector, key, opt)
     }
 
-    override fun screenshot(options: ScreenshotOptions?): ByteArray {
-        return withElement(options) { h, o -> h.screenshot(o) }
+    override fun screenshot(options: ScreenshotOptions?): ByteArray? {
+        return withElement(options) { h, o -> h?.screenshot(o) }
     }
 
     override fun scrollIntoViewIfNeeded(options: ScrollIntoViewIfNeededOptions?) {
         withElement(options) { h, o ->
-            h.scrollIntoViewIfNeeded(o)
+            h?.scrollIntoViewIfNeeded(o)
             null
         }
     }
@@ -233,7 +232,7 @@ class Locator(private val frame: IFrame, private val selector: String) : ILocato
 
     override fun selectText(options: SelectTextOptions?) {
         withElement(options) { h, o ->
-            h.selectText(o)
+            h?.selectText(o)
             null
         }
     }
@@ -290,10 +289,10 @@ class Locator(private val frame: IFrame, private val selector: String) : ILocato
         return "Locator@$selector"
     }
 
-    private fun <R, O> withElement(options: O, callback: BiFunction<IElementHandle, O, R>): R {
+    private fun <R, O> withElement(options: O, callback: (IElementHandle?, O) -> R): R {
         val handle = elementHandle(IParser.convert(options, ElementHandleOptions::class.java))
         return try {
-            callback.apply(handle!!, options)
+            callback(handle, options)
         } finally {
             handle?.dispose()
         }

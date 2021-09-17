@@ -323,7 +323,7 @@ interface ILocator {
      * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
      * as a function. Otherwise, evaluated as an expression.
      */
-    fun evaluate(expression: String): Any = evaluate(expression, null)
+    fun evaluate(expression: String): Any? = evaluate(expression, null)
 
     /**
      * Returns the return value of {@code expression}.
@@ -344,7 +344,7 @@ interface ILocator {
      * as a function. Otherwise, evaluated as an expression.
      * @param arg Optional argument to pass to {@code expression}.
      */
-    fun evaluate(expression: String, arg: Any?): Any = evaluate(expression, arg, null)
+    fun evaluate(expression: String, arg: Any?): Any? = evaluate(expression, arg, null)
 
     /**
      * Returns the return value of {@code expression}.
@@ -365,7 +365,7 @@ interface ILocator {
      * as a function. Otherwise, evaluated as an expression.
      * @param arg Optional argument to pass to {@code expression}.
      */
-    fun evaluate(expression: String, arg: Any?, options: EvaluateOptions?): Any
+    fun evaluate(expression: String, arg: Any?, options: EvaluateOptions?): Any?
 
     /**
      * The method finds all elements matching the specified locator and passes an array of matched elements as a first argument
@@ -423,7 +423,7 @@ interface ILocator {
      * @param expression JavaScript expression to be evaluated in the browser context. If it looks like a function declaration, it is interpreted
      * as a function. Otherwise, evaluated as an expression.
      */
-    fun evaluateHandle(expression: String): Any = evaluateHandle(expression, null)
+    fun evaluateHandle(expression: String): Any? = evaluateHandle(expression, null)
 
     /**
      * Returns the return value of {@code expression} as a {@code JSHandle}.
@@ -443,7 +443,7 @@ interface ILocator {
      * as a function. Otherwise, evaluated as an expression.
      * @param arg Optional argument to pass to {@code expression}.
      */
-    fun evaluateHandle(expression: String, arg: Any?): IJSHandle = evaluateHandle(expression, arg, null)
+    fun evaluateHandle(expression: String, arg: Any?): IJSHandle? = evaluateHandle(expression, arg, null)
 
     /**
      * Returns the return value of {@code expression} as a {@code JSHandle}.
@@ -463,7 +463,7 @@ interface ILocator {
      * as a function. Otherwise, evaluated as an expression.
      * @param arg Optional argument to pass to {@code expression}.
      */
-    fun evaluateHandle(expression: String, arg: Any?, options: EvaluateHandleOptions?): IJSHandle
+    fun evaluateHandle(expression: String, arg: Any?, options: EvaluateHandleOptions?): IJSHandle?
 
     /**
      * This method waits for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, focuses the
@@ -729,7 +729,7 @@ interface ILocator {
      * <p> This method waits for the <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, then
      * scrolls element into view before taking a screenshot. If the element is detached from DOM, the method throws an error.
      */
-    fun screenshot(): ByteArray = screenshot(null)
+    fun screenshot(): ByteArray? = screenshot(null)
 
     /**
      * Returns the buffer with the captured screenshot.
@@ -737,7 +737,7 @@ interface ILocator {
      * <p> This method waits for the <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, then
      * scrolls element into view before taking a screenshot. If the element is detached from DOM, the method throws an error.
      */
-    fun screenshot(options: ScreenshotOptions?): ByteArray
+    fun screenshot(options: ScreenshotOptions?): ByteArray?
 
     /**
      * This method waits for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks, then tries to
