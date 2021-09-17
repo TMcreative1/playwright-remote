@@ -1,5 +1,6 @@
 package io.github.tmcreative1.playwright.remote.engine.options
 
+import io.github.tmcreative1.playwright.remote.core.enums.ReducedMotion
 import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 import io.github.tmcreative1.playwright.remote.engine.options.enum.ColorScheme
 import java.nio.file.Path
@@ -124,6 +125,17 @@ data class NewContextOptions @JvmOverloads constructor(
      * Specific user agent to use in this context.
      */
     var userAgent: String? = null,
+    /**
+     * Emulates {@code "prefers-reduced-motion"} media feature, supported values are {@code "reduce"}, {@code "no-preference"}. See {@link
+     * Page#emulateMedia Page.emulateMedia()} for more details. Defaults to {@code "no-preference"}.
+     */
+    var reducedMotion: ReducedMotion? = null,
+    /**
+     * It specified, enables strict selectors mode for this context. In the strict selectors mode all operations on selectors
+     * that imply single target DOM element will throw when more than one element matches the selector. See {@code Locator} to learn
+     * more about the strict mode.
+     */
+    var strictSelectors: Boolean? = null,
 
     @Transient private val builder: IBuilder<NewContextOptions>
 ) {
