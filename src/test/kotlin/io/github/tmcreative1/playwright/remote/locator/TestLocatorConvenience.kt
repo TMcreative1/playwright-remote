@@ -17,7 +17,7 @@ class TestLocatorConvenience : BaseTest() {
         page.evaluate("() => 1")
         assertEquals("Locator@#outer", outer.toString())
         assertEquals("Locator@#outer >> #inner", inner.toString())
-        assertEquals("JSHandle@#text=Text,↵more text", text.toString())
+        assertEquals("JSHandle@#text=Text,↵        more text↵    ", text.toString())
         assertEquals("Locator@#check", check.toString())
     }
 
