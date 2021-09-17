@@ -28,6 +28,7 @@ class Stream(parent: ChannelOwner, type: String, guid: String, initializer: Json
         }
 
         override fun read(b: ByteArray, off: Int, len: Int): Int {
+            if (len == 0) return 0
             val params = JsonObject()
             params.addProperty("size", len)
             val json = stream.sendMessage("read", params)!!.asJsonObject

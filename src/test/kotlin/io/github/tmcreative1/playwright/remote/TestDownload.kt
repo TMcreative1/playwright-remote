@@ -206,4 +206,19 @@ class TestDownload : BaseTest() {
             assertNull(download.failure())
         }
     }
+
+    @Test
+    fun `check to support stream zero size read`() {
+        browser.newPage(NewPageOptions { it.acceptDownloads = true }).use {
+            it.setContent("<a href='${httpServer.prefixWithDomain}/download'>download</a>")
+            val download = it.waitForDownload { it.click("a") }
+            assertNotNull(download)
+
+            val stream = download.createReadStream()
+            assertNotNull(stream)
+            val b = ByteArray(1)
+            val read = stream.read(b, 0, 0)
+            assertEquals(0, read)
+        }
+    }
 }
