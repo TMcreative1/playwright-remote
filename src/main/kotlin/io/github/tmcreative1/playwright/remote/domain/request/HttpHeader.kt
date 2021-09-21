@@ -4,10 +4,10 @@ data class HttpHeader(
     /**
      * Name of the header.
      */
-    val name: String,
+    var name: String,
     /**
      * Value of the header.
      */
-    val value: String
+    var value: String
 ) {
 }
