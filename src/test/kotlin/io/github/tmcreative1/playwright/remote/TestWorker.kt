@@ -46,7 +46,7 @@ class TestWorker : BaseTest() {
         try {
             workerObjThis.getProperty("self")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Most likely the worker has been closed."))
+            assertTrue(e.message!!.contains("Target closed"))
         }
     }
 

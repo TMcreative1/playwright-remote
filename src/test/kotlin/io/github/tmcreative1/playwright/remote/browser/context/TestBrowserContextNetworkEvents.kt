@@ -81,7 +81,7 @@ class TestBrowserContextNetworkEvents : BaseTest() {
         browserContext.onRequestFinished { events.add("request finished") }
         val response = page.navigate(httpServer.emptyPage)
         assertNotNull(response)
-        assertNull(response.finished())
+        assertTrue(response.finished().isEmpty())
         assertEquals(listOf("request", "response", "request finished"), events)
     }
 }

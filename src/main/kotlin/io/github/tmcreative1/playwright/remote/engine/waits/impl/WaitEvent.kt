@@ -26,7 +26,8 @@ open class WaitEvent<EventType, T>(
         dispose()
     }
 
-    override fun isFinished(): Boolean = eventArg != null
+    override fun isFinished(): Boolean =
+        eventArg != null
 
     override fun get(): T = eventArg!!
 

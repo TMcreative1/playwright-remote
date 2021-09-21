@@ -38,7 +38,7 @@ class TestPageBasic : BaseTest() {
             page.evaluate("() => new Promise(r => {})")
             fail("evaluate should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Protocol error"))
+            assertTrue(e.message!!.contains("Target closed"))
         }
     }
 

@@ -1,6 +1,8 @@
 package io.github.tmcreative1.playwright.remote.engine.mouse.api
 
-import io.github.tmcreative1.playwright.remote.engine.options.*
+import io.github.tmcreative1.playwright.remote.engine.options.DownOptions
+import io.github.tmcreative1.playwright.remote.engine.options.MoveOptions
+import io.github.tmcreative1.playwright.remote.engine.options.UpOptions
 import io.github.tmcreative1.playwright.remote.engine.options.mouse.ClickOptions
 import io.github.tmcreative1.playwright.remote.engine.options.mouse.DoubleClickOptions
 
@@ -71,4 +73,15 @@ interface IMouse {
      * Dispatches a {@code mouseup} event.
      */
     fun up(options: UpOptions)
+
+    /**
+     * Dispatches a {@code wheel} event.
+     *
+     * <p> <strong>NOTE:</strong> Wheel events may cause scrolling if they are not handled, and this method does not wait for the scrolling to finish
+     * before returning.
+     *
+     * @param deltaX Pixels to scroll horizontally.
+     * @param deltaY Pixels to scroll vertically.
+     */
+    fun wheel(deltaX: Double, deltaY: Double)
 }

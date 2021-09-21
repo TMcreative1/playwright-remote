@@ -1,4 +1,4 @@
-package io.github.tmcreative1.playwright.remote.domain
+package io.github.tmcreative1.playwright.remote.domain.request
 
 data class HttpHeader(
     /**

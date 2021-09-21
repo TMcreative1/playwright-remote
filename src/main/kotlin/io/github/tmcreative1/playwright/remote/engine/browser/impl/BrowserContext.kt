@@ -12,6 +12,7 @@ import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCall
 import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback
 import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback.ISource
 import io.github.tmcreative1.playwright.remote.engine.callback.api.IFunctionCallback
+import io.github.tmcreative1.playwright.remote.engine.download.api.IArtifact
 import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
 import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
 import io.github.tmcreative1.playwright.remote.engine.options.*
@@ -33,6 +34,7 @@ import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
 import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitContextClose
 import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitEvent
 import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitRace
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.isSafeCloseError
 import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.writeToFile
 import okio.IOException
 import java.net.MalformedURLException
@@ -55,6 +57,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
     val routes = Router()
     val bindings = hashMapOf<String, IBindingCallback>()
     var baseUrl: URL? = null
+    var recordHarPath: Path? = null
 
     override fun setBaseUrl(spec: String) {
         baseUrl = try {
@@ -136,23 +139,42 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         return pages
     }
 
-    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T? {
+    private fun <T> waitForEventWithTimeout(
+        eventType: EventType,
+        timeout: Double?,
+        predicate: ((T) -> Boolean)?,
+        code: () -> Unit
+    ): T? {
         val waitList = arrayListOf<IWait<T>>()
-        waitList.add(WaitEvent(listeners, eventType))
+        waitList.add(WaitEvent(listeners, eventType, predicate))
         waitList.add(WaitContextClose(listeners))
         waitList.add(timeoutSettings.createWait(timeout))
         return runUtil(WaitRace(waitList), code)
     }
 
-    override fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage? =
-        waitForEventWithTimeout(PAGE, (options ?: WaitForPageOptions {}).timeout, callback)
+    override fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage? {
+        val opt = options ?: WaitForPageOptions {}
+        return waitForEventWithTimeout(PAGE, opt.timeout, opt.predicate, callback)
+    }
 
     override fun close() {
         if (isClosedOrClosing) {
             return
         }
         isClosedOrClosing = true
-        sendMessage("close")
+        try {
+            if (recordHarPath != null) {
+                val json = sendMessage("harExport")!!.asJsonObject
+                val artifact =
+                    messageProcessor.getExistingObject<IArtifact>(json["artifact"].asJsonObject["guid"].asString)
+                artifact.saveAs(recordHarPath!!)
+            }
+            sendMessage("close")
+        } catch (e: PlaywrightException) {
+            if (!isSafeCloseError(e)) {
+                throw e
+            }
+        }
     }
 
     override fun addCookies(cookies: List<Cookie>) {
@@ -364,6 +386,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
             "requestFailed" -> {
                 val guid = params["request"].asJsonObject["guid"].asString
                 val request = messageProcessor.getExistingObject<Request>(guid)
+                request.didFailOrFinish = true
                 if (params.has("failureText")) {
                     request.failure = params["failureText"].asString
                 }
@@ -379,6 +402,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
             "requestFinished" -> {
                 val guid = params["request"].asJsonObject["guid"].asString
                 val request = messageProcessor.getExistingObject<Request>(guid)
+                request.didFailOrFinish = true
                 if (request.timing != Timing {}) {
                     request.timing.responseEnd = params["responseEndTiming"].asDouble
                 }

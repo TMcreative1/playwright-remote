@@ -804,19 +804,22 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IPage? {
-        return waitForEventWithTimeout(CLOSE, (options ?: WaitForCloseOptions {}).timeout, callback)
+        return waitForEventWithTimeout(CLOSE, (options ?: WaitForCloseOptions {}).timeout, null, callback)
     }
 
     override fun waitForConsoleMessage(options: WaitForConsoleMessageOptions?, callback: () -> Unit): IConsoleMessage? {
-        return waitForEventWithTimeout(CONSOLE, (options ?: WaitForConsoleMessageOptions {}).timeout, callback)
+        val opt = options ?: WaitForConsoleMessageOptions {}
+        return waitForEventWithTimeout(CONSOLE, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForDownload(options: WaitForDownloadOptions?, callback: () -> Unit): IDownload? {
-        return waitForEventWithTimeout(DOWNLOAD, (options ?: WaitForDownloadOptions {}).timeout, callback)
+        val opt = options ?: WaitForDownloadOptions {}
+        return waitForEventWithTimeout(DOWNLOAD, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForFileChooser(options: WaitForFileChooserOptions?, callback: () -> Unit): IFileChooser? {
-        return waitForEventWithTimeout(FILECHOOSER, (options ?: WaitForFileChooserOptions {}).timeout, callback)
+        val opt = options ?: WaitForFileChooserOptions {}
+        return waitForEventWithTimeout(FILECHOOSER, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForFunction(expression: String, arg: Any?, options: WaitForFunctionOptions?): IJSHandle {
@@ -832,7 +835,8 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun waitForPopup(options: WaitForPopupOptions?, callback: () -> Unit): IPage? {
-        return waitForEventWithTimeout(POPUP, (options ?: WaitForPopupOptions {}).timeout, callback)
+        val opt = options ?: WaitForPopupOptions {}
+        return waitForEventWithTimeout(POPUP, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForRequest(
@@ -863,21 +867,13 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         options: WaitForRequestOptions?,
         callback: () -> Unit
     ): IRequest? {
-        val waits = arrayListOf<IWait<IRequest>>()
-        waits.add(WaitEvent(listeners, REQUEST, { request -> urlOrPredicate == null || urlOrPredicate(request) }))
-        waits.add(createWaitForCloseHelper())
-        waits.add(createWaitTimeout((options ?: WaitForRequestOptions {}).timeout))
-        return runUtil(WaitRace(waits), callback)
+        val opt = options ?: WaitForRequestOptions {}
+        return waitForEventWithTimeout(REQUEST, opt.timeout, urlOrPredicate, callback)
     }
 
     override fun waitForRequestFinished(options: WaitForRequestFinishedOptions?, callback: () -> Unit): IRequest? {
         val opt = options ?: WaitForRequestFinishedOptions {}
-        val waits = arrayListOf<IWait<IRequest>>()
-        val predicate = opt.predicate
-        waits.add(WaitEvent(listeners, REQUESTFINISHED, { request -> predicate == null || predicate(request) }))
-        waits.add(createWaitForCloseHelper())
-        waits.add(createWaitTimeout(opt.timeout))
-        return runUtil(WaitRace(waits), callback)
+        return waitForEventWithTimeout(REQUESTFINISHED, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForResponse(
@@ -908,11 +904,8 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         options: WaitForResponseOptions?,
         callback: () -> Unit
     ): IResponse? {
-        val waits = arrayListOf<IWait<IResponse>>()
-        waits.add(WaitEvent(listeners, RESPONSE, { response -> urlOrPredicate == null || urlOrPredicate(response) }))
-        waits.add(createWaitForCloseHelper())
-        waits.add(createWaitTimeout((options ?: WaitForResponseOptions {}).timeout))
-        return runUtil(WaitRace(waits), callback)
+        val opt = options ?: WaitForResponseOptions {}
+        return waitForEventWithTimeout(RESPONSE, opt.timeout, urlOrPredicate, callback)
     }
 
     override fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle? {
@@ -940,11 +933,13 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun waitForWebSocket(options: WaitForWebSocketOptions?, callback: () -> Unit): IWebSocket? {
-        return waitForEventWithTimeout(WEBSOCKET, (options ?: WaitForWebSocketOptions {}).timeout, callback)
+        val opt = options ?: WaitForWebSocketOptions {}
+        return waitForEventWithTimeout(WEBSOCKET, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForWorker(options: WaitForWorkerOptions?, callback: () -> Unit): IWorker? {
-        return waitForEventWithTimeout(WORKER, (options ?: WaitForWorkerOptions {}).timeout, callback)
+        val opt = options ?: WaitForWorkerOptions {}
+        return waitForEventWithTimeout(WORKER, opt.timeout, opt.predicate, callback)
     }
 
     override fun workers(): List<IWorker> {
@@ -979,7 +974,15 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
                 if (listeners.hasListeners(DIALOG)) {
                     listeners.notify(DIALOG, dialog)
                 } else {
-                    dialog.dismiss()
+                    if ("beforeunload" == dialog.type()) {
+                        try {
+                            dialog.accept()
+                        } catch (e: PlaywrightException) {
+
+                        }
+                    } else {
+                        dialog.dismiss()
+                    }
                 }
             }
             "worker" -> {
@@ -1105,9 +1108,14 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return WaitFrameDetach(listeners, frame) as IWait<T>
     }
 
-    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T? {
+    private fun <T> waitForEventWithTimeout(
+        eventType: EventType,
+        timeout: Double?,
+        predicate: ((T) -> Boolean)?,
+        code: () -> Unit
+    ): T? {
         val waits = arrayListOf<IWait<T>>()
-        waits.add(WaitEvent(listeners, eventType))
+        waits.add(WaitEvent(listeners, eventType, predicate))
         waits.add(createWaitForCloseHelper())
         waits.add(createWaitTimeout(timeout))
         return runUtil(WaitRace(waits), code)

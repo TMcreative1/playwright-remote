@@ -1,6 +1,6 @@
 package io.github.tmcreative1.playwright.remote.domain.request
 
-data class Size(
+data class Sizes(
     /**
      * Size of the request body (POST data payload) in bytes. Set to 0 if there was no body.
      */

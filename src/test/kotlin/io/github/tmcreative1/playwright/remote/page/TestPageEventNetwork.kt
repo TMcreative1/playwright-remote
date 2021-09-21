@@ -70,7 +70,7 @@ class TestPageEventNetwork : BaseTest() {
         page.onRequestFinished { finishedRequests.add(it) }
         val response = page.navigate(httpServer.emptyPage)
         assertNotNull(response)
-        assertNull(response.finished())
+        assertTrue(response.finished().isEmpty())
         assertNotNull(finishedRequests[0])
         assertEquals(response.request(), finishedRequests[0])
         assertEquals(httpServer.emptyPage, finishedRequests[0].url())
@@ -87,7 +87,7 @@ class TestPageEventNetwork : BaseTest() {
         page.onResponse { events.add("response") }
         page.onRequestFinished { events.add("requestFinished") }
         val response = page.navigate(httpServer.emptyPage)
-        assertNull(response!!.finished())
+        assertTrue(response!!.finished().isEmpty())
         assertEquals(listOf("request", "response", "requestFinished"), events)
     }
 

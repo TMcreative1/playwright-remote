@@ -54,7 +54,6 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         addRecordVideoDir(params, opt)
         addViewPortSize(params, opt)
 
-        params.addProperty("sdkLanguage", "java")
         val result = sendMessage("newContext", params)
         val context = messageProcessor.getExistingObject<IBrowserContext>(
             result!!.asJsonObject["context"].asJsonObject["guid"].asString
@@ -65,6 +64,7 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
         if (opt.baseURL != null) {
             context.setBaseUrl(opt.baseURL!!)
         }
+        context.recordHarPath = opt.recordHarPath
         contexts.add(context)
         return context
     }

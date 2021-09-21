@@ -1,5 +1,6 @@
 package io.github.tmcreative1.playwright.remote.engine.mouse.impl
 
+import com.google.gson.JsonObject
 import io.github.tmcreative1.playwright.remote.engine.mouse.api.IMouse
 import io.github.tmcreative1.playwright.remote.engine.options.DownOptions
 import io.github.tmcreative1.playwright.remote.engine.options.MoveOptions
@@ -39,5 +40,12 @@ class Mouse(val page: ChannelOwner) : IMouse {
     override fun up(options: UpOptions) {
         val params = gson().toJsonTree(options).asJsonObject
         page.sendMessage("mouseUp", params)
+    }
+
+    override fun wheel(deltaX: Double, deltaY: Double) {
+        val params = JsonObject()
+        params.addProperty("deltaX", deltaX)
+        params.addProperty("deltaY", deltaY)
+        page.sendMessage("mouseWheel", params)
     }
 }

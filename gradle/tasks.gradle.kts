@@ -4,7 +4,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
 val archs = listOf("mac", "linux", "win32", "win32_x64")
-val playwrightVersion = "1.14.0-1629718845000"
+val playwrightVersion = "1.15.0-1631797286000"
 
 tasks.register("downloadAndUnzip") {
     var baseUrl = "https://playwright.azureedge.net/builds/driver/"

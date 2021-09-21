@@ -1,5 +1,7 @@
 package io.github.tmcreative1.playwright.remote.engine.route.request.api
 
+import io.github.tmcreative1.playwright.remote.domain.request.HttpHeader
+import io.github.tmcreative1.playwright.remote.domain.request.Sizes
 import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
 import io.github.tmcreative1.playwright.remote.engine.route.request.Timing
 import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
@@ -23,9 +25,10 @@ interface IRequest {
     fun frame(): IFrame
 
     /**
-     * An object with HTTP headers associated with the request. All header names are lower-case.
+     * **DEPRECATED** Incomplete list of headers as seen by the rendering engine. Use {@link IRequest#allHeaders
+     * IRequest.allHeaders()} instead.
      */
-    fun headers(): Map<String, String>
+    fun headers(): Map<String, String?>
 
     /**
      * Whether this request is driving frame's navigation.
@@ -108,4 +111,28 @@ interface IRequest {
      * URL of the request.
      */
     fun url(): String
+
+    /**
+     * An object with all the request HTTP headers associated with this request. The header names are lower-cased.
+     */
+    fun allHeaders(): Map<String, String?>
+
+    /**
+     * An array with all the request HTTP headers associated with this request. Unlike {@link Request#allHeaders
+     * Request.allHeaders()}, header names are NOT lower-cased. Headers with multiple entries, such as {@code Set-Cookie}, appear in
+     * the array multiple times.
+     */
+    fun headersArray(): List<HttpHeader>
+
+    /**
+     * Returns the value of the header matching the name. The name is case insensitive.
+     *
+     * @param name Name of the header.
+     */
+    fun headerValue(name: String): String?
+
+    /**
+     * Returns resource size information for given request.
+     */
+    fun sizes(): Sizes
 }

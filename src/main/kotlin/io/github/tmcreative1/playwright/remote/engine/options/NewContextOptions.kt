@@ -1,5 +1,6 @@
 package io.github.tmcreative1.playwright.remote.engine.options
 
+import io.github.tmcreative1.playwright.remote.core.enums.ForcedColors
 import io.github.tmcreative1.playwright.remote.core.enums.ReducedMotion
 import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 import io.github.tmcreative1.playwright.remote.engine.options.enum.ColorScheme
@@ -137,7 +138,17 @@ data class NewContextOptions @JvmOverloads constructor(
      */
     var strictSelectors: Boolean? = null,
 
-    @Transient private val builder: IBuilder<NewContextOptions>
+    /**
+     * Emulates {@code "forced-colors"} media feature, supported values are {@code "active"}, {@code "none"}. See {@link Page#emulateMedia
+     * Page.emulateMedia()} for more details. Defaults to {@code "none"}.
+     *
+     * <p> <strong>NOTE:</strong> It's not supported in WebKit, see <a href="https://bugs.webkit.org/show_bug.cgi?id=225281">here</a> in their issue
+     * tracker.
+     */
+    var forcedColors: ForcedColors? = null,
+
+    @Transient
+    private val builder: IBuilder<NewContextOptions>
 ) {
     /**
      * Sets a consistent viewport for each page. Defaults to an 1280x720 viewport. {@code null} disables the default viewport.

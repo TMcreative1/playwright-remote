@@ -92,7 +92,7 @@ class TestNetworkRequest : BaseTest() {
         val expectedHeaders: Map<String, String> =
             serverRequest.get().headers.entries.associateBy({ it.key.lowercase() }, { it.value[0] })
         assertNotNull(response)
-        assertEquals(expectedHeaders, response.request().headers())
+        assertEquals(expectedHeaders, response.request().allHeaders())
     }
 
     @Test
@@ -119,7 +119,7 @@ class TestNetworkRequest : BaseTest() {
         val expectedHeaders =
             serverRequest.get().headers.entries.associateBy({ it.key.lowercase() }, { it.value[0] })
         assertNotNull(response)
-        assertEquals(expectedHeaders, response.request().headers())
+        assertEquals(expectedHeaders, response.request().allHeaders())
     }
 
     @Test

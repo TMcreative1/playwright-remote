@@ -69,7 +69,7 @@ class Route(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
     override fun request(): IRequest =
         messageProcessor.getExistingObject(initializer["request"].asJsonObject["guid"].asString)
 
-    private fun createJsonArrayFromMap(map: Map<String, String>): JsonArray {
+    private fun createJsonArrayFromMap(map: Map<String, String?>): JsonArray {
         val array = JsonArray()
         map.entries.forEach {
             val item = JsonObject()
