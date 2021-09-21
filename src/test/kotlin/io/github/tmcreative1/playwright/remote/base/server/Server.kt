@@ -175,23 +175,30 @@ class Server private constructor(port: Int, https: Boolean) : HttpHandler {
             return
         }
         exchange.responseHeaders.add("Content-Type", mimeType(file))
-        var output = exchange.responseBody
+        val body = ByteArrayOutputStream()
+        var output = body as OutputStream
         if (gzipRoutes.contains(path)) {
             exchange.responseHeaders.add("Content-Encoding", "gzip")
         }
         try {
             FileInputStream(file).use { input ->
-                exchange.sendResponseHeaders(200, 0)
                 if (gzipRoutes.contains(path)) {
                     output = GZIPOutputStream(output)
                 }
                 input.copyTo(output)
+                output.close()
             }
         } catch (e: IOException) {
-            OutputStreamWriter(exchange.responseBody).use { writer -> writer.write("Exception: $e") }
+            body.reset()
+            OutputStreamWriter(output).use { writer -> writer.write("Exception: $e") }
             return
         }
-        output.close()
+        val contentLength = body.size()
+        exchange.sendResponseHeaders(200, (if (contentLength == 0) -1 else contentLength).toLong())
+        if (contentLength > 0) {
+            exchange.responseBody.write(body.toByteArray())
+        }
+        exchange.responseBody.close()
     }
 
     private fun mimeType(file: File) = extensionToMime[file.extension] ?: "application/octet-stream"
