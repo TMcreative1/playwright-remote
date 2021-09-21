@@ -102,7 +102,7 @@ class Response(parent: ChannelOwner, type: String, guid: String, initializer: Js
     private fun rawHeader(): RawHeader {
         if (rawHeader == null) {
             val json = sendMessage("rawResponseHeaders")!!.asJsonObject
-            rawHeader = RawHeader(gson().fromJson(json["headers"].asJsonObject, Array<HttpHeader>::class.java).toList())
+            rawHeader = RawHeader(gson().fromJson(json["headers"].asJsonArray, Array<HttpHeader>::class.java).toList())
         }
         return rawHeader!!
     }

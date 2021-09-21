@@ -19,7 +19,7 @@ class RawHeader(private val headersArray: List<HttpHeader>) {
 
     fun get(name: String): String? {
         val values = getAll(name) ?: return null
-        return if ("set-cookie" == name.lowercase()) "\n" else values.joinToString(separator = ", ")
+        return values.joinToString(separator = if ("set-cookie" == name.lowercase()) "\n" else ", ")
     }
 
     fun getAll(name: String): MutableList<String>? = headersMap[name.lowercase()]
