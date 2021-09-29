@@ -1,9 +1,9 @@
-package com.playwright.remote.engine.touchscreen.impl
+package io.github.tmcreative1.playwright.remote.engine.touchscreen.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.page.impl.Page
-import com.playwright.remote.engine.touchscreen.api.ITouchScreen
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.page.impl.Page
+import io.github.tmcreative1.playwright.remote.engine.touchscreen.api.ITouchScreen
 
 class TouchScreen(val page: IPage) : ITouchScreen {
     override fun tap(x: Double, y: Double) {

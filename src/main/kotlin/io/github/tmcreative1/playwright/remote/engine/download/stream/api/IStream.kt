@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.download.stream.api
+package io.github.tmcreative1.playwright.remote.engine.download.stream.api
 
 import java.io.InputStream
 

@@ -1,6 +1,6 @@
-package com.playwright.remote.domain.file
+package io.github.tmcreative1.playwright.remote.domain.file
 
-import com.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 
 data class FilePayload @JvmOverloads constructor(
     /**

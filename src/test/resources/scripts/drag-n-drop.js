@@ -10,6 +10,6 @@ function dragover_handler(ev) {
 function drop_handler(ev) {
     console.log("Drop");
     ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
+    let data = ev.dataTransfer.getData("text");
     ev.target.appendChild(document.getElementById(data));
 }

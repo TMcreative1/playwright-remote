@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.serialize.serializers
+package io.github.tmcreative1.playwright.remote.engine.serialize.serializers
 
 import com.google.gson.*
-import com.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
 import java.lang.reflect.Type
 
 class MapSerializer : JsonSerializer<MutableMap<String, Any>> {

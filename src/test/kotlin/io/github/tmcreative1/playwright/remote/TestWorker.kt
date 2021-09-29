@@ -1,11 +1,11 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import java.time.Duration
@@ -46,7 +46,7 @@ class TestWorker : BaseTest() {
         try {
             workerObjThis.getProperty("self")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Most likely the worker has been closed."))
+            assertTrue(e.message!!.contains("Target closed"))
         }
     }
 

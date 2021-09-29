@@ -1,13 +1,15 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.options.NewPageOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.options.NewPageOptions
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.OutputStreamWriter
-import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files
+import java.nio.file.Files.readAllBytes
 import java.nio.file.Paths
 import kotlin.test.*
 
@@ -53,8 +55,8 @@ class TestDownload : BaseTest() {
         assertNotNull(download)
         download.saveAs(userFile)
         assertTrue(Files.exists(userFile))
-        val bytes = Files.readAllBytes(userFile)
-        assertEquals("Hello world", String(bytes, StandardCharsets.UTF_8))
+        val bytes = readAllBytes(userFile)
+        assertEquals("Hello world", String(bytes, UTF_8))
         pg.close()
     }
 
@@ -69,14 +71,14 @@ class TestDownload : BaseTest() {
         download.saveAs(userFile)
 
         assertTrue(Files.exists(userFile))
-        var bytes = Files.readAllBytes(userFile)
-        assertEquals("Hello world", String(bytes, StandardCharsets.UTF_8))
+        var bytes = readAllBytes(userFile)
+        assertEquals("Hello world", String(bytes, UTF_8))
 
         val anotherUserPath = Files.createTempFile("download-2-", ".txt")
         download.saveAs(anotherUserPath)
         assertTrue(Files.exists(anotherUserPath))
-        bytes = Files.readAllBytes(anotherUserPath)
-        assertEquals("Hello world", String(bytes, StandardCharsets.UTF_8))
+        bytes = readAllBytes(anotherUserPath)
+        assertEquals("Hello world", String(bytes, UTF_8))
         pg.close()
     }
 
@@ -90,13 +92,13 @@ class TestDownload : BaseTest() {
         assertNotNull(download)
         download.saveAs(userFile)
         assertTrue(Files.exists(userFile))
-        var bytes = Files.readAllBytes(userFile)
-        assertEquals("Hello world", String(bytes, StandardCharsets.UTF_8))
+        var bytes = readAllBytes(userFile)
+        assertEquals("Hello world", String(bytes, UTF_8))
 
         download.saveAs(userFile)
         assertTrue(Files.exists(userFile))
-        bytes = Files.readAllBytes(userFile)
-        assertEquals("Hello world", String(bytes, StandardCharsets.UTF_8))
+        bytes = readAllBytes(userFile)
+        assertEquals("Hello world", String(bytes, UTF_8))
         pg.close()
     }
 
@@ -112,8 +114,8 @@ class TestDownload : BaseTest() {
         download.saveAs(nestedPath)
         assertTrue(Files.exists(nestedPath))
 
-        val bytes = Files.readAllBytes(nestedPath)
-        assertEquals("Hello world", String(bytes, StandardCharsets.UTF_8))
+        val bytes = readAllBytes(nestedPath)
+        assertEquals("Hello world", String(bytes, UTF_8))
         pg.close()
     }
 
@@ -174,8 +176,8 @@ class TestDownload : BaseTest() {
             download.saveAs(userPath)
             assertTrue(Files.exists(userPath))
 
-            val bytes = Files.readAllBytes(userPath)
-            assertEquals("Hello world", String(bytes, StandardCharsets.UTF_8))
+            val bytes = readAllBytes(userPath)
+            assertEquals("Hello world", String(bytes, UTF_8))
         }
     }
 
@@ -200,10 +202,68 @@ class TestDownload : BaseTest() {
             val userPath = Files.createTempFile("download-", ".txt")
             download.saveAs(userPath)
             assertTrue(Files.exists(userPath))
-            val bytes = Files.readAllBytes(userPath)
-            assertEquals("Hello world", String(bytes, StandardCharsets.UTF_8))
+            val bytes = readAllBytes(userPath)
+            assertEquals("Hello world", String(bytes, UTF_8))
             download.cancel()
             assertNull(download.failure())
+        }
+    }
+
+    @Test
+    fun `check to support stream zero size read`() {
+        browser.newPage(NewPageOptions { it.acceptDownloads = true }).use {
+            it.setContent("<a href='${httpServer.prefixWithDomain}/download'>download</a>")
+            val download = it.waitForDownload { it.click("a") }
+            assertNotNull(download)
+
+            val stream = download.createReadStream()
+            assertNotNull(stream)
+            val b = ByteArray(1)
+            val read = stream.read(b, 0, 0)
+            assertEquals(0, read)
+        }
+    }
+
+    @Test
+    fun `check to report download when navigation turns into download`() {
+        browser.newPage(NewPageOptions { it.acceptDownloads = true }).use {
+            val response = arrayListOf<IResponse?>(null)
+            val error = arrayListOf<PlaywrightException?>(null)
+
+            val download = it.waitForDownload {
+                try {
+                    response[0] = it.navigate("${httpServer.prefixWithDomain}/download")
+                } catch (e: PlaywrightException) {
+                    error[0] = e
+                }
+            }
+
+            assertNotNull(download)
+            assertEquals(it, download.page())
+            assertEquals("${httpServer.prefixWithDomain}/download", download.url())
+            val userPath = Files.createTempFile("download-", ".txt")
+            download.saveAs(userPath)
+            assertTrue(Files.exists(userPath))
+            val bytes = readAllBytes(userPath)
+            assertEquals("Hello world", String(bytes, UTF_8))
+
+            when {
+                isChromium() -> {
+                    assertNotNull(error[0])
+                    assertTrue(error[0]!!.message!!.contains("net::ERR_ABORTED"))
+                    assertEquals("about:blank", it.url())
+                }
+                isWebkit() -> {
+                    assertNotNull(error[0])
+                    assertTrue(error[0]!!.message!!.contains("Download is starting"))
+                    assertEquals("about:blank", it.url())
+                }
+                else -> {
+                    assertNotNull(response[0])
+                    assertEquals(200, response[0]!!.status())
+                    assertEquals("${httpServer.prefixWithDomain}/download", it.url())
+                }
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.playwright.remote.core.enums
+package io.github.tmcreative1.playwright.remote.core.enums
 
 enum class ObjectType(val type: String) {
     ANDROID("Android"),
@@ -11,6 +11,7 @@ enum class ObjectType(val type: String) {
     DIALOG("Dialog"),
     ELECTRON("Electron"),
     ELEMENT_HANDLE("ElementHandle"),
+    FETCH_REQUEST("FetchRequest"),
     FRAME("Frame"),
     JS_HANDLE("JSHandle"),
     PAGE("Page"),

@@ -1,8 +1,8 @@
-package com.playwright.remote.elementhandle
+package io.github.tmcreative1.playwright.remote.elementhandle
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.options.ViewportSize
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.options.ViewportSize
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import kotlin.math.round

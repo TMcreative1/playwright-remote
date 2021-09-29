@@ -1,38 +1,41 @@
-package com.playwright.remote.engine.browser.impl
+package io.github.tmcreative1.playwright.remote.engine.browser.impl
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.playwright.remote.core.enums.EventType
-import com.playwright.remote.core.enums.EventType.*
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.browser.api.IBrowser
-import com.playwright.remote.engine.browser.api.IBrowserContext
-import com.playwright.remote.engine.callback.api.IBindingCall
-import com.playwright.remote.engine.callback.api.IBindingCallback
-import com.playwright.remote.engine.callback.api.IBindingCallback.ISource
-import com.playwright.remote.engine.callback.api.IFunctionCallback
-import com.playwright.remote.engine.listener.ListenerCollection
-import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.options.*
-import com.playwright.remote.engine.options.wait.WaitForPageOptions
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.page.impl.Page
-import com.playwright.remote.engine.parser.IParser
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.route.Router
-import com.playwright.remote.engine.route.UrlMatcher
-import com.playwright.remote.engine.route.api.IRoute
-import com.playwright.remote.engine.route.request.Timing
-import com.playwright.remote.engine.route.request.api.IRequest
-import com.playwright.remote.engine.route.request.impl.Request
-import com.playwright.remote.engine.route.response.api.IResponse
-import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
-import com.playwright.remote.engine.waits.TimeoutSettings
-import com.playwright.remote.engine.waits.api.IWait
-import com.playwright.remote.engine.waits.impl.WaitContextClose
-import com.playwright.remote.engine.waits.impl.WaitEvent
-import com.playwright.remote.engine.waits.impl.WaitRace
-import com.playwright.remote.utils.Utils.Companion.writeToFile
+import io.github.tmcreative1.playwright.remote.core.enums.EventType
+import io.github.tmcreative1.playwright.remote.core.enums.EventType.*
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowser
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserContext
+import io.github.tmcreative1.playwright.remote.engine.browser.api.ITracing
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCall
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback.ISource
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IFunctionCallback
+import io.github.tmcreative1.playwright.remote.engine.download.api.IArtifact
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
+import io.github.tmcreative1.playwright.remote.engine.options.*
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForPageOptions
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.page.impl.Page
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.route.Router
+import io.github.tmcreative1.playwright.remote.engine.route.UrlMatcher
+import io.github.tmcreative1.playwright.remote.engine.route.api.IRoute
+import io.github.tmcreative1.playwright.remote.engine.route.request.Timing
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.request.impl.Request
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
+import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import io.github.tmcreative1.playwright.remote.engine.waits.TimeoutSettings
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitContextClose
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitEvent
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitRace
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.isSafeCloseError
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.writeToFile
 import okio.IOException
 import java.net.MalformedURLException
 import java.net.URL
@@ -44,15 +47,17 @@ import java.util.regex.Pattern
 class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IBrowserContext {
     private val browser = if (parent is IBrowser) parent as Browser else null
+    private val listeners = ListenerCollection<EventType>()
+    private var isClosedOrClosing: Boolean = false
+    private val tracing = Tracing(this, messageProcessor)
     var ownerPage: IPage? = null
     var videosDir: Path? = null
     val pages = arrayListOf<IPage>()
-    private val listeners = ListenerCollection<EventType>()
-    private var isClosedOrClosing: Boolean = false
     val timeoutSettings = TimeoutSettings()
     val routes = Router()
     val bindings = hashMapOf<String, IBindingCallback>()
     var baseUrl: URL? = null
+    var recordHarPath: Path? = null
 
     override fun setBaseUrl(spec: String) {
         baseUrl = try {
@@ -134,23 +139,42 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         return pages
     }
 
-    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T? {
+    private fun <T> waitForEventWithTimeout(
+        eventType: EventType,
+        timeout: Double?,
+        predicate: ((T) -> Boolean)?,
+        code: () -> Unit
+    ): T? {
         val waitList = arrayListOf<IWait<T>>()
-        waitList.add(WaitEvent(listeners, eventType))
+        waitList.add(WaitEvent(listeners, eventType, predicate))
         waitList.add(WaitContextClose(listeners))
         waitList.add(timeoutSettings.createWait(timeout))
         return runUtil(WaitRace(waitList), code)
     }
 
-    override fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage? =
-        waitForEventWithTimeout(PAGE, (options ?: WaitForPageOptions {}).timeout, callback)
+    override fun waitForPage(options: WaitForPageOptions?, callback: () -> Unit): IPage? {
+        val opt = options ?: WaitForPageOptions {}
+        return waitForEventWithTimeout(PAGE, opt.timeout, opt.predicate, callback)
+    }
 
     override fun close() {
         if (isClosedOrClosing) {
             return
         }
         isClosedOrClosing = true
-        sendMessage("close")
+        try {
+            if (recordHarPath != null) {
+                val json = sendMessage("harExport")!!.asJsonObject
+                val artifact =
+                    messageProcessor.getExistingObject<IArtifact>(json["artifact"].asJsonObject["guid"].asString)
+                artifact.saveAs(recordHarPath!!)
+            }
+            sendMessage("close")
+        } catch (e: PlaywrightException) {
+            if (!isSafeCloseError(e)) {
+                throw e
+            }
+        }
     }
 
     override fun addCookies(cookies: List<Cookie>) {
@@ -309,6 +333,8 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
         sendMessage("pause")
     }
 
+    override fun tracing(): ITracing = tracing
+
     private fun unRoute(matcher: UrlMatcher, handler: ((IRoute) -> Unit)?) {
         routes.remove(matcher, handler)
         if (routes.size() == 0) {
@@ -360,6 +386,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
             "requestFailed" -> {
                 val guid = params["request"].asJsonObject["guid"].asString
                 val request = messageProcessor.getExistingObject<Request>(guid)
+                request.didFailOrFinish = true
                 if (params.has("failureText")) {
                     request.failure = params["failureText"].asString
                 }
@@ -375,6 +402,7 @@ class BrowserContext(parent: ChannelOwner, type: String, guid: String, initializ
             "requestFinished" -> {
                 val guid = params["request"].asJsonObject["guid"].asString
                 val request = messageProcessor.getExistingObject<Request>(guid)
+                request.didFailOrFinish = true
                 if (request.timing != Timing {}) {
                     request.timing.responseEnd = params["responseEndTiming"].asDouble
                 }

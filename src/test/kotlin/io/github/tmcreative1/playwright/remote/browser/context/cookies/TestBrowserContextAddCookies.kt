@@ -1,10 +1,10 @@
-package com.playwright.remote.browser.context.cookies
+package io.github.tmcreative1.playwright.remote.browser.context.cookies
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.browser.RemoteBrowser
-import com.playwright.remote.engine.options.Cookie
-import com.playwright.remote.engine.parser.IParser
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.browser.RemoteBrowser
+import io.github.tmcreative1.playwright.remote.engine.options.Cookie
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import kotlin.test.*

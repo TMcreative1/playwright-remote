@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.options
+package io.github.tmcreative1.playwright.remote.engine.options
 
-import com.playwright.remote.core.enums.SameSiteAttribute
-import com.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.core.enums.SameSiteAttribute
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 
 data class Cookie @JvmOverloads constructor(
     var name: String? = null,

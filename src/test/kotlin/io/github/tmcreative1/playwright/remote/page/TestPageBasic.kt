@@ -1,12 +1,12 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.console.api.IConsoleMessage
-import com.playwright.remote.engine.frame.impl.Frame
-import com.playwright.remote.engine.options.CloseOptions
-import com.playwright.remote.engine.options.NewPageOptions
-import com.playwright.remote.engine.options.ScreenshotOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.console.api.IConsoleMessage
+import io.github.tmcreative1.playwright.remote.engine.frame.impl.Frame
+import io.github.tmcreative1.playwright.remote.engine.options.CloseOptions
+import io.github.tmcreative1.playwright.remote.engine.options.NewPageOptions
+import io.github.tmcreative1.playwright.remote.engine.options.ScreenshotOptions
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.util.regex.Pattern
@@ -38,7 +38,7 @@ class TestPageBasic : BaseTest() {
             page.evaluate("() => new Promise(r => {})")
             fail("evaluate should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Protocol error"))
+            assertTrue(e.message!!.contains("Target closed"))
         }
     }
 
@@ -249,5 +249,12 @@ class TestPageBasic : BaseTest() {
         assertFalse(newPage.isClosed())
         newPage.waitForClose { page.evaluate("() => window['newPage'].close()") }
         assertTrue(newPage.isClosed())
+    }
+
+    @Test
+    fun `check correct work of drag and drop`() {
+        page.navigate("${httpServer.prefixWithDomain}/drag-n-drop.html")
+        page.dragAndDrop("#source", "#target")
+        assertEquals(true, page.evalOnSelector("#target","target => target.contains(document.querySelector('#source'))"))
     }
 }

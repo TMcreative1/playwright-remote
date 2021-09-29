@@ -1,10 +1,10 @@
-package com.playwright.remote.engine.browser.selector.impl
+package io.github.tmcreative1.playwright.remote.engine.browser.selector.impl
 
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.domain.selector.Registration
-import com.playwright.remote.engine.browser.selector.api.ISelectors
-import com.playwright.remote.engine.browser.selector.api.ISharedSelectors
-import com.playwright.remote.engine.options.RegisterOptions
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.domain.selector.Registration
+import io.github.tmcreative1.playwright.remote.engine.browser.selector.api.ISelectors
+import io.github.tmcreative1.playwright.remote.engine.browser.selector.api.ISharedSelectors
+import io.github.tmcreative1.playwright.remote.engine.options.RegisterOptions
 import okio.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files

@@ -1,12 +1,12 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.options.Cookie
-import com.playwright.remote.engine.options.FulfillOptions
-import com.playwright.remote.engine.options.ResumeOptions
-import com.playwright.remote.engine.route.api.IRoute
-import com.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.options.Cookie
+import io.github.tmcreative1.playwright.remote.engine.options.FulfillOptions
+import io.github.tmcreative1.playwright.remote.engine.options.ResumeOptions
+import io.github.tmcreative1.playwright.remote.engine.route.api.IRoute
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import java.io.OutputStreamWriter
@@ -171,7 +171,9 @@ class TestPageRoute : BaseTest() {
     fun `check correct work route with custom referer headers`() {
         page.setExtraHTTPHeaders(mapOf("referer" to httpServer.emptyPage))
         page.route("**/*") {
-            assertEquals(httpServer.emptyPage, it.request().headers()["referer"])
+            val referer = it.request().headers()["referer"]
+            assertNotNull(referer)
+            assertTrue(referer.contains(httpServer.emptyPage))
             it.resume()
         }
         val response = page.navigate(httpServer.emptyPage)
@@ -512,7 +514,11 @@ class TestPageRoute : BaseTest() {
             page.evaluate(jsScript)
             fail("evaluate should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("failed"))
+            when {
+                isChromium() -> assertTrue(e.message!!.contains("Failed"))
+                isWebkit() -> assertTrue(e.message!!.contains("TypeError"))
+                else -> assertTrue(e.message!!.contains("NetworkError"))
+            }
         }
     }
 
@@ -597,7 +603,7 @@ class TestPageRoute : BaseTest() {
             fail("evaluate should throw")
         } catch (e: PlaywrightException) {
             when {
-                isWebkit() -> assertTrue(e.message!!.contains("Credentials flag is true, but Access-Control-Allow-Credentials is not \"true\""))
+                isWebkit() -> assertTrue(e.message!!.contains("Load failed"))
                 isChromium() -> assertTrue(e.message!!.contains("Failed to fetch"))
                 isFirefox() -> assertTrue(e.message!!.contains("NetworkError when attempting to fetch resource."))
             }

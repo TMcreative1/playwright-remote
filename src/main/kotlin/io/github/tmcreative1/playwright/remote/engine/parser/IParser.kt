@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.parser
+package io.github.tmcreative1.playwright.remote.engine.parser
 
 import com.google.gson.JsonElement
-import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import java.io.Reader
 
 interface IParser {

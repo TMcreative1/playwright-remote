@@ -1,6 +1,6 @@
-package com.playwright.remote.engine.browser.selector.api
+package io.github.tmcreative1.playwright.remote.engine.browser.selector.api
 
-import com.playwright.remote.engine.options.RegisterOptions
+import io.github.tmcreative1.playwright.remote.engine.options.RegisterOptions
 
 interface ISelectors {
     /**

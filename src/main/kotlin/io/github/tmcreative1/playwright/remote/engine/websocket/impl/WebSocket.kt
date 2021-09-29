@@ -1,23 +1,23 @@
-package com.playwright.remote.engine.websocket.impl
+package io.github.tmcreative1.playwright.remote.engine.websocket.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.core.enums.EventType
-import com.playwright.remote.core.enums.EventType.*
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.listener.ListenerCollection
-import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.options.wait.WaitForFrameReceivedOptions
-import com.playwright.remote.engine.options.wait.WaitForFrameSentOptions
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.page.impl.Page
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.waits.api.IWait
-import com.playwright.remote.engine.waits.impl.WaitEvent
-import com.playwright.remote.engine.waits.impl.WaitRace
-import com.playwright.remote.engine.waits.impl.WaitWebSocketClose
-import com.playwright.remote.engine.waits.impl.WaitWebSocketError
-import com.playwright.remote.engine.websocket.api.IWebSocket
-import com.playwright.remote.engine.websocket.api.IWebSocketFrame
+import io.github.tmcreative1.playwright.remote.core.enums.EventType
+import io.github.tmcreative1.playwright.remote.core.enums.EventType.*
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForFrameReceivedOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForFrameSentOptions
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.page.impl.Page
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitEvent
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitRace
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitWebSocketClose
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitWebSocketError
+import io.github.tmcreative1.playwright.remote.engine.websocket.api.IWebSocket
+import io.github.tmcreative1.playwright.remote.engine.websocket.api.IWebSocketFrame
 
 class WebSocket(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) : ChannelOwner(
     parent,

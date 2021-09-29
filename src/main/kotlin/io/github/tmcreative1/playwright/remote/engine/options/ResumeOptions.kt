@@ -1,12 +1,12 @@
-package com.playwright.remote.engine.options
+package io.github.tmcreative1.playwright.remote.engine.options
 
-import com.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 
 data class ResumeOptions @JvmOverloads constructor(
     /**
      * If set changes the request HTTP headers. Header values will be converted to a string.
      */
-    var headers: Map<String, String>? = null,
+    var headers: Map<String, String?>? = null,
     /**
      * If set changes the request method (e.g. GET or POST)
      */

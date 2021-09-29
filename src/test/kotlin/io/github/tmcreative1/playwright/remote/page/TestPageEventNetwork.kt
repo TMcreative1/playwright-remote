@@ -1,10 +1,10 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.Platform
-import com.playwright.remote.engine.route.request.api.IRequest
-import com.playwright.remote.engine.route.response.api.IResponse
-import com.playwright.remote.utils.PlatformUtils
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.enums.Platform
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
+import io.github.tmcreative1.playwright.remote.utils.PlatformUtils
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -70,7 +70,7 @@ class TestPageEventNetwork : BaseTest() {
         page.onRequestFinished { finishedRequests.add(it) }
         val response = page.navigate(httpServer.emptyPage)
         assertNotNull(response)
-        assertNull(response.finished())
+        assertTrue(response.finished().isEmpty())
         assertNotNull(finishedRequests[0])
         assertEquals(response.request(), finishedRequests[0])
         assertEquals(httpServer.emptyPage, finishedRequests[0].url())
@@ -87,7 +87,7 @@ class TestPageEventNetwork : BaseTest() {
         page.onResponse { events.add("response") }
         page.onRequestFinished { events.add("requestFinished") }
         val response = page.navigate(httpServer.emptyPage)
-        assertNull(response!!.finished())
+        assertTrue(response!!.finished().isEmpty())
         assertEquals(listOf("request", "response", "requestFinished"), events)
     }
 

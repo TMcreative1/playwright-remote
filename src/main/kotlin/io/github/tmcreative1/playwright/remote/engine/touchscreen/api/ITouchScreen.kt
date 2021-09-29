@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.touchscreen.api
+package io.github.tmcreative1.playwright.remote.engine.touchscreen.api
 
 /**
  * The Touchscreen class operates in main-frame CSS pixels relative to the top-left corner of the viewport. Methods on the

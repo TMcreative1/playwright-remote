@@ -1,6 +1,6 @@
-package com.playwright.remote.engine.websocket.impl
+package io.github.tmcreative1.playwright.remote.engine.websocket.impl
 
-import com.playwright.remote.engine.websocket.api.IWebSocketFrame
+import io.github.tmcreative1.playwright.remote.engine.websocket.api.IWebSocketFrame
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.*
 

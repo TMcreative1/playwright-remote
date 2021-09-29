@@ -1,51 +1,61 @@
-package com.playwright.remote.engine.processor
+package io.github.tmcreative1.playwright.remote.engine.processor
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.playwright.remote.core.enums.MethodType.CREATE
-import com.playwright.remote.core.enums.MethodType.DISPOSE
-import com.playwright.remote.core.enums.ObjectType
-import com.playwright.remote.core.enums.ObjectType.*
-import com.playwright.remote.core.exceptions.DriverException
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.core.exceptions.TimeoutException
-import com.playwright.remote.domain.message.Message
-import com.playwright.remote.engine.android.impl.Android
-import com.playwright.remote.engine.browser.impl.Browser
-import com.playwright.remote.engine.browser.impl.BrowserContext
-import com.playwright.remote.engine.browser.impl.BrowserType
-import com.playwright.remote.engine.browser.selector.impl.Selectors
-import com.playwright.remote.engine.callback.impl.BindingCall
-import com.playwright.remote.engine.console.impl.ConsoleMessage
-import com.playwright.remote.engine.dialog.impl.Dialog
-import com.playwright.remote.engine.download.impl.Artifact
-import com.playwright.remote.engine.download.stream.impl.Stream
-import com.playwright.remote.engine.electron.impl.Electron
-import com.playwright.remote.engine.frame.impl.Frame
-import com.playwright.remote.engine.handle.element.impl.ElementHandle
-import com.playwright.remote.engine.handle.js.impl.JSHandle
-import com.playwright.remote.engine.logger.CustomLogger
-import com.playwright.remote.engine.page.impl.Page
-import com.playwright.remote.engine.parser.IParser.Companion.fromJson
-import com.playwright.remote.engine.parser.IParser.Companion.toJson
-import com.playwright.remote.engine.playwright.impl.Playwright
-import com.playwright.remote.engine.route.impl.Route
-import com.playwright.remote.engine.route.request.impl.Request
-import com.playwright.remote.engine.route.response.impl.Response
-import com.playwright.remote.engine.transport.ITransport
-import com.playwright.remote.engine.waits.impl.WaitResult
-import com.playwright.remote.engine.websocket.impl.WebSocket
-import com.playwright.remote.engine.worker.impl.Worker
+import io.github.tmcreative1.playwright.remote.core.enums.MethodType.CREATE
+import io.github.tmcreative1.playwright.remote.core.enums.MethodType.DISPOSE
+import io.github.tmcreative1.playwright.remote.core.enums.ObjectType
+import io.github.tmcreative1.playwright.remote.core.enums.ObjectType.*
+import io.github.tmcreative1.playwright.remote.core.exceptions.DriverException
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.core.exceptions.TimeoutException
+import io.github.tmcreative1.playwright.remote.domain.message.Message
+import io.github.tmcreative1.playwright.remote.engine.android.impl.Android
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.Browser
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.BrowserContext
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.BrowserType
+import io.github.tmcreative1.playwright.remote.engine.browser.selector.impl.Selectors
+import io.github.tmcreative1.playwright.remote.engine.callback.impl.BindingCall
+import io.github.tmcreative1.playwright.remote.engine.console.impl.ConsoleMessage
+import io.github.tmcreative1.playwright.remote.engine.dialog.impl.Dialog
+import io.github.tmcreative1.playwright.remote.engine.download.impl.Artifact
+import io.github.tmcreative1.playwright.remote.engine.download.stream.impl.Stream
+import io.github.tmcreative1.playwright.remote.engine.electron.impl.Electron
+import io.github.tmcreative1.playwright.remote.engine.frame.impl.Frame
+import io.github.tmcreative1.playwright.remote.engine.handle.element.impl.ElementHandle
+import io.github.tmcreative1.playwright.remote.engine.handle.js.impl.JSHandle
+import io.github.tmcreative1.playwright.remote.engine.logger.CustomLogger
+import io.github.tmcreative1.playwright.remote.engine.page.impl.Page
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.fromJson
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.toJson
+import io.github.tmcreative1.playwright.remote.engine.playwright.impl.Playwright
+import io.github.tmcreative1.playwright.remote.engine.route.impl.Route
+import io.github.tmcreative1.playwright.remote.engine.route.request.impl.Request
+import io.github.tmcreative1.playwright.remote.engine.route.response.impl.Response
+import io.github.tmcreative1.playwright.remote.engine.transport.ITransport
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitResult
+import io.github.tmcreative1.playwright.remote.engine.websocket.impl.WebSocket
+import io.github.tmcreative1.playwright.remote.engine.worker.impl.Worker
 
 class MessageProcessor(private val transport: ITransport) {
     private val logger = CustomLogger()
 
-    private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "")
+    private class Root(messageProcessor: MessageProcessor) : ChannelOwner(messageProcessor, "", "") {
+        fun initialize() {
+            val params = JsonObject()
+            params.addProperty("sdkLanguage", "java")
+            sendMessage("initialize", params.asJsonObject)
+        }
+    }
 
     private val objects = hashMapOf<String, ChannelOwner>()
     private val callbacks = hashMapOf<Int, WaitResult<JsonElement>>()
     private val root = Root(this)
     private var lastId = 0
+
+    init {
+        root.initialize()
+    }
 
     fun registerObject(guid: String, obj: ChannelOwner) {
         objects[guid] = obj
@@ -92,11 +102,11 @@ class MessageProcessor(private val transport: ITransport) {
             return
         }
 
-        message.method ?: return
+        if (message.method == null) return
 
         when (message.method) {
             CREATE.type -> {
-                createRemoteObject(message.guid, message.params)
+                createRemoteObject(message.guid, message.params!!)
                 return
             }
             DISPOSE.type -> {
@@ -108,7 +118,7 @@ class MessageProcessor(private val transport: ITransport) {
             else -> {
                 val obj = objects[message.guid]
                     ?: throw PlaywrightException("Cannot find object to call ${message.method}: ${message.guid}")
-                obj.handleEvent(message.method, message.params)
+                obj.handleEvent(message.method, message.params ?: JsonObject())
             }
         }
     }
@@ -131,6 +141,7 @@ class MessageProcessor(private val transport: ITransport) {
             DIALOG.type -> Dialog(parent, type, guid, initializer)
             ELECTRON.type -> Electron(parent, type, guid, initializer)
             ELEMENT_HANDLE.type -> ElementHandle(parent, type, guid, initializer)
+            FETCH_REQUEST.type -> ChannelOwner(parent, type, guid, initializer)
             FRAME.type -> Frame(parent, type, guid, initializer)
             JS_HANDLE.type -> JSHandle(parent, type, guid, initializer)
             PAGE.type -> Page(parent, type, guid, initializer)
@@ -160,6 +171,7 @@ class MessageProcessor(private val transport: ITransport) {
         message.addProperty("id", id)
         message.addProperty("guid", guid)
         message.addProperty("method", method)
+        message.add("metadata", JsonObject())
         message.add("params", params)
         logger.logSendMessage(message.toString())
         transport.sendMessage(toJson(message))

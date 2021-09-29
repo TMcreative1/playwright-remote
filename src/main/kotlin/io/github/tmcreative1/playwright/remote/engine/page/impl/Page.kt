@@ -1,66 +1,67 @@
-package com.playwright.remote.engine.page.impl
+package io.github.tmcreative1.playwright.remote.engine.page.impl
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.playwright.remote.core.enums.EventType
-import com.playwright.remote.core.enums.EventType.*
-import com.playwright.remote.core.enums.LoadState
-import com.playwright.remote.core.enums.ScreenshotType.JPEG
-import com.playwright.remote.core.enums.ScreenshotType.PNG
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.domain.file.FilePayload
-import com.playwright.remote.domain.serialize.SerializedError
-import com.playwright.remote.engine.browser.api.IBrowserContext
-import com.playwright.remote.engine.browser.impl.BrowserContext
-import com.playwright.remote.engine.callback.api.IBindingCall
-import com.playwright.remote.engine.callback.api.IBindingCallback
-import com.playwright.remote.engine.callback.api.IBindingCallback.ISource
-import com.playwright.remote.engine.callback.api.IFunctionCallback
-import com.playwright.remote.engine.console.api.IConsoleMessage
-import com.playwright.remote.engine.dialog.api.IDialog
-import com.playwright.remote.engine.download.api.IArtifact
-import com.playwright.remote.engine.download.api.IDownload
-import com.playwright.remote.engine.download.impl.Artifact
-import com.playwright.remote.engine.download.impl.Download
-import com.playwright.remote.engine.filechooser.api.IFileChooser
-import com.playwright.remote.engine.filechooser.impl.FileChooser
-import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.frame.impl.Frame
-import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.keyboard.api.IKeyboard
-import com.playwright.remote.engine.keyboard.impl.Keyboard
-import com.playwright.remote.engine.listener.ListenerCollection
-import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.mouse.api.IMouse
-import com.playwright.remote.engine.mouse.impl.Mouse
-import com.playwright.remote.engine.options.*
-import com.playwright.remote.engine.options.ScreenshotOptions
-import com.playwright.remote.engine.options.element.*
-import com.playwright.remote.engine.options.element.PressOptions
-import com.playwright.remote.engine.options.element.TypeOptions
-import com.playwright.remote.engine.options.wait.*
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.parser.IParser.Companion.fromJson
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.route.Router
-import com.playwright.remote.engine.route.UrlMatcher
-import com.playwright.remote.engine.route.api.IRoute
-import com.playwright.remote.engine.route.request.api.IRequest
-import com.playwright.remote.engine.route.response.api.IResponse
-import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
-import com.playwright.remote.engine.touchscreen.api.ITouchScreen
-import com.playwright.remote.engine.touchscreen.impl.TouchScreen
-import com.playwright.remote.engine.video.api.IVideo
-import com.playwright.remote.engine.video.impl.Video
-import com.playwright.remote.engine.waits.TimeoutSettings
-import com.playwright.remote.engine.waits.api.IWait
-import com.playwright.remote.engine.waits.impl.*
-import com.playwright.remote.engine.websocket.api.IWebSocket
-import com.playwright.remote.engine.worker.api.IWorker
-import com.playwright.remote.engine.worker.impl.Worker
-import com.playwright.remote.utils.Utils.Companion.isSafeCloseError
-import com.playwright.remote.utils.Utils.Companion.writeToFile
+import io.github.tmcreative1.playwright.remote.core.enums.EventType
+import io.github.tmcreative1.playwright.remote.core.enums.EventType.*
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState
+import io.github.tmcreative1.playwright.remote.core.enums.ScreenshotType.JPEG
+import io.github.tmcreative1.playwright.remote.core.enums.ScreenshotType.PNG
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.domain.file.FilePayload
+import io.github.tmcreative1.playwright.remote.domain.serialize.SerializedError
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserContext
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.BrowserContext
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCall
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback.ISource
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IFunctionCallback
+import io.github.tmcreative1.playwright.remote.engine.console.api.IConsoleMessage
+import io.github.tmcreative1.playwright.remote.engine.dialog.api.IDialog
+import io.github.tmcreative1.playwright.remote.engine.download.api.IArtifact
+import io.github.tmcreative1.playwright.remote.engine.download.api.IDownload
+import io.github.tmcreative1.playwright.remote.engine.download.impl.Artifact
+import io.github.tmcreative1.playwright.remote.engine.download.impl.Download
+import io.github.tmcreative1.playwright.remote.engine.filechooser.api.IFileChooser
+import io.github.tmcreative1.playwright.remote.engine.filechooser.impl.FileChooser
+import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.frame.impl.Frame
+import io.github.tmcreative1.playwright.remote.engine.frame.locator.api.ILocator
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.engine.keyboard.api.IKeyboard
+import io.github.tmcreative1.playwright.remote.engine.keyboard.impl.Keyboard
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
+import io.github.tmcreative1.playwright.remote.engine.mouse.api.IMouse
+import io.github.tmcreative1.playwright.remote.engine.mouse.impl.Mouse
+import io.github.tmcreative1.playwright.remote.engine.options.*
+import io.github.tmcreative1.playwright.remote.engine.options.ScreenshotOptions
+import io.github.tmcreative1.playwright.remote.engine.options.element.*
+import io.github.tmcreative1.playwright.remote.engine.options.element.PressOptions
+import io.github.tmcreative1.playwright.remote.engine.options.element.TypeOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.*
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.fromJson
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.route.Router
+import io.github.tmcreative1.playwright.remote.engine.route.UrlMatcher
+import io.github.tmcreative1.playwright.remote.engine.route.api.IRoute
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
+import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import io.github.tmcreative1.playwright.remote.engine.touchscreen.api.ITouchScreen
+import io.github.tmcreative1.playwright.remote.engine.touchscreen.impl.TouchScreen
+import io.github.tmcreative1.playwright.remote.engine.video.api.IVideo
+import io.github.tmcreative1.playwright.remote.engine.video.impl.Video
+import io.github.tmcreative1.playwright.remote.engine.waits.TimeoutSettings
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.*
+import io.github.tmcreative1.playwright.remote.engine.websocket.api.IWebSocket
+import io.github.tmcreative1.playwright.remote.engine.worker.api.IWorker
+import io.github.tmcreative1.playwright.remote.engine.worker.impl.Worker
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.isSafeCloseError
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.writeToFile
 import okio.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files.readAllBytes
@@ -392,8 +393,8 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         sendMessage("emulateMedia", params)
     }
 
-    override fun evalOnSelector(selector: String, expression: String, arg: Any?): Any {
-        return mainFrame.evalOnSelector(selector, expression, arg)
+    override fun evalOnSelector(selector: String, expression: String, arg: Any?, options: EvalOnSelectorOptions?): Any {
+        return mainFrame.evalOnSelector(selector, expression, arg, options)
     }
 
     override fun evalOnSelectorAll(selector: String, expression: String, arg: Any?): Any {
@@ -803,19 +804,22 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun waitForClose(options: WaitForCloseOptions?, callback: () -> Unit): IPage? {
-        return waitForEventWithTimeout(CLOSE, (options ?: WaitForCloseOptions {}).timeout, callback)
+        return waitForEventWithTimeout(CLOSE, (options ?: WaitForCloseOptions {}).timeout, null, callback)
     }
 
     override fun waitForConsoleMessage(options: WaitForConsoleMessageOptions?, callback: () -> Unit): IConsoleMessage? {
-        return waitForEventWithTimeout(CONSOLE, (options ?: WaitForConsoleMessageOptions {}).timeout, callback)
+        val opt = options ?: WaitForConsoleMessageOptions {}
+        return waitForEventWithTimeout(CONSOLE, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForDownload(options: WaitForDownloadOptions?, callback: () -> Unit): IDownload? {
-        return waitForEventWithTimeout(DOWNLOAD, (options ?: WaitForDownloadOptions {}).timeout, callback)
+        val opt = options ?: WaitForDownloadOptions {}
+        return waitForEventWithTimeout(DOWNLOAD, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForFileChooser(options: WaitForFileChooserOptions?, callback: () -> Unit): IFileChooser? {
-        return waitForEventWithTimeout(FILECHOOSER, (options ?: WaitForFileChooserOptions {}).timeout, callback)
+        val opt = options ?: WaitForFileChooserOptions {}
+        return waitForEventWithTimeout(FILECHOOSER, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForFunction(expression: String, arg: Any?, options: WaitForFunctionOptions?): IJSHandle {
@@ -831,7 +835,8 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun waitForPopup(options: WaitForPopupOptions?, callback: () -> Unit): IPage? {
-        return waitForEventWithTimeout(POPUP, (options ?: WaitForPopupOptions {}).timeout, callback)
+        val opt = options ?: WaitForPopupOptions {}
+        return waitForEventWithTimeout(POPUP, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForRequest(
@@ -862,11 +867,13 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         options: WaitForRequestOptions?,
         callback: () -> Unit
     ): IRequest? {
-        val waits = arrayListOf<IWait<IRequest>>()
-        waits.add(WaitEvent(listeners, REQUEST, { request -> urlOrPredicate == null || urlOrPredicate(request) }))
-        waits.add(createWaitForCloseHelper())
-        waits.add(createWaitTimeout((options ?: WaitForRequestOptions {}).timeout))
-        return runUtil(WaitRace(waits), callback)
+        val opt = options ?: WaitForRequestOptions {}
+        return waitForEventWithTimeout(REQUEST, opt.timeout, urlOrPredicate, callback)
+    }
+
+    override fun waitForRequestFinished(options: WaitForRequestFinishedOptions?, callback: () -> Unit): IRequest? {
+        val opt = options ?: WaitForRequestFinishedOptions {}
+        return waitForEventWithTimeout(REQUESTFINISHED, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForResponse(
@@ -897,11 +904,8 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         options: WaitForResponseOptions?,
         callback: () -> Unit
     ): IResponse? {
-        val waits = arrayListOf<IWait<IResponse>>()
-        waits.add(WaitEvent(listeners, RESPONSE, { response -> urlOrPredicate == null || urlOrPredicate(response) }))
-        waits.add(createWaitForCloseHelper())
-        waits.add(createWaitTimeout((options ?: WaitForResponseOptions {}).timeout))
-        return runUtil(WaitRace(waits), callback)
+        val opt = options ?: WaitForResponseOptions {}
+        return waitForEventWithTimeout(RESPONSE, opt.timeout, urlOrPredicate, callback)
     }
 
     override fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle? {
@@ -929,11 +933,13 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
     }
 
     override fun waitForWebSocket(options: WaitForWebSocketOptions?, callback: () -> Unit): IWebSocket? {
-        return waitForEventWithTimeout(WEBSOCKET, (options ?: WaitForWebSocketOptions {}).timeout, callback)
+        val opt = options ?: WaitForWebSocketOptions {}
+        return waitForEventWithTimeout(WEBSOCKET, opt.timeout, opt.predicate, callback)
     }
 
     override fun waitForWorker(options: WaitForWorkerOptions?, callback: () -> Unit): IWorker? {
-        return waitForEventWithTimeout(WORKER, (options ?: WaitForWorkerOptions {}).timeout, callback)
+        val opt = options ?: WaitForWorkerOptions {}
+        return waitForEventWithTimeout(WORKER, opt.timeout, opt.predicate, callback)
     }
 
     override fun workers(): List<IWorker> {
@@ -952,6 +958,14 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         })
     }
 
+    override fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?) {
+        mainFrame.dragAndDrop(source, target, options)
+    }
+
+    override fun locator(selector: String): ILocator {
+        return mainFrame.locator(selector)
+    }
+
     override fun handleEvent(event: String, params: JsonObject) {
         when (event) {
             "dialog" -> {
@@ -960,7 +974,15 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
                 if (listeners.hasListeners(DIALOG)) {
                     listeners.notify(DIALOG, dialog)
                 } else {
-                    dialog.dismiss()
+                    if ("beforeunload" == dialog.type()) {
+                        try {
+                            dialog.accept()
+                        } catch (e: PlaywrightException) {
+
+                        }
+                    } else {
+                        dialog.dismiss()
+                    }
                 }
             }
             "worker" -> {
@@ -1086,9 +1108,14 @@ class Page(parent: ChannelOwner, type: String, guid: String, initializer: JsonOb
         return WaitFrameDetach(listeners, frame) as IWait<T>
     }
 
-    private fun <T> waitForEventWithTimeout(eventType: EventType, timeout: Double?, code: () -> Unit): T? {
+    private fun <T> waitForEventWithTimeout(
+        eventType: EventType,
+        timeout: Double?,
+        predicate: ((T) -> Boolean)?,
+        code: () -> Unit
+    ): T? {
         val waits = arrayListOf<IWait<T>>()
-        waits.add(WaitEvent(listeners, eventType))
+        waits.add(WaitEvent(listeners, eventType, predicate))
         waits.add(createWaitForCloseHelper())
         waits.add(createWaitTimeout(timeout))
         return runUtil(WaitRace(waits), code)

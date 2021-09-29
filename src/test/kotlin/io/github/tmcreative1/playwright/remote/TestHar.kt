@@ -1,12 +1,12 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
 import com.google.gson.JsonObject
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.LoadState
-import com.playwright.remote.engine.browser.api.IBrowserContext
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.parser.IParser
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserContext
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,6 +14,7 @@ import java.io.FileReader
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TestHar : BaseTest() {
@@ -78,7 +79,7 @@ class TestHar : BaseTest() {
 
         assertEquals(1, log["pages"].asJsonArray.size())
         val pageEntry = log["pages"].asJsonArray[0].asJsonObject
-        assertEquals("page_0", pageEntry["id"].asString)
+        assertNotNull(pageEntry["id"].asString)
         assertEquals("Hello", pageEntry["title"].asString)
         assertTrue(pageEntry["pageTimings"].asJsonObject["onContentLoad"].asDouble > 0)
         assertTrue(pageEntry["pageTimings"].asJsonObject["onLoad"].asDouble > 0)
@@ -91,7 +92,8 @@ class TestHar : BaseTest() {
         assertEquals(1, log["entries"].asJsonArray.size())
 
         val entry = log["entries"].asJsonArray[0].asJsonObject
-        assertEquals("page_0", entry["pageref"].asString)
+        val id = log["pages"].asJsonArray[0].asJsonObject["id"].asString
+        assertEquals(id, entry["pageref"].asString)
         assertEquals(httpServer.emptyPage, entry["request"].asJsonObject["url"].asString)
         assertEquals("GET", entry["request"].asJsonObject["method"].asString)
         assertEquals("HTTP/1.1", entry["request"].asJsonObject["httpVersion"].asString)

@@ -1,7 +1,7 @@
-package com.playwright.remote.browser
+package io.github.tmcreative1.playwright.remote.browser.context
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -81,7 +81,7 @@ class TestBrowserContextNetworkEvents : BaseTest() {
         browserContext.onRequestFinished { events.add("request finished") }
         val response = page.navigate(httpServer.emptyPage)
         assertNotNull(response)
-        assertNull(response.finished())
+        assertTrue(response.finished().isEmpty())
         assertEquals(listOf("request", "response", "request finished"), events)
     }
 }

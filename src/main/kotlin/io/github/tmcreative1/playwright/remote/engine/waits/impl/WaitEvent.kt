@@ -1,8 +1,8 @@
-package com.playwright.remote.engine.waits.impl
+package io.github.tmcreative1.playwright.remote.engine.waits.impl
 
-import com.playwright.remote.engine.listener.ListenerCollection
-import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
 
 typealias Predicate<T> = (T) -> Boolean
 
@@ -26,7 +26,8 @@ open class WaitEvent<EventType, T>(
         dispose()
     }
 
-    override fun isFinished(): Boolean = eventArg != null
+    override fun isFinished(): Boolean =
+        eventArg != null
 
     override fun get(): T = eventArg!!
 
