@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.github.tmcreative1"
-version = "1.13-SNAPSHOT"
+version = "1.13"
 
 apply(from = "${rootProject.file("gradle/source-sets.gradle.kts")}")
 apply(from = "${rootProject.file("gradle/dependencies.gradle.kts")}")

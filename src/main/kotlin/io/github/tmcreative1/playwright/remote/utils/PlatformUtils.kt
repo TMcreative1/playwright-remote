@@ -1,7 +1,7 @@
-package com.playwright.remote.utils
+package io.github.tmcreative1.playwright.remote.utils
 
-import com.playwright.remote.core.enums.Platform
-import com.playwright.remote.core.exceptions.PlatformException
+import io.github.tmcreative1.playwright.remote.core.enums.Platform
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlatformException
 
 class PlatformUtils {
 

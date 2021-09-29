@@ -1,32 +1,32 @@
-package com.playwright.remote.engine.page.api
+package io.github.tmcreative1.playwright.remote.engine.page.api
 
-import com.playwright.remote.core.enums.LoadState
-import com.playwright.remote.domain.file.FilePayload
-import com.playwright.remote.engine.browser.api.IBrowserContext
-import com.playwright.remote.engine.callback.api.IBindingCallback
-import com.playwright.remote.engine.callback.api.IFunctionCallback
-import com.playwright.remote.engine.console.api.IConsoleMessage
-import com.playwright.remote.engine.dialog.api.IDialog
-import com.playwright.remote.engine.download.api.IDownload
-import com.playwright.remote.engine.filechooser.api.IFileChooser
-import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.keyboard.api.IKeyboard
-import com.playwright.remote.engine.mouse.api.IMouse
-import com.playwright.remote.engine.options.*
-import com.playwright.remote.engine.options.ScreenshotOptions
-import com.playwright.remote.engine.options.element.*
-import com.playwright.remote.engine.options.element.PressOptions
-import com.playwright.remote.engine.options.element.TypeOptions
-import com.playwright.remote.engine.options.wait.*
-import com.playwright.remote.engine.route.api.IRoute
-import com.playwright.remote.engine.route.request.api.IRequest
-import com.playwright.remote.engine.route.response.api.IResponse
-import com.playwright.remote.engine.touchscreen.api.ITouchScreen
-import com.playwright.remote.engine.video.api.IVideo
-import com.playwright.remote.engine.websocket.api.IWebSocket
-import com.playwright.remote.engine.worker.api.IWorker
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState
+import io.github.tmcreative1.playwright.remote.domain.file.FilePayload
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserContext
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IBindingCallback
+import io.github.tmcreative1.playwright.remote.engine.callback.api.IFunctionCallback
+import io.github.tmcreative1.playwright.remote.engine.console.api.IConsoleMessage
+import io.github.tmcreative1.playwright.remote.engine.dialog.api.IDialog
+import io.github.tmcreative1.playwright.remote.engine.download.api.IDownload
+import io.github.tmcreative1.playwright.remote.engine.filechooser.api.IFileChooser
+import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.engine.keyboard.api.IKeyboard
+import io.github.tmcreative1.playwright.remote.engine.mouse.api.IMouse
+import io.github.tmcreative1.playwright.remote.engine.options.*
+import io.github.tmcreative1.playwright.remote.engine.options.ScreenshotOptions
+import io.github.tmcreative1.playwright.remote.engine.options.element.*
+import io.github.tmcreative1.playwright.remote.engine.options.element.PressOptions
+import io.github.tmcreative1.playwright.remote.engine.options.element.TypeOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.*
+import io.github.tmcreative1.playwright.remote.engine.route.api.IRoute
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
+import io.github.tmcreative1.playwright.remote.engine.touchscreen.api.ITouchScreen
+import io.github.tmcreative1.playwright.remote.engine.video.api.IVideo
+import io.github.tmcreative1.playwright.remote.engine.websocket.api.IWebSocket
+import io.github.tmcreative1.playwright.remote.engine.worker.api.IWorker
 import java.nio.file.Path
 import java.util.regex.Pattern
 
@@ -3168,6 +3168,24 @@ interface IPage : AutoCloseable {
     ): IRequest?
 
     /**
+     * Performs action and waits for a {@code Request} to finish loading. If predicate is provided, it passes {@code Request} value into
+     * the {@code predicate} function and waits for {@code predicate(request)} to return a truthy value. Will throw an error if the page is
+     * closed before the {@link Page#onRequestFinished Page.onRequestFinished()} event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForRequestFinished(callback: () -> Unit): IRequest? = waitForRequestFinished(null, callback)
+
+    /**
+     * Performs action and waits for a {@code Request} to finish loading. If predicate is provided, it passes {@code Request} value into
+     * the {@code predicate} function and waits for {@code predicate(request)} to return a truthy value. Will throw an error if the page is
+     * closed before the {@link Page#onRequestFinished Page.onRequestFinished()} event is fired.
+     *
+     * @param callback Callback that performs the action triggering the event.
+     */
+    fun waitForRequestFinished(options: WaitForRequestFinishedOptions?, callback: () -> Unit): IRequest?
+
+    /**
      * Returns the matched response. See <a href="https://playwright.dev/java/docs/events/#waiting-for-event">waiting for
      * event</a> for more details about events.
      * <pre>{@code
@@ -3565,4 +3583,8 @@ interface IPage : AutoCloseable {
      *                dialog, and actions like click will never finish.
      */
     fun onceDialog(handler: (IDialog) -> Unit)
+
+    fun dragAndDrop(source: String, target: String) = dragAndDrop(source, target, null)
+
+    fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?)
 }

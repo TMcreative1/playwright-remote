@@ -1,11 +1,11 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.DeviceDescriptors.GALAXY_S8
-import com.playwright.remote.core.enums.LoadState.DOMCONTENTLOADED
-import com.playwright.remote.engine.options.HttpCredentials
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.options.ViewportSize
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.enums.DeviceDescriptors.GALAXY_S8
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState.DOMCONTENTLOADED
+import io.github.tmcreative1.playwright.remote.engine.options.HttpCredentials
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.options.ViewportSize
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

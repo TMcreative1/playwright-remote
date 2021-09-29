@@ -1,4 +1,4 @@
-package com.playwright.remote.core.exceptions
+package io.github.tmcreative1.playwright.remote.core.exceptions
 
 
 open class PlaywrightException : RuntimeException {

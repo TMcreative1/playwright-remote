@@ -1,9 +1,9 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.domain.ServerConfig
-import com.playwright.remote.engine.options.PdfOptions
-import com.playwright.remote.engine.parser.IParser.Companion.fromJson
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.domain.ServerConfig
+import io.github.tmcreative1.playwright.remote.engine.options.PdfOptions
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.fromJson
 import jdk.jfr.Description
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test

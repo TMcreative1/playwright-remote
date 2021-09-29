@@ -1,6 +1,6 @@
-package com.playwright.remote.engine.route.request
+package io.github.tmcreative1.playwright.remote.engine.route.request
 
-import com.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 
 data class Timing @JvmOverloads constructor(
     /**

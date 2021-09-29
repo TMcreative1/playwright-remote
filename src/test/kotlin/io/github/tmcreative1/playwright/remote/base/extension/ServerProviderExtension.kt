@@ -1,9 +1,9 @@
-package com.playwright.remote.base.extension
+package io.github.tmcreative1.playwright.remote.base.extension
 
-import com.playwright.remote.core.enums.BrowserType.valueOf
-import com.playwright.remote.engine.server.api.IServerProvider
-import com.playwright.remote.engine.server.impl.ServerProvider
-import com.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
+import io.github.tmcreative1.playwright.remote.core.enums.BrowserType.valueOf
+import io.github.tmcreative1.playwright.remote.engine.server.api.IServerProvider
+import io.github.tmcreative1.playwright.remote.engine.server.impl.ServerProvider
+import io.github.tmcreative1.playwright.remote.utils.PlatformUtils.Companion.getCurrentPlatform
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import java.util.concurrent.locks.ReentrantLock

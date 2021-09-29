@@ -1,8 +1,8 @@
-package com.playwright.remote.engine.download.stream.impl
+package io.github.tmcreative1.playwright.remote.engine.download.stream.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.download.stream.api.IStream
-import com.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.download.stream.api.IStream
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
 import java.io.InputStream
 import java.util.*
 

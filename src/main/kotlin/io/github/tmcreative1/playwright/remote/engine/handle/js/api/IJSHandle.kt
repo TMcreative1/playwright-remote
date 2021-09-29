@@ -1,6 +1,6 @@
-package com.playwright.remote.engine.handle.js.api
+package io.github.tmcreative1.playwright.remote.engine.handle.js.api
 
-import com.playwright.remote.engine.handle.element.api.IElementHandle
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
 
 /**
  * JSHandle represents an in-page JavaScript object. JSHandles can be created with the {@link Page#evaluateHandle

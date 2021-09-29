@@ -1,8 +1,8 @@
-package com.playwright.remote.engine.waits
+package io.github.tmcreative1.playwright.remote.engine.waits
 
-import com.playwright.remote.engine.waits.api.IWait
-import com.playwright.remote.engine.waits.impl.WaitNever
-import com.playwright.remote.engine.waits.impl.WaitTimeout
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitNever
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitTimeout
 
 class TimeoutSettings @JvmOverloads constructor(private val parent: TimeoutSettings? = null) {
     private val defaultTimeoutMs = (30_000).toDouble()

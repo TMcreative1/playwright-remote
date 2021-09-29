@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.options.element
+package io.github.tmcreative1.playwright.remote.engine.options.element
 
-import com.playwright.remote.core.enums.ScreenshotType
-import com.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.core.enums.ScreenshotType
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
 import java.nio.file.Path
 
 data class ScreenshotOptions @JvmOverloads constructor(

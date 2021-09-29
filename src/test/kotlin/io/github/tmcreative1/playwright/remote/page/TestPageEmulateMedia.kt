@@ -1,10 +1,10 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.Media
-import com.playwright.remote.engine.options.EmulateMediaOptions
-import com.playwright.remote.engine.options.NewPageOptions
-import com.playwright.remote.engine.options.enum.ColorScheme
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.enums.Media
+import io.github.tmcreative1.playwright.remote.engine.options.EmulateMediaOptions
+import io.github.tmcreative1.playwright.remote.engine.options.NewPageOptions
+import io.github.tmcreative1.playwright.remote.engine.options.enum.ColorScheme
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 

@@ -1,14 +1,14 @@
-package com.playwright.remote.engine.handle.js.impl
+package io.github.tmcreative1.playwright.remote.engine.handle.js.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.domain.serialize.SerializedError
-import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.parser.IParser.Companion.fromJson
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
-import com.playwright.remote.engine.serialize.Serialization.Companion.deserialize
-import com.playwright.remote.engine.serialize.Serialization.Companion.serializeArgument
+import io.github.tmcreative1.playwright.remote.domain.serialize.SerializedError
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.fromJson
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import io.github.tmcreative1.playwright.remote.engine.serialize.Serialization.Companion.deserialize
+import io.github.tmcreative1.playwright.remote.engine.serialize.Serialization.Companion.serializeArgument
 
 open class JSHandle(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IJSHandle {

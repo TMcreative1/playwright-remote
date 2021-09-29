@@ -1,9 +1,10 @@
-package com.playwright.remote.page
+package io.github.tmcreative1.playwright.remote.page
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.options.wait.WaitForRequestOptions
-import com.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForRequestOptions
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
 import org.junit.jupiter.api.Test
 import java.util.regex.Pattern
 import kotlin.test.assertEquals
@@ -78,12 +79,32 @@ class TestPageWaitForRequest : BaseTest() {
     fun `check correct work with url match`() {
         page.navigate(httpServer.emptyPage)
         val request = page.waitForRequest(Pattern.compile(".*digits/\\d\\.png")) {
-            page.evaluate("""() => {
+            page.evaluate(
+                """() => {
                 |   fetch('/digits/1.png');
                 |}
-            """.trimMargin())
+            """.trimMargin()
+            )
         }
         assertNotNull(request)
         assertEquals("${httpServer.prefixWithDomain}/digits/1.png", request.url())
+    }
+
+    @Test
+    fun `check to wait for request finished`() {
+        val responseRef = arrayListOf<IResponse?>(null)
+        val request = page.waitForRequestFinished {
+            responseRef[0] = page.navigate(httpServer.emptyPage)
+        }
+        assertNotNull(request)
+        val response = responseRef[0]
+        assertNotNull(response)
+        assertTrue(response.finished().isNullOrEmpty())
+        assertEquals(response.request(), request)
+        assertEquals(httpServer.emptyPage, request.url())
+        assertNotNull(request.response())
+        assertEquals(page.mainFrame(), request.frame())
+        assertEquals(httpServer.emptyPage, request.frame().url())
+        assertTrue(request.failure().isBlank())
     }
 }

@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.options
+package io.github.tmcreative1.playwright.remote.engine.options
 
-import com.playwright.remote.engine.options.api.IBuilder
-import com.playwright.remote.engine.options.enum.MouseButton
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.engine.options.enum.MouseButton
 
 data class DownOptions @JvmOverloads constructor(
     /**

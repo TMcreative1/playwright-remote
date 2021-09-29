@@ -1,8 +1,8 @@
-package com.playwright.remote.engine.route.request.api
+package io.github.tmcreative1.playwright.remote.engine.route.request.api
 
-import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.route.request.Timing
-import com.playwright.remote.engine.route.response.api.IResponse
+import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.route.request.Timing
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
 
 interface IRequest {
     /**

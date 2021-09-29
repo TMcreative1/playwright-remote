@@ -1,9 +1,9 @@
-package com.playwright.remote.engine.download.impl
+package io.github.tmcreative1.playwright.remote.engine.download.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.download.api.IArtifact
-import com.playwright.remote.engine.download.api.IDownload
-import com.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.download.api.IArtifact
+import io.github.tmcreative1.playwright.remote.engine.download.api.IDownload
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
 import java.io.InputStream
 import java.nio.file.Path
 

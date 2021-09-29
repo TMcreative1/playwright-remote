@@ -1,7 +1,7 @@
-package com.playwright.remote.utils
+package io.github.tmcreative1.playwright.remote.utils
 
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.domain.file.FilePayload
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.domain.file.FilePayload
 import okio.IOException
 import java.io.FileOutputStream
 import java.io.InputStream
