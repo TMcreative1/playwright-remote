@@ -1,16 +1,16 @@
-package com.playwright.remote.engine.route.response.impl
+package io.github.tmcreative1.playwright.remote.engine.route.response.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.domain.response.SecurityDetails
-import com.playwright.remote.domain.response.ServerAddress
-import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.parser.IParser.Companion.fromJson
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.route.request.Timing
-import com.playwright.remote.engine.route.request.api.IRequest
-import com.playwright.remote.engine.route.request.impl.Request
-import com.playwright.remote.engine.route.response.api.IResponse
-import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import io.github.tmcreative1.playwright.remote.domain.response.SecurityDetails
+import io.github.tmcreative1.playwright.remote.domain.response.ServerAddress
+import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.fromJson
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.route.request.Timing
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.request.impl.Request
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
+import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Companion.gson
 import java.nio.charset.StandardCharsets
 import java.util.*
 

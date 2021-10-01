@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.route
+package io.github.tmcreative1.playwright.remote.engine.route
 
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.utils.Utils.Companion.globToRegex
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.globToRegex
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.*

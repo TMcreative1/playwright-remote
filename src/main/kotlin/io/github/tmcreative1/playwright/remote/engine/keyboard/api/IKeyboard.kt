@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.keyboard.api
+package io.github.tmcreative1.playwright.remote.engine.keyboard.api
 
-import com.playwright.remote.engine.options.PressOptions
-import com.playwright.remote.engine.options.TypeOptions
+import io.github.tmcreative1.playwright.remote.engine.options.PressOptions
+import io.github.tmcreative1.playwright.remote.engine.options.TypeOptions
 
 /**
  * Keyboard provides an api for managing a virtual keyboard. The high level api is {@link Keyboard#type Keyboard.type()},

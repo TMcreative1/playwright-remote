@@ -1,11 +1,11 @@
-package com.playwright.remote.engine.serialize.serializers
+package io.github.tmcreative1.playwright.remote.engine.serialize.serializers
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import com.playwright.remote.core.enums.KeyboardModifier
-import com.playwright.remote.core.enums.KeyboardModifier.*
+import io.github.tmcreative1.playwright.remote.core.enums.KeyboardModifier
+import io.github.tmcreative1.playwright.remote.core.enums.KeyboardModifier.*
 import java.lang.reflect.Type
 
 class KeyboardModifiersSerializer : JsonSerializer<MutableList<KeyboardModifier>> {

@@ -1,11 +1,11 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.KeyboardModifier
-import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.options.element.TapOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.enums.KeyboardModifier
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.options.element.TapOptions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.OutputStreamWriter

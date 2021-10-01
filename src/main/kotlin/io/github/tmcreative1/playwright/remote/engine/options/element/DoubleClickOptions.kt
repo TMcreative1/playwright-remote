@@ -1,9 +1,9 @@
-package com.playwright.remote.engine.options.element
+package io.github.tmcreative1.playwright.remote.engine.options.element
 
-import com.playwright.remote.core.enums.KeyboardModifier
-import com.playwright.remote.engine.options.Position
-import com.playwright.remote.engine.options.api.IBuilder
-import com.playwright.remote.engine.options.enum.MouseButton
+import io.github.tmcreative1.playwright.remote.core.enums.KeyboardModifier
+import io.github.tmcreative1.playwright.remote.engine.options.Position
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.engine.options.enum.MouseButton
 
 data class DoubleClickOptions @JvmOverloads constructor(
     /**
@@ -36,11 +36,22 @@ data class DoubleClickOptions @JvmOverloads constructor(
      */
     var position: Position? = null,
     /**
+     * When true, the call requires selector to resolve to a single element. If given selector resolves to more then one
+     * element, the call throws an exception.
+     */
+    var strict: Boolean? = null,
+    /**
      * Maximum time in milliseconds, defaults to 30 seconds, pass {@code 0} to disable timeout. The default value can be changed by
      * using the {@link BrowserContext#setDefaultTimeout BrowserContext.setDefaultTimeout()} or {@link Page#setDefaultTimeout
      * Page.setDefaultTimeout()} methods.
      */
     var timeout: Double? = null,
+    /**
+     * When set, this method only performs the <a href="https://playwright.dev/java/docs/actionability/">actionability</a>
+     * checks and skips the action. Defaults to {@code false}. Useful to wait until the element is ready for the action without
+     * performing it.
+     */
+    var trial: Boolean? = null,
     @Transient private val builder: IBuilder<DoubleClickOptions>
 ) {
     init {

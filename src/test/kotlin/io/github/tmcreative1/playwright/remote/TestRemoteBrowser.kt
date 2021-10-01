@@ -1,9 +1,9 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.WebSocketException
-import com.playwright.remote.engine.browser.RemoteBrowser
-import com.playwright.remote.engine.browser.impl.Browser
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.WebSocketException
+import io.github.tmcreative1.playwright.remote.engine.browser.RemoteBrowser
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.Browser
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 

@@ -1,14 +1,14 @@
-package com.playwright.remote.engine.mouse.impl
+package io.github.tmcreative1.playwright.remote.engine.mouse.impl
 
-import com.playwright.remote.engine.mouse.api.IMouse
-import com.playwright.remote.engine.options.DownOptions
-import com.playwright.remote.engine.options.MoveOptions
-import com.playwright.remote.engine.options.UpOptions
-import com.playwright.remote.engine.options.mouse.ClickOptions
-import com.playwright.remote.engine.options.mouse.DoubleClickOptions
-import com.playwright.remote.engine.parser.IParser.Companion.convert
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import io.github.tmcreative1.playwright.remote.engine.mouse.api.IMouse
+import io.github.tmcreative1.playwright.remote.engine.options.DownOptions
+import io.github.tmcreative1.playwright.remote.engine.options.MoveOptions
+import io.github.tmcreative1.playwright.remote.engine.options.UpOptions
+import io.github.tmcreative1.playwright.remote.engine.options.mouse.ClickOptions
+import io.github.tmcreative1.playwright.remote.engine.options.mouse.DoubleClickOptions
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.convert
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Companion.gson
 
 class Mouse(val page: ChannelOwner) : IMouse {
     override fun click(x: Double, y: Double, options: ClickOptions) {

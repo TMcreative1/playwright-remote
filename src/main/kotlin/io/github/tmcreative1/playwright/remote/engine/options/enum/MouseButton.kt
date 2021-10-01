@@ -1,4 +1,4 @@
-package com.playwright.remote.engine.options.enum
+package io.github.tmcreative1.playwright.remote.engine.options.enum
 
 enum class MouseButton {
     LEFT,

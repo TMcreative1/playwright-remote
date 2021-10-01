@@ -1,46 +1,48 @@
-package com.playwright.remote.engine.frame.impl
+package io.github.tmcreative1.playwright.remote.engine.frame.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.core.enums.InternalEventType
-import com.playwright.remote.core.enums.InternalEventType.LOADSTATE
-import com.playwright.remote.core.enums.InternalEventType.NAVIGATED
-import com.playwright.remote.core.enums.LoadState
-import com.playwright.remote.core.enums.WaitUntilState.LOAD
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.domain.file.FilePayload
-import com.playwright.remote.domain.serialize.SerializedError.SerializedValue
-import com.playwright.remote.engine.browser.impl.BrowserContext
-import com.playwright.remote.engine.frame.api.IFrame
-import com.playwright.remote.engine.handle.element.api.IElementHandle
-import com.playwright.remote.engine.handle.js.api.IJSHandle
-import com.playwright.remote.engine.listener.ListenerCollection
-import com.playwright.remote.engine.options.*
-import com.playwright.remote.engine.options.element.*
-import com.playwright.remote.engine.options.element.PressOptions
-import com.playwright.remote.engine.options.element.TypeOptions
-import com.playwright.remote.engine.options.wait.WaitForFunctionOptions
-import com.playwright.remote.engine.options.wait.WaitForLoadStateOptions
-import com.playwright.remote.engine.options.wait.WaitForNavigationOptions
-import com.playwright.remote.engine.options.wait.WaitForURLOptions
-import com.playwright.remote.engine.page.api.IPage
-import com.playwright.remote.engine.page.impl.Page
-import com.playwright.remote.engine.parser.IParser.Companion.convert
-import com.playwright.remote.engine.parser.IParser.Companion.fromJson
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.engine.route.UrlMatcher
-import com.playwright.remote.engine.route.response.api.IResponse
-import com.playwright.remote.engine.serialize.CustomGson.Companion.gson
-import com.playwright.remote.engine.serialize.Serialization.Companion.deserialize
-import com.playwright.remote.engine.serialize.Serialization.Companion.parseStringList
-import com.playwright.remote.engine.serialize.Serialization.Companion.serializeArgument
-import com.playwright.remote.engine.serialize.Serialization.Companion.toJsonArray
-import com.playwright.remote.engine.serialize.Serialization.Companion.toProtocol
-import com.playwright.remote.engine.waits.api.IWait
-import com.playwright.remote.engine.waits.impl.WaitLoadState
-import com.playwright.remote.engine.waits.impl.WaitNavigation
-import com.playwright.remote.engine.waits.impl.WaitRace
-import com.playwright.remote.engine.waits.impl.WaitTimeout
-import com.playwright.remote.utils.Utils.Companion.toFilePayloads
+import io.github.tmcreative1.playwright.remote.core.enums.InternalEventType
+import io.github.tmcreative1.playwright.remote.core.enums.InternalEventType.LOADSTATE
+import io.github.tmcreative1.playwright.remote.core.enums.InternalEventType.NAVIGATED
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState
+import io.github.tmcreative1.playwright.remote.core.enums.WaitUntilState.LOAD
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.domain.file.FilePayload
+import io.github.tmcreative1.playwright.remote.domain.serialize.SerializedError.SerializedValue
+import io.github.tmcreative1.playwright.remote.engine.browser.impl.BrowserContext
+import io.github.tmcreative1.playwright.remote.engine.frame.api.IFrame
+import io.github.tmcreative1.playwright.remote.engine.frame.locator.api.ILocator
+import io.github.tmcreative1.playwright.remote.engine.frame.locator.impl.Locator
+import io.github.tmcreative1.playwright.remote.engine.handle.element.api.IElementHandle
+import io.github.tmcreative1.playwright.remote.engine.handle.js.api.IJSHandle
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.engine.options.*
+import io.github.tmcreative1.playwright.remote.engine.options.element.*
+import io.github.tmcreative1.playwright.remote.engine.options.element.PressOptions
+import io.github.tmcreative1.playwright.remote.engine.options.element.TypeOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForFunctionOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForLoadStateOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForNavigationOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForURLOptions
+import io.github.tmcreative1.playwright.remote.engine.page.api.IPage
+import io.github.tmcreative1.playwright.remote.engine.page.impl.Page
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.convert
+import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.fromJson
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.route.UrlMatcher
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
+import io.github.tmcreative1.playwright.remote.engine.serialize.CustomGson.Companion.gson
+import io.github.tmcreative1.playwright.remote.engine.serialize.Serialization.Companion.deserialize
+import io.github.tmcreative1.playwright.remote.engine.serialize.Serialization.Companion.parseStringList
+import io.github.tmcreative1.playwright.remote.engine.serialize.Serialization.Companion.serializeArgument
+import io.github.tmcreative1.playwright.remote.engine.serialize.Serialization.Companion.toJsonArray
+import io.github.tmcreative1.playwright.remote.engine.serialize.Serialization.Companion.toProtocol
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitLoadState
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitNavigation
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitRace
+import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitTimeout
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.toFilePayloads
 import okio.IOException
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files.readAllBytes
@@ -153,14 +155,20 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         sendMessage("dispatchEvent", params)
     }
 
-    override fun evalOnSelector(selector: String, expression: String, arg: Any?): Any =
-        evalOnSelector(selector, expression, arg, "evalOnSelector")
+    override fun evalOnSelector(selector: String, expression: String, arg: Any?, options: EvalOnSelectorOptions?): Any =
+        evalOnSelector(selector, expression, arg, "evalOnSelector", options)
 
     override fun evalOnSelectorAll(selector: String, expression: String, arg: Any?): Any =
-        evalOnSelector(selector, expression, arg, "evalOnSelectorAll")
+        evalOnSelector(selector, expression, arg, "evalOnSelectorAll", null)
 
-    private fun evalOnSelector(selector: String, expression: String, arg: Any?, method: String): Any {
-        val params = JsonObject()
+    private fun evalOnSelector(
+        selector: String,
+        expression: String,
+        arg: Any?,
+        method: String,
+        options: EvalOnSelectorOptions?
+    ): Any {
+        val params = if (options == null) JsonObject() else gson().toJsonTree(options).asJsonObject
         params.addProperty("selector", selector)
         params.addProperty("expression", expression)
         params.add("arg", gson().toJsonTree(serializeArgument(arg)))
@@ -300,8 +308,8 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         sendMessage("press", params)
     }
 
-    override fun querySelector(selector: String?): IElementHandle? {
-        val params = JsonObject()
+    override fun querySelector(selector: String?, options: QuerySelectorOptions?): IElementHandle? {
+        val params = gson().toJsonTree(options ?: QuerySelectorOptions {}).asJsonObject
         params.addProperty("selector", selector)
         val json = sendMessage("querySelector", params)
         val element = json!!.asJsonObject["element"] ?: return null
@@ -503,6 +511,17 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
             return
         }
         waitForNavigation(convert(opt, WaitForNavigationOptions::class.java), matcher) {}
+    }
+
+    override fun dragAndDrop(source: String, target: String, options: DragAndDropOptions?) {
+        val params = gson().toJsonTree(options ?: DragAndDropOptions {}).asJsonObject
+        params.addProperty("source", source)
+        params.addProperty("target", target)
+        sendMessage("dragAndDrop", params)
+    }
+
+    override fun locator(selector: String): ILocator {
+        return Locator(this, selector)
     }
 
     override fun handleEvent(event: String, params: JsonObject) {

@@ -1,10 +1,10 @@
-package com.playwright.remote.elementhandle
+package io.github.tmcreative1.playwright.remote.elementhandle
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.ElementState.*
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.core.exceptions.TimeoutException
-import com.playwright.remote.engine.options.element.WaitForElementStateOptions
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.enums.ElementState.*
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.core.exceptions.TimeoutException
+import io.github.tmcreative1.playwright.remote.engine.options.element.WaitForElementStateOptions
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

@@ -1,4 +1,4 @@
-package com.playwright.remote.domain.response
+package io.github.tmcreative1.playwright.remote.domain.response
 
 data class SecurityDetails(
     /**

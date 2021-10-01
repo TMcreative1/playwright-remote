@@ -1,9 +1,9 @@
-package com.playwright.remote.engine.waits.impl
+package io.github.tmcreative1.playwright.remote.engine.waits.impl
 
-import com.playwright.remote.core.enums.EventType
-import com.playwright.remote.core.enums.EventType.CRASH
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.core.enums.EventType
+import io.github.tmcreative1.playwright.remote.core.enums.EventType.CRASH
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
 
 class WaitPageCrash<T>(
     listeners: ListenerCollection<EventType>

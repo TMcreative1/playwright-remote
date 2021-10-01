@@ -1,7 +1,7 @@
-package com.playwright.remote.engine.options.wait
+package io.github.tmcreative1.playwright.remote.engine.options.wait
 
-import com.playwright.remote.engine.options.api.IBuilder
-import com.playwright.remote.engine.websocket.api.IWebSocket
+import io.github.tmcreative1.playwright.remote.engine.options.api.IBuilder
+import io.github.tmcreative1.playwright.remote.engine.websocket.api.IWebSocket
 
 typealias WebSocketPredicate = (IWebSocket) -> Boolean
 

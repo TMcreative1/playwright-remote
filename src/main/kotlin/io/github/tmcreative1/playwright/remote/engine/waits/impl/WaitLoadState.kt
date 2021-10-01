@@ -1,10 +1,10 @@
-package com.playwright.remote.engine.waits.impl
+package io.github.tmcreative1.playwright.remote.engine.waits.impl
 
-import com.playwright.remote.core.enums.InternalEventType
-import com.playwright.remote.core.enums.LoadState
-import com.playwright.remote.engine.listener.ListenerCollection
-import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.core.enums.InternalEventType
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
 
 class WaitLoadState(
     private val expectedState: LoadState?,

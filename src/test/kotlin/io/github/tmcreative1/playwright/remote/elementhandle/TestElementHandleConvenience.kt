@@ -1,7 +1,7 @@
-package com.playwright.remote.elementhandle
+package io.github.tmcreative1.playwright.remote.elementhandle
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
 import org.junit.jupiter.api.Test
 import kotlin.test.*
 
@@ -23,8 +23,8 @@ class TestElementHandleConvenience : BaseTest() {
         page.evaluate("() => 1")
 
         assertEquals("JSHandle@<div id=\"outer\" name=\"value\">…</div>", outer.toString())
-        assertEquals("JSHandle@<div id=\"inner\">Text,↵more text</div>", inner.toString())
-        assertEquals("JSHandle@#text=Text,↵more text", text.toString())
+        assertEquals("JSHandle@<div id=\"inner\">Text,↵        more text↵    </div>", inner.toString())
+        assertEquals("JSHandle@#text=Text,↵        more text↵    ", text.toString())
         assertEquals("JSHandle@<input checked id=\"check\" foo=\"bar\"\" type=\"checkbox\"/>", check.toString())
     }
 
@@ -73,8 +73,7 @@ class TestElementHandleConvenience : BaseTest() {
         page.navigate("${httpServer.prefixWithDomain}/dom.html")
         val handle = page.querySelector("#outer")
         assertNotNull(handle)
-        assertEquals("\n<div id=\"inner\">Text,\nmore text</div>\n", handle.innerHTML())
-        assertEquals("\n<div id=\"inner\">Text,\nmore text</div>\n", page.innerHTML("#outer"))
+        assertEquals(page.innerHTML("#outer"), handle.innerHTML())
     }
 
     @Test
@@ -110,8 +109,7 @@ class TestElementHandleConvenience : BaseTest() {
         page.navigate("${httpServer.prefixWithDomain}/dom.html")
         val handle = page.querySelector("#inner")
         assertNotNull(handle)
-        assertEquals("Text,\nmore text", handle.textContent())
-        assertEquals("Text,\nmore text", page.textContent("#inner"))
+        assertEquals(page.textContent("#inner"), handle.textContent())
     }
 
     @Test

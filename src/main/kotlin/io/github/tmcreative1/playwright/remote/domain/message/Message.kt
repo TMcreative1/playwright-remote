@@ -1,8 +1,8 @@
-package com.playwright.remote.domain.message
+package io.github.tmcreative1.playwright.remote.domain.message
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.playwright.remote.domain.serialize.SerializedError
+import io.github.tmcreative1.playwright.remote.domain.serialize.SerializedError
 
 data class Message(
     val id: Int,

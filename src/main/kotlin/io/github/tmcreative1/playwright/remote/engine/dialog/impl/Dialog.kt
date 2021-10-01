@@ -1,8 +1,8 @@
-package com.playwright.remote.engine.dialog.impl
+package io.github.tmcreative1.playwright.remote.engine.dialog.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.dialog.api.IDialog
-import com.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.engine.dialog.api.IDialog
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
 
 class Dialog(parent: ChannelOwner, type: String, guid: String, initializer: JsonObject) :
     ChannelOwner(parent, type, guid, initializer), IDialog {

@@ -1,10 +1,10 @@
-package com.playwright.remote.engine.serialize.serializers
+package io.github.tmcreative1.playwright.remote.engine.serialize.serializers
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import com.playwright.remote.engine.handle.js.impl.JSHandle
+import io.github.tmcreative1.playwright.remote.engine.handle.js.impl.JSHandle
 import java.lang.reflect.Type
 
 class HandleSerializer : JsonSerializer<JSHandle> {

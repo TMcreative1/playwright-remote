@@ -1,10 +1,10 @@
-package com.playwright.remote.engine.download.impl
+package io.github.tmcreative1.playwright.remote.engine.download.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.engine.download.api.IArtifact
-import com.playwright.remote.engine.download.stream.api.IStream
-import com.playwright.remote.engine.processor.ChannelOwner
-import com.playwright.remote.utils.Utils.Companion.writeToFile
+import io.github.tmcreative1.playwright.remote.engine.download.api.IArtifact
+import io.github.tmcreative1.playwright.remote.engine.download.stream.api.IStream
+import io.github.tmcreative1.playwright.remote.engine.processor.ChannelOwner
+import io.github.tmcreative1.playwright.remote.utils.Utils.Companion.writeToFile
 import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.deleteExisting
@@ -16,6 +16,7 @@ class Artifact(parent: ChannelOwner, type: String, guid: String, initializer: Js
     initializer
 ), IArtifact {
     var videoPath: Path? = null
+
     override fun cancel() {
         sendMessage("cancel")
     }

@@ -1,18 +1,18 @@
-package com.playwright.remote.engine.waits.impl
+package io.github.tmcreative1.playwright.remote.engine.waits.impl
 
 import com.google.gson.JsonObject
-import com.playwright.remote.core.enums.InternalEventType
-import com.playwright.remote.core.enums.InternalEventType.NAVIGATED
-import com.playwright.remote.core.enums.LoadState
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.listener.ListenerCollection
-import com.playwright.remote.engine.listener.UniversalConsumer
-import com.playwright.remote.engine.processor.MessageProcessor
-import com.playwright.remote.engine.route.UrlMatcher
-import com.playwright.remote.engine.route.request.api.IRequest
-import com.playwright.remote.engine.route.request.impl.Request
-import com.playwright.remote.engine.route.response.api.IResponse
-import com.playwright.remote.engine.waits.api.IWait
+import io.github.tmcreative1.playwright.remote.core.enums.InternalEventType
+import io.github.tmcreative1.playwright.remote.core.enums.InternalEventType.NAVIGATED
+import io.github.tmcreative1.playwright.remote.core.enums.LoadState
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.listener.ListenerCollection
+import io.github.tmcreative1.playwright.remote.engine.listener.UniversalConsumer
+import io.github.tmcreative1.playwright.remote.engine.processor.MessageProcessor
+import io.github.tmcreative1.playwright.remote.engine.route.UrlMatcher
+import io.github.tmcreative1.playwright.remote.engine.route.request.api.IRequest
+import io.github.tmcreative1.playwright.remote.engine.route.request.impl.Request
+import io.github.tmcreative1.playwright.remote.engine.route.response.api.IResponse
+import io.github.tmcreative1.playwright.remote.engine.waits.api.IWait
 
 class WaitNavigation(
     private val matcher: UrlMatcher,

@@ -1,13 +1,13 @@
-package com.playwright.remote
+package io.github.tmcreative1.playwright.remote
 
-import com.playwright.remote.base.BaseTest
-import com.playwright.remote.core.enums.KeyboardModifier
-import com.playwright.remote.core.exceptions.PlaywrightException
-import com.playwright.remote.engine.options.NewContextOptions
-import com.playwright.remote.engine.options.Position
-import com.playwright.remote.engine.options.ViewportSize
-import com.playwright.remote.engine.options.element.ClickOptions
-import com.playwright.remote.engine.options.enum.MouseButton.RIGHT
+import io.github.tmcreative1.playwright.remote.base.BaseTest
+import io.github.tmcreative1.playwright.remote.core.enums.KeyboardModifier
+import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightException
+import io.github.tmcreative1.playwright.remote.engine.options.NewContextOptions
+import io.github.tmcreative1.playwright.remote.engine.options.Position
+import io.github.tmcreative1.playwright.remote.engine.options.ViewportSize
+import io.github.tmcreative1.playwright.remote.engine.options.element.ClickOptions
+import io.github.tmcreative1.playwright.remote.engine.options.enum.MouseButton.RIGHT
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import kotlin.math.roundToInt
