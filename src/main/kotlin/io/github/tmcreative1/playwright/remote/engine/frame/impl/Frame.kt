@@ -481,12 +481,17 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
         return runUtil(WaitRace(waits), callback)
     }
 
-    override fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle? {
+    override fun waitForSelector(
+        selector: String,
+        options: WaitForSelectorOptions?,
+        omitReturnValue: Boolean
+    ): IElementHandle? {
         val params = gson().toJsonTree(options ?: WaitForSelectorOptions {}).asJsonObject
         params.addProperty("selector", selector)
+        params.addProperty("omitReturnValue", omitReturnValue)
         val json = sendMessage("waitForSelector", params)
-        val element = json!!.asJsonObject["element"].asJsonObject ?: return null
-        return messageProcessor.getExistingObject(element["guid"].asString)
+        val element = json!!.asJsonObject["element"] ?: return null
+        return messageProcessor.getExistingObject(element.asJsonObject["guid"].asString)
     }
 
     override fun waitForTimeout(timeout: Double) {
@@ -522,6 +527,14 @@ class Frame(parent: ChannelOwner, type: String, guid: String, initializer: JsonO
 
     override fun locator(selector: String): ILocator {
         return Locator(this, selector)
+    }
+
+    override fun setChecked(selector: String, checked: Boolean, options: SetCheckedOptions?) {
+        if (checked) {
+            check(selector, convert(options ?: SetCheckedOptions {}, CheckOptions::class.java))
+        } else {
+            uncheck(selector, convert(options ?: SetCheckedOptions {}, UncheckOptions::class.java))
+        }
     }
 
     override fun handleEvent(event: String, params: JsonObject) {

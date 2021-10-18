@@ -1964,7 +1964,42 @@ interface IFrame {
      * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
      * details.
      */
-    fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle?
+    fun waitForSelector(selector: String, options: WaitForSelectorOptions?): IElementHandle? =
+        waitForSelector(selector, options, false)
+
+    /**
+     * Returns when element specified by selector satisfies {@code state} option. Returns {@code null} if waiting for {@code hidden} or
+     * {@code detached}.
+     *
+     * <p> Wait for the {@code selector} to satisfy {@code state} option (either appear/disappear from dom, or become visible/hidden). If at
+     * the moment of calling the method {@code selector} already satisfies the condition, the method will return immediately. If the
+     * selector doesn't satisfy the condition for the {@code timeout} milliseconds, the function will throw.
+     *
+     * <p> This method works across navigations:
+     * <pre>{@code
+     * import com.microsoft.playwright.*;
+     *
+     * public class Example {
+     *   public static void main(String[] args) {
+     *     try (Playwright playwright = Playwright.create()) {
+     *       BrowserType chromium = playwright.chromium();
+     *       Browser browser = chromium.launch();
+     *       Page page = browser.newPage();
+     *       for (String currentURL : Arrays.asList("https://google.com", "https://bbc.com")) {
+     *         page.navigate(currentURL);
+     *         ElementHandle element = page.mainFrame().waitForSelector("img");
+     *         System.out.println("Loaded image: " + element.getAttribute("src"));
+     *       }
+     *       browser.close();
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * @param selector A selector to query for. See <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more
+     * details.
+     */
+    fun waitForSelector(selector: String, options: WaitForSelectorOptions?, omitReturnValue: Boolean): IElementHandle?
 
     /**
      * Waits for the given {@code timeout} in milliseconds.
@@ -2076,4 +2111,51 @@ interface IFrame {
      * selectors</a> for more details.
      */
     fun locator(selector: String): ILocator
+
+    /**
+     * This method checks or unchecks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Ensure that matched element is a checkbox or a radio input. If not, this method throws.</li>
+     * <li> If the element already has the right checked state, this method returns immediately.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * <li> Ensure that the element is now checked or unchecked. If not, this method throws.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param selector A selector to search for an element. If there are multiple elements satisfying the selector, the first will be used. See
+     * <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param checked Whether to check or uncheck the checkbox.
+     */
+    fun setChecked(selector: String, checked: Boolean) =
+        setChecked(selector, checked, null)
+
+    /**
+     * This method checks or unchecks an element matching {@code selector} by performing the following steps:
+     * <ol>
+     * <li> Find an element matching {@code selector}. If there is none, wait until a matching element is attached to the DOM.</li>
+     * <li> Ensure that matched element is a checkbox or a radio input. If not, this method throws.</li>
+     * <li> If the element already has the right checked state, this method returns immediately.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * <li> Ensure that the element is now checked or unchecked. If not, this method throws.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param selector A selector to search for an element. If there are multiple elements satisfying the selector, the first will be used. See
+     * <a href="https://playwright.dev/java/docs/selectors/">working with selectors</a> for more details.
+     * @param checked Whether to check or uncheck the checkbox.
+     */
+    fun setChecked(selector: String, checked: Boolean, options: SetCheckedOptions?)
 }
