@@ -149,7 +149,7 @@ class TestPageSelectOption : BaseTest() {
             page.selectOption("body", "")
             fail("select option should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Element is not a <select> element."))
+            assertTrue(e.message!!.contains("Element is not a <select> element"))
         }
     }
 

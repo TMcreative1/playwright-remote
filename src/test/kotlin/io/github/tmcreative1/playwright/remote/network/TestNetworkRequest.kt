@@ -246,4 +246,16 @@ class TestNetworkRequest : BaseTest() {
         page.navigate("${httpServer.prefixWithDomain}/playwright.png")
         assertTrue(requests[0].isNavigationRequest())
     }
+
+    @Test
+    fun `check correct work all headers inside route`() {
+        val requests = arrayListOf<IRequest>()
+        page.route("**") {
+            assertTrue(it.request().allHeaders()["accept"]!!.length > 5)
+            requests.add(it.request())
+            it.resume()
+        }
+        page.navigate(httpServer.emptyPage)
+        assertEquals(1, requests.size)
+    }
 }

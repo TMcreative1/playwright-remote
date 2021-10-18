@@ -14,6 +14,7 @@ enum class ObjectType(val type: String) {
     FETCH_REQUEST("FetchRequest"),
     FRAME("Frame"),
     JS_HANDLE("JSHandle"),
+    JSON_PIPE("JsonPipe"),
     PAGE("Page"),
     PLAYWRIGHT("Playwright"),
     REQUEST("Request"),

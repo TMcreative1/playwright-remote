@@ -51,7 +51,7 @@ class TestLocatorConvenience : BaseTest() {
             page.inputValue("#inner")
             fail("inputValue should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Node is not an HTMLInputElement or HTMLTextAreaElement or HTMLSelectElement"))
+            assertTrue(e.message!!.contains("Node is not an <input>, <textarea> or <select> elemen"))
         }
 
         try {
@@ -59,7 +59,7 @@ class TestLocatorConvenience : BaseTest() {
             locator2.inputValue()
             fail("inputValue should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Node is not an HTMLInputElement or HTMLTextAreaElement or HTMLSelectElement"))
+            assertTrue(e.message!!.contains("Node is not an <input>, <textarea> or <select> elemen"))
         }
     }
 
@@ -85,14 +85,14 @@ class TestLocatorConvenience : BaseTest() {
             page.innerText("svg")
             fail("innerText should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Not an HTMLElement"))
+            assertTrue(e.message!!.contains("Node is not an HTMLElement"))
         }
         val locator = page.locator("svg")
         try {
             locator.innerText()
             fail("innerText should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Not an HTMLElement"))
+            assertTrue(e.message!!.contains("Node is not an HTMLElement"))
         }
     }
 

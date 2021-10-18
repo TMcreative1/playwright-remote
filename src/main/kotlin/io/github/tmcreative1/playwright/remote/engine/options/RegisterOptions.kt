@@ -8,7 +8,7 @@ data class RegisterOptions @JvmOverloads constructor(
      * not any JavaScript objects from the frame's scripts. Defaults to {@code false}. Note that running as a content script is not
      * guaranteed when this engine is used together with other registered engines.
      */
-    var contentScript: Boolean = false,
+    var contentScript: Boolean? = null,
     @Transient private val builder: IBuilder<RegisterOptions>
 ) {
 

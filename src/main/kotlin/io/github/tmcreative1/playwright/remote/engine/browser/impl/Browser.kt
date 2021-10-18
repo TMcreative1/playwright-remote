@@ -91,7 +91,6 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
 
     override fun close() {
         messageProcessor.close()
-        notifyRemoteClosed()
     }
 
     override fun name(): String {
@@ -205,5 +204,4 @@ class Browser(parent: ChannelOwner, type: String, guid: String, initializer: Jso
 
     private fun didClose() =
         listeners.notify(DISCONNECTED, this)
-
 }
