@@ -40,20 +40,23 @@ jobs:
       - name: Install driver for ubuntu-latest
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          cd drivers/linux/package
-          npm install
+          cd drivers/linux
+          npm install -g npx
+          npx playwright install
 
       - name: Install driver for macos-latest
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
-          cd drivers/mac/package
-          npm install
+          cd drivers/mac
+          npm install -g npx
+          npx playwright install
 
       - name: Install driver for windows-latest
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          cd drivers/win32/package
-          npm install
+          cd drivers/win32
+          npm install -g npx
+          npx playwright install
 
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
         run: ./gradlew clean test -Dbrowser=${{ matrix.browser }}
