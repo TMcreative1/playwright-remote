@@ -40,19 +40,19 @@ jobs:
       - name: Install driver for ubuntu-latest
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          cd drivers/linux/package
+          cd drivers/linux
           npx playwright install
 
       - name: Install driver for macos-latest
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
-          cd drivers/mac/package
+          cd drivers/mac
           npx playwright install
 
       - name: Install driver for windows-latest
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          cd drivers/win32/package
+          cd drivers/win32
           npx playwright install
 
       - name: Run tests on ${{ matrix.os }} with ${{ matrix.browser }} browser
