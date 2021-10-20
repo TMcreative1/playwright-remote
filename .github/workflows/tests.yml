@@ -45,6 +45,7 @@ jobs:
 
       - name: Install driver for windows-latest
         if: ${{ matrix.os == 'windows-latest' }}
+        shell: powershell
         run: |
           cd drivers/win32_x64
           playwright.cmd install --with-deps ${{ matrix.browser }}
