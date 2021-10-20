@@ -53,7 +53,7 @@ class TestPageNetworkSizes : BaseTest() {
         assertNotNull(response)
         val sizes = response.request().sizes()
         assertEquals(6, sizes.responseBodySize)
-        assertTrue(sizes.responseHeadersSize >= 100)
+        assertTrue(sizes.responseHeadersSize > 0)
     }
 
     @Test
@@ -62,7 +62,7 @@ class TestPageNetworkSizes : BaseTest() {
         assertNotNull(response)
         val sizes = response.request().sizes()
         assertEquals(0, sizes.responseBodySize)
-        assertTrue(sizes.responseHeadersSize >= 100)
+        assertTrue(sizes.responseHeadersSize > 0)
     }
 
     @Test
