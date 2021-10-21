@@ -9,6 +9,7 @@ import io.github.tmcreative1.playwright.remote.engine.options.element.*
 import io.github.tmcreative1.playwright.remote.engine.options.element.PressOptions
 import io.github.tmcreative1.playwright.remote.engine.options.element.ScreenshotOptions
 import io.github.tmcreative1.playwright.remote.engine.options.element.TypeOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForOptions
 import java.nio.file.Path
 
 interface ILocator {
@@ -1288,4 +1289,68 @@ interface ILocator {
      * zero timeout disables this.
      */
     fun uncheck(options: UncheckOptions?)
+
+    /**
+     * Returns when element specified by locator satisfies the {@code state} option.
+     *
+     * <p> If target element already satisfies the condition, the method returns immediately. Otherwise, waits for up to {@code timeout}
+     * milliseconds until the condition is met.
+     * <pre>{@code
+     * Locator orderSent = page.locator("#order-sent");
+     * orderSent.waitFor();
+     * }</pre>
+     */
+    fun waitFor() = waitFor(null)
+
+    /**
+     * Returns when element specified by locator satisfies the {@code state} option.
+     *
+     * <p> If target element already satisfies the condition, the method returns immediately. Otherwise, waits for up to {@code timeout}
+     * milliseconds until the condition is met.
+     * <pre>{@code
+     * Locator orderSent = page.locator("#order-sent");
+     * orderSent.waitFor();
+     * }</pre>
+     */
+    fun waitFor(options: WaitForOptions?)
+
+    /**
+     * This method checks or unchecks an element by performing the following steps:
+     * <ol>
+     * <li> Ensure that matched element is a checkbox or a radio input. If not, this method throws.</li>
+     * <li> If the element already has the right checked state, this method returns immediately.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * <li> Ensure that the element is now checked or unchecked. If not, this method throws.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param checked Whether to check or uncheck the checkbox.
+     */
+    fun setChecked(checked: Boolean) = setChecked(checked, null)
+
+    /**
+     * This method checks or unchecks an element by performing the following steps:
+     * <ol>
+     * <li> Ensure that matched element is a checkbox or a radio input. If not, this method throws.</li>
+     * <li> If the element already has the right checked state, this method returns immediately.</li>
+     * <li> Wait for <a href="https://playwright.dev/java/docs/actionability/">actionability</a> checks on the matched element,
+     * unless {@code force} option is set. If the element is detached during the checks, the whole action is retried.</li>
+     * <li> Scroll the element into view if needed.</li>
+     * <li> Use {@link Page#mouse Page.mouse()} to click in the center of the element.</li>
+     * <li> Wait for initiated navigations to either succeed or fail, unless {@code noWaitAfter} option is set.</li>
+     * <li> Ensure that the element is now checked or unchecked. If not, this method throws.</li>
+     * </ol>
+     *
+     * <p> When all steps combined have not finished during the specified {@code timeout}, this method throws a {@code TimeoutError}. Passing
+     * zero timeout disables this.
+     *
+     * @param checked Whether to check or uncheck the checkbox.
+     */
+    fun setChecked(checked: Boolean, options: SetCheckedOptions?)
 }

@@ -98,9 +98,7 @@ class Request(parent: ChannelOwner, type: String, guid: String, initializer: Jso
     private fun rawHeader(): RawHeader {
         if (rawHeader != null) return rawHeader!!
 
-        val response = response()
-        if (response == null) headers
-        val result = (response as Response).sendMessage("rawRequestHeaders")!!.asJsonObject
+        val result = sendMessage("rawRequestHeaders")!!.asJsonObject
         val rawHeaderJson = result["headers"].asJsonArray
 
         rawHeader = RawHeader(gson().fromJson(rawHeaderJson, Array<HttpHeader>::class.java).toList())

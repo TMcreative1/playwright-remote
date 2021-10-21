@@ -11,6 +11,7 @@ import io.github.tmcreative1.playwright.remote.core.exceptions.PlaywrightExcepti
 import io.github.tmcreative1.playwright.remote.core.exceptions.TimeoutException
 import io.github.tmcreative1.playwright.remote.domain.message.Message
 import io.github.tmcreative1.playwright.remote.engine.android.impl.Android
+import io.github.tmcreative1.playwright.remote.engine.browser.api.IBrowserType
 import io.github.tmcreative1.playwright.remote.engine.browser.impl.Browser
 import io.github.tmcreative1.playwright.remote.engine.browser.impl.BrowserContext
 import io.github.tmcreative1.playwright.remote.engine.browser.impl.BrowserType
@@ -27,12 +28,12 @@ import io.github.tmcreative1.playwright.remote.engine.handle.js.impl.JSHandle
 import io.github.tmcreative1.playwright.remote.engine.logger.CustomLogger
 import io.github.tmcreative1.playwright.remote.engine.page.impl.Page
 import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.fromJson
-import io.github.tmcreative1.playwright.remote.engine.parser.IParser.Companion.toJson
 import io.github.tmcreative1.playwright.remote.engine.playwright.impl.Playwright
 import io.github.tmcreative1.playwright.remote.engine.route.impl.Route
 import io.github.tmcreative1.playwright.remote.engine.route.request.impl.Request
 import io.github.tmcreative1.playwright.remote.engine.route.response.impl.Response
-import io.github.tmcreative1.playwright.remote.engine.transport.ITransport
+import io.github.tmcreative1.playwright.remote.engine.transport.api.ITransport
+import io.github.tmcreative1.playwright.remote.engine.transport.impl.JsonPipe
 import io.github.tmcreative1.playwright.remote.engine.waits.impl.WaitResult
 import io.github.tmcreative1.playwright.remote.engine.websocket.impl.WebSocket
 import io.github.tmcreative1.playwright.remote.engine.worker.impl.Worker
@@ -69,6 +70,11 @@ class MessageProcessor(private val transport: ITransport) {
 
     fun waitForLaunchedBrowser(): ChannelOwner? = getObjectByType(BROWSER)
 
+    fun getBrowserTypeGuid(name: String): String {
+        return objects.values.filter { it.type == BROWSER_TYPE.type }.filter { (it as IBrowserType).name() == name }
+            .map { it.guid }.firstOrNull() ?: ""
+    }
+
     private fun getObjectByType(obj: ObjectType): ChannelOwner? {
         var guid = ""
         while (guid.isEmpty()) {
@@ -83,8 +89,8 @@ class MessageProcessor(private val transport: ITransport) {
         objects[guid] as T ?: throw PlaywrightException("Object doesn't exist: $guid")
 
     fun processMessage() {
-        val messageStr = transport.pollMessage() ?: return
-        val message = fromJson(messageStr, Message::class.java)
+        val messageObj = transport.pollMessage() ?: return
+        val message = fromJson(messageObj, Message::class.java)
         dispatch(message)
     }
 
@@ -144,6 +150,7 @@ class MessageProcessor(private val transport: ITransport) {
             FETCH_REQUEST.type -> ChannelOwner(parent, type, guid, initializer)
             FRAME.type -> Frame(parent, type, guid, initializer)
             JS_HANDLE.type -> JSHandle(parent, type, guid, initializer)
+            JSON_PIPE.type -> JsonPipe(parent, type, guid, initializer)
             PAGE.type -> Page(parent, type, guid, initializer)
             PLAYWRIGHT.type -> Playwright(parent, type, guid, initializer)
             REQUEST.type -> Request(parent, type, guid, initializer)
@@ -157,7 +164,7 @@ class MessageProcessor(private val transport: ITransport) {
         }
     }
 
-    fun close() = transport.closeConnection()
+    fun close() = transport.close()
 
     fun sendMessage(guid: String, method: String, params: JsonObject): JsonElement? {
         return (root.runUtil(sendMessageAsync(guid, method, params)) {})
@@ -174,7 +181,7 @@ class MessageProcessor(private val transport: ITransport) {
         message.add("metadata", JsonObject())
         message.add("params", params)
         logger.logSendMessage(message.toString())
-        transport.sendMessage(toJson(message))
+        transport.sendMessage(message)
         return result
     }
 }

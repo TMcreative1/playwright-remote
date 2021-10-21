@@ -56,7 +56,7 @@ class TestElementHandleConvenience : BaseTest() {
             page.inputValue("#inner")
             fail("inputValue should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Node is not an HTMLInputElement or HTMLTextAreaElement"), e.message)
+            assertTrue(e.message!!.contains("Node is not an <input>, <textarea> or <select> element"), e.message)
         }
         val handle2 = page.querySelector("#inner")
         assertNotNull(handle2)
@@ -64,7 +64,7 @@ class TestElementHandleConvenience : BaseTest() {
             handle2.inputValue()
             fail("inputValue should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Node is not an HTMLInputElement or HTMLTextAreaElement"), e.message)
+            assertTrue(e.message!!.contains("Node is not an <input>, <textarea> or <select> element"), e.message)
         }
     }
 
@@ -92,7 +92,7 @@ class TestElementHandleConvenience : BaseTest() {
             page.innerText("svg")
             fail("innerText should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Not an HTMLElement"))
+            assertTrue(e.message!!.contains("Node is not an HTMLElement"))
         }
         val handle = page.querySelector("svg")
         assertNotNull(handle)
@@ -100,7 +100,7 @@ class TestElementHandleConvenience : BaseTest() {
             handle.innerText()
             fail("innerText should throw")
         } catch (e: PlaywrightException) {
-            assertTrue(e.message!!.contains("Not an HTMLElement"))
+            assertTrue(e.message!!.contains("Node is not an HTMLElement"))
         }
     }
 

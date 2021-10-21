@@ -12,6 +12,7 @@ import io.github.tmcreative1.playwright.remote.engine.options.element.*
 import io.github.tmcreative1.playwright.remote.engine.options.element.PressOptions
 import io.github.tmcreative1.playwright.remote.engine.options.element.ScreenshotOptions
 import io.github.tmcreative1.playwright.remote.engine.options.element.TypeOptions
+import io.github.tmcreative1.playwright.remote.engine.options.wait.WaitForOptions
 import io.github.tmcreative1.playwright.remote.engine.parser.IParser
 import java.nio.file.Path
 
@@ -283,6 +284,18 @@ class Locator(private val frame: IFrame, private val selector: String) : ILocato
         val opt = options ?: UncheckOptions {}
         opt.strict = true
         frame.uncheck(selector, opt)
+    }
+
+    override fun waitFor(options: WaitForOptions?) {
+        val opt = IParser.convert(options ?: WaitForOptions {}, WaitForSelectorOptions::class.java)
+        opt.strict = true
+        frame.waitForSelector(selector, opt, true)
+    }
+
+    override fun setChecked(checked: Boolean, options: SetCheckedOptions?) {
+        val opt = options ?: SetCheckedOptions {}
+        opt.strict = true
+        frame.setChecked(selector, checked, opt)
     }
 
     override fun toString(): String {
